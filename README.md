@@ -50,3 +50,14 @@ crossPaths := false
 resolvers += Resolver.mavenLocal
 ```
 
+* * *
+
+## TODO
+
+- [] adding simple examples of usage in README for calling the basic functionalities
+- [] importing the core catalog part currently copied in `katalod` api
+
+
+
+
+
