@@ -1,1 +1,14 @@
-# Add any directories, files, or patterns you don't want to be tracked by version control
+
+# eclipse
+.project
+.classpath
+.cache-main
+.cache-tests
+.settings/
+
+bin/
+target/
+
+*.class
+*~
+
