@@ -69,12 +69,9 @@ resolvers += Resolver.mavenLocal
 
 ## TODO
 
-- [ ] add the library to mavne central or to a public nexus, in order to simplify the build and installation processes.
+- [ ] add the library to maven central or to a public nexus, in order to simplify the build and installation processes
 - [ ] add simple examples of usage in README for calling the basic functionalities
 - [ ] import the core catalog part currently copied in `katalod` api
-- [ ] add a simple diagram, to explain better the various components and their responsability.
-
-
-
+- [ ] add a simple diagram, to explain better the various components and their responsabilities
 
 
