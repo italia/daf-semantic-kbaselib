@@ -32,7 +32,8 @@ If the library is available on remote/local maven repositories, we can use it wi
 A temporary workaround to handle the correct naming convention needed by sbt is to manually create the artifact, for example:
 
 ```
-cp ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.1/kbaselib-0.0.1.jar ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.1/kbaselib-0.0.1.jar
+cp	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.1/kbaselib-0.0.1.jar \
+	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.1/kbaselib-0.0.1.jar
 ```
 
 The dependency in sbt can be added with:
