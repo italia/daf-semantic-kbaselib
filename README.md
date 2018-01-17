@@ -1,6 +1,22 @@
 kbaselib
 ==============
 
+The `kbaselib` library contains all the basic core functionalities needed for accessing triplestores and related RDF files.
+
+The library is designed using the RDF4J API, with the aim to provide a simplified uniform access to different triplestores. At the moment is tested using in-memory triplestore and virtuoso, but should be easily compatible with every db supporting RDF4J API. The support for blazegraph is work in progress.
+All the functional units are desgned as decorators of the standard RDF4J core component, with the aim of evolving this library to a simple and composable framework, were developers can use only what they actually need.
+
+The main functionalities groups are:
+
++ extraction / parsing of ontology metadata
++ extraction / parsing of vocabulary metadata
++ low-level (store) API for adding / removing of RDF files
++ SPARQL level API for adding/removing RDF files
++ simple queries over RDF files
+
+Other functionalities such as full-text & faceted search were already tested with Solr/lucene, but not yet fully included in this version.
+
+
 ## building and local installation
 
 The library can be built and installed locally, with maven:
@@ -13,7 +29,6 @@ mvn clean install \
 
 After the creation and the `mvn install` command, the library will be available to projects, and we can use the library in the usual way.
 
-**TODO**: in order to simplify the builds and avoiding the local installtion, at some point the library will be available using nexus or directly on maven central.
 
 ### maven usage
 
@@ -54,8 +69,10 @@ resolvers += Resolver.mavenLocal
 
 ## TODO
 
-- [ ] adding simple examples of usage in README for calling the basic functionalities
-- [ ] importing the core catalog part currently copied in `katalod` api
+- [ ] add the library to mavne central or to a public nexus, in order to simplify the build and installation processes.
+- [ ] add simple examples of usage in README for calling the basic functionalities
+- [ ] import the core catalog part currently copied in `katalod` api
+- [ ] add a simple diagram, to explain better the various components and their responsability.
 
 
 
