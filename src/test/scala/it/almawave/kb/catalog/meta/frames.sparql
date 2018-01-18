@@ -1,0 +1,7 @@
+SELECT DISTINCT ?concept ?property 
+WHERE { 
+	?sub a ?klass . ?klass rdfs:subClassOf* ?concept .
+	?sub ?property [] .
+	FILTER(?klass = owl:Class)
+}
+ORDER BY ?concept ?property

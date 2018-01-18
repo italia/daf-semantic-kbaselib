@@ -1,0 +1,1 @@
+this package contains classes/components copied here temporarly, for experimentatons: once a final strategy for handling metadata will be defined, we could drop them, or use them directly from the libraries in semantic_repository.
