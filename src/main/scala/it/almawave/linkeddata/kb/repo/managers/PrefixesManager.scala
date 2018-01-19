@@ -1,13 +1,18 @@
 package it.almawave.linkeddata.kb.repo.managers
 
 import scala.util.Try
+import scala.concurrent.Future
+
+import org.slf4j.LoggerFactory
+
 import org.eclipse.rdf4j.model.vocabulary._
 import org.eclipse.rdf4j.repository.Repository
-import org.slf4j.LoggerFactory
-import it.almawave.linkeddata.kb.utils.TryHandlers._
-import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
+
+//import it.almawave.linkeddata.kb.utils.TryHandlers._
+//import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
+//import it.almawave.linkeddata.kb.repo.RepositoryAction
 import it.almawave.linkeddata.kb.repo.RepositoryAction
-import scala.concurrent.Future
+import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
 
 /**
  * This is a facility class for handling the prefixes explicitly.

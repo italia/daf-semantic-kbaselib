@@ -1,5 +1,6 @@
 package it.almawave.linkeddata.kb.repo.managers
 
+
 import org.slf4j.LoggerFactory
 import com.typesafe.config.ConfigFactory
 import org.eclipse.rdf4j.rio.RDFFormat
@@ -9,14 +10,12 @@ import org.eclipse.rdf4j.rio.Rio
 import java.io.FileInputStream
 import java.nio.file.Paths
 
-import it.almawave.linkeddata.kb.utils.TryHandlers._
-import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
 import java.nio.file.Files
 import java.net.URI
 import com.typesafe.config.Config
 import java.nio.file.StandardCopyOption
 import java.nio.file.Path
-import it.almawave.linkeddata.kb.repo.RDFRepositoryBase
+
 import scala.util.Try
 import java.io.InputStream
 import java.net.URL
@@ -31,6 +30,11 @@ import org.eclipse.rdf4j.model.Namespace
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import it.almawave.linkeddata.kb.repo.RDFRepositoryBase
+
+
+import it.almawave.linkeddata.kb.utils.TryHandlers._
+import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
 
 /**
  * basic abstraction for handling ontologies / vocabularies
@@ -39,7 +43,6 @@ import scala.collection.JavaConverters._
  * TODO: add case classes as models
  *
  */
-@Override
 class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
 
   implicit val logger = LoggerFactory.getLogger(this.getClass)
@@ -254,7 +257,7 @@ case class RDFOntologyDocument(meta: OntologyMeta) {
       namespaces: 
         ${namespaces.mkString("\n\t")}
       
-      n° of bnodes: ${bnodes.distinct.size}
+      nÂ° of bnodes: ${bnodes.distinct.size}
       
       concepts:
         ${concepts.mkString("\n\t")}
@@ -354,8 +357,8 @@ class OLDRDFDocumentParser(model: Model) {
       namespaces: 
         ${namespaces.mkString("\n\t")}
       
-      n° of subjects: ${subjects.distinct.size}
-      n° of bnodes: ${bnodes.distinct.size}
+      nÂ° of subjects: ${subjects.distinct.size}
+      nÂ° of bnodes: ${bnodes.distinct.size}
       
       concepts:
         ${concepts.mkString("\n\t")}
@@ -365,4 +368,3 @@ class OLDRDFDocumentParser(model: Model) {
   }
 
 }
-

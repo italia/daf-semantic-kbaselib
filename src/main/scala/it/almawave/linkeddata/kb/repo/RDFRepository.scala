@@ -27,11 +27,8 @@ import it.almawave.linkeddata.kb.repo.managers.SPARQLManager
 import scala.concurrent.Future
 import it.almawave.linkeddata.kb.utils.TryHandlers.FutureWithLog
 import scala.util.Try
-import it.almawave.linkeddata.kb.repo.managers.RDFCatalogManager
 import org.eclipse.rdf4j.sail.inferencer.fc.ForwardChainingRDFSInferencer
 import org.eclipse.rdf4j.sail.inferencer.fc.DedupingInferencer
-
-
 
 // TODO: refactorization using trait!!
 trait RDFRepository

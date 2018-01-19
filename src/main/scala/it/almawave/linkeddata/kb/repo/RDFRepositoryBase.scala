@@ -1,16 +1,21 @@
 package it.almawave.linkeddata.kb.repo
 
-import it.almawave.linkeddata.kb.repo.managers._
 import org.eclipse.rdf4j.repository.Repository
 import org.slf4j.LoggerFactory
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
 import scala.util.Try
-import it.almawave.linkeddata.kb.utils.TryHandlers.TryLog
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.memory.MemoryStore
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.HashMap
+import it.almawave.linkeddata.kb.utils.TryHandlers.TryLog
+import it.almawave.linkeddata.kb.repo.managers.PrefixesManager
+import it.almawave.linkeddata.kb.repo.managers.RDFStoreManager
+import it.almawave.linkeddata.kb.repo.managers.SPARQLManager
+import it.almawave.linkeddata.kb.repo.managers.RDFFileManager
+import it.almawave.linkeddata.kb.repo.managers.RDFCatalogManager
+
 //import it.almawave.linkeddata.kb.validator.ValidationQueryResult
 
 /**
@@ -87,11 +92,20 @@ class RDFRepositoryBase(repo: Repository) {
   // RDF documents management
   val store = new RDFStoreManager(repo)
 
+  // general SPARQL API
   val sparql = new SPARQLManager(repo)
 
+  // common read / write file operations
   val io = new RDFFileManager(this)
 
   val catalog = new RDFCatalogManager(this)
+
+  /*
+   *  TODO
+   *  val catalog = new RDFCatalog(repo)
+   *  
+   *  the catalog object should be able to create a federated repository over the ontologies/vocabularies
+   */
 
 }
 

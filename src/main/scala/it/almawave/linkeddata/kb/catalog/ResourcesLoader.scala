@@ -16,9 +16,7 @@ object ResourcesLoader {
 
   //  def apply(config_path: String) = new ResourcesLoader(ConfigFactory.parseResources(config_path))
 
-  def create(conf: Config) = {
-    new ResourcesLoader(conf)
-  }
+  def create(conf: Config) = new ResourcesLoader(conf)
 
 }
 
