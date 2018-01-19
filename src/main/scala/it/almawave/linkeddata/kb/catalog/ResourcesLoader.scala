@@ -1,13 +1,13 @@
-package it.almawave.kb.catalog
+package it.almawave.linkeddata.kb.catalog
 
 import com.typesafe.config.ConfigFactory
 import java.net.URL
 import java.nio.file.Paths
-import it.almawave.kb.catalog.meta.OntologyMetadataExtractor
-import it.almawave.kb.catalog.models.OntologyMeta
-import it.almawave.kb.catalog.models.VocabularyMeta
-import it.almawave.kb.catalog.meta.VocabularyMetadataExtractor
+import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
 import com.typesafe.config.Config
+import it.almawave.linkeddata.kb.parsers.meta.OntologyMetadataExtractor
+import it.almawave.linkeddata.kb.parsers.meta.VocabularyMetadataExtractor
 
 object ResourcesLoader {
 

@@ -7,11 +7,11 @@ import org.eclipse.rdf4j.query.QueryLanguage
 import scala.collection.mutable.ListBuffer
 import org.eclipse.rdf4j.query.BindingSet
 import org.eclipse.rdf4j.repository.Repository
-import it.almawave.kb.catalog.file.RDFFileSail
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository
 import org.eclipse.rdf4j.query.TupleQueryResultHandler
 import it.almawave.kb.catalog.file.RDFQueryResultHandler
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
+import it.almawave.linkeddata.kb.file.RDFFileSail
 
 /**
  * this is a small POC to show how to use federation by convention over a collection of self-contained repository

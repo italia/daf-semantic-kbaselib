@@ -1,32 +1,32 @@
-package it.almawave.kb.catalog.meta
+package it.almawave.linkeddata.kb.parsers.meta
 
 import java.net.URL
+import java.util.Properties
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 import org.eclipse.rdf4j.common.iteration.Iterations
 import org.eclipse.rdf4j.repository.Repository
-
-import it.almawave.kb.catalog.SPARQL
-import it.almawave.kb.catalog.file.RDFFileRepository
 import org.eclipse.rdf4j.sail.memory.MemoryStore
 import org.eclipse.rdf4j.sail.config.SailRegistry
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
 import org.eclipse.rdf4j.sail.solr.SolrIndex
-import java.util.Properties
-import it.almawave.kb.catalog.models.RDFData
-import it.almawave.kb.catalog.models.OntologyMeta
-import it.almawave.kb.catalog.models.OntologyInformation
+
+import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
+import it.almawave.linkeddata.kb.catalog.models.OntologyInformation
+import it.almawave.linkeddata.kb.catalog.SPARQL
+import it.almawave.linkeddata.kb.file.RDFFileRepository
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single ontology.
  * The idea is to extract all the informations once for all.
- * 
- * CHECK: for handling language-based literals, we could introduce a custom case class 
+ *
+ * CHECK: for handling language-based literals, we could introduce a custom case class
  * (which will be later exposed as a clearer swagger model, too)
- * 
+ *
  */
 object OntologyMetadataExtractor {
 
@@ -35,7 +35,7 @@ object OntologyMetadataExtractor {
     apply(source_url, repo)
   }
 
-  // REFACTOR here! CHECK possible different storage for repository
+  // REFACTORIZATION here! CHECK possible different storage for repository
   def apply(source_url: URL, repo: Repository): OntologyInformation = {
 
     if (!repo.isInitialized())

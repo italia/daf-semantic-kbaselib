@@ -93,22 +93,5 @@ class RDFRepositoryBase(repo: Repository) {
 
   val catalog = new RDFCatalogManager(this)
 
-  // DISABLED
-  
-  // TODO: REFACTORING! (remove this stub)
-  //  def execRuleQuery(query: String): List[ValidationQueryResult] = List.empty
-
-  // TODO: REFACTORING! (remove this stub)
-  //  def execQuery(query: String): ListBuffer[HashMap[String, String]] = new ListBuffer
-
 }
-// DISABLED
-//object MainRefactoring {
-//
-//  val check = new RDFRepositoryBase(new SailRepository(new MemoryStore))
-//
-//  check.execRuleQuery("")
-//
-//  //  value execQuery is not a member of it.almawave.linkeddata.kb.repo.RDFRepositoryBase
-//
-//}
+

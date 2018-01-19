@@ -39,6 +39,7 @@ import scala.collection.JavaConverters._
  * TODO: add case classes as models
  *
  */
+@Override
 class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
 
   implicit val logger = LoggerFactory.getLogger(this.getClass)

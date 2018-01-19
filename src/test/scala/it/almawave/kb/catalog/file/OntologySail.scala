@@ -1,7 +1,8 @@
 package it.almawave.kb.catalog.file
 
 import java.net.URL
-import it.almawave.kb.catalog.file.RDFFileSail
+
+import it.almawave.linkeddata.kb.file.RDFFileSail;
 
 class OntologySail(onto: OntologyInfo) extends RDFFileSail(onto.source, onto.contexts: _*) {
 

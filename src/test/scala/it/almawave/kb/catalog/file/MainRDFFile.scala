@@ -4,7 +4,8 @@ import java.net.URL
 
 import org.eclipse.rdf4j.repository.sail.SailRepository
 
-import it.almawave.kb.catalog.SPARQL
+import it.almawave.linkeddata.kb.catalog.SPARQL
+import it.almawave.linkeddata.kb.file.RDFFileSail;
 
 object MainRDFSail extends App {
 

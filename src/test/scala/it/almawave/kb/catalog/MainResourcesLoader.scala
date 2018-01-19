@@ -9,9 +9,10 @@ import java.nio.file.Paths
 import java.net.URL
 import java.io.File
 import com.typesafe.config.Config
-import it.almawave.kb.catalog.models.OntologyMeta
-import it.almawave.kb.catalog.models.VocabularyMeta
+import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
 import utilities.JSONHelper
+import it.almawave.linkeddata.kb.catalog.ResourcesLoader
 
 // TODO: create a JUnit for checking conventions!
 

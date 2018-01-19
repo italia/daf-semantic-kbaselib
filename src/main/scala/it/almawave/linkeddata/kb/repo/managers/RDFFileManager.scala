@@ -23,7 +23,8 @@ import java.io.InputStream
 import java.net.URL
 
 /*
- * some methods for this class should be handled in the smenatic_manager component
+ * TODO: refactoring this class, avoiding direct references to RDFRepositoryBase,
+ * wrapping around a standard RDF4J repository instead.
  */
 class RDFFileManager(kbrepo: RDFRepositoryBase) {
 
@@ -62,64 +63,6 @@ class RDFFileManager(kbrepo: RDFRepositoryBase) {
     }(s"KB:RDF> cannot add RDF file: ${rdfFile}")
 
   }
-
-  //  def loadRDF(rdfName: String, rdfFile: File, ctx: Resource) : String = {
-  //
-  //    //load ok
-  //    var msg = "OK"
-  //    
-  //    val default_format = RDFFormat.TURTLE
-  //    val format = Rio.getParserFormatForFileName(rdfName).orElse(default_format)
-  //    
-  //    // Open a connection to the database
-  //    try {
-  //
-  //      conn = repo.getConnection
-  //      try {
-  //
-  //        val input: InputStream = new FileInputStream(rdfFile.getAbsoluteFile)
-  //        
-  //        val doc = Rio.parse(input, "", format, ctx)
-  //        conn.add(doc, ctx);
-  //
-  //        input.close()
-  //
-  //      } catch {
-  //        case ex: IOException =>
-  //          //ex.printStackTrace()
-  //          msg = s"error attempting load file: ${ex.getMessage}"
-  //          logger.error(msg)
-  //          
-  //         case ex: RDFParseException =>
-  //           //ex.printStackTrace()
-  //           msg = s"error attempting parse file: ${ex.getMessage}"
-  //           logger.error(msg)
-  //           
-  //         case ex: UnsupportedRDFormatException =>
-  //           //ex.printStackTrace()
-  //           msg = s"error attempting read file format: ${ex.getMessage}"
-  //           logger.error(msg)  
-  //           
-  //         case ex: Exception => 
-  //           //ex.printStackTrace()
-  //           msg = s"error attempting load / parse file: ${ex.getMessage}"
-  //           logger.error(msg)
-  //      }
-  //
-  //    } catch {
-  //      case ex: Exception => 
-  //        //ex.printStackTrace()
-  //        msg = s"error attempting connection to repository: ${ex.getMessage}"
-  //        logger.error(msg)
-  //    } finally {
-  //      // chiudo la connessione
-  //      if (conn != null) conn.close()
-  //    }
-  //
-  //    //ritorna il messaggio
-  //    msg
-  //    
-  //  }
 
   /**
    * adds an RDF on a given context.

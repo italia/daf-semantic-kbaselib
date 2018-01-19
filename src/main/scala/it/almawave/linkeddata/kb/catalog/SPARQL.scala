@@ -1,4 +1,4 @@
-package it.almawave.kb.catalog
+package it.almawave.linkeddata.kb.catalog
 
 import org.eclipse.rdf4j.repository.Repository
 import scala.collection.mutable.ListBuffer

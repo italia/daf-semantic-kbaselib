@@ -1,18 +1,18 @@
-package it.almawave.kb.catalog.meta
+package it.almawave.linkeddata.kb.parsers.meta
 
 import java.net.URL
 
-import org.eclipse.rdf4j.repository.Repository
-
-import it.almawave.kb.catalog.SPARQL
-import it.almawave.kb.catalog.file.RDFFileRepository
-import org.eclipse.rdf4j.common.iteration.Iterations
-
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import it.almawave.kb.catalog.models.VocabularyMeta
-import it.almawave.kb.catalog.models.VocabularyInformation
-import it.almawave.kb.catalog.models.RDFData
+
+import org.eclipse.rdf4j.repository.Repository
+import org.eclipse.rdf4j.common.iteration.Iterations
+
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
+import it.almawave.linkeddata.kb.catalog.models.VocabularyInformation
+import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.catalog.SPARQL
+import it.almawave.linkeddata.kb.file.RDFFileRepository
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single vocabulary.
@@ -85,6 +85,8 @@ object VocabularyMetadataExtractor {
       val version: Seq[(String, String)] = Seq.empty // TODO!
 
       val creators: Set[String] = Set.empty // TODO!
+
+      // TODO: we should add the parsing of `DCAT-AP_IT` for the vocabulary threaten as a dataset.
 
       VocabularyMeta(
         id,

@@ -1,4 +1,4 @@
-package it.almawave.kb.catalog.models
+package it.almawave.linkeddata.kb.catalog.models
 
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Value

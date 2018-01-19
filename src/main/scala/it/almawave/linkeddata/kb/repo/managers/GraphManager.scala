@@ -10,9 +10,13 @@ import java.lang.Long
 import it.almawave.linkeddata.kb.repo.RepositoryAction
 
 /*
- *  IDEA: an helper class for CRUD using SPARQL
+ *  IDEA: an helper class for CRUD using standard SPARQL statements
  *  the connection should be managed externally, ideally with a connection pool
+ *  
  *  SEE: https://www.w3.org/TR/sparql11-update/#create
+ *  
+ *  TODO: change IRIref to String for more flexibility
+ *  
  */
 protected class GraphManager(repo: Repository) {
 

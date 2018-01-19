@@ -2,6 +2,7 @@ package it.almawave.kb.catalog.meta
 
 import utilities.JSONHelper
 import java.net.URL
+import it.almawave.linkeddata.kb.parsers.meta.VocabularyMetadataExtractor
 
 object MainVocabularyMetadataExtractor extends App {
 

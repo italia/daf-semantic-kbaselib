@@ -16,6 +16,7 @@ The main functionalities groups are:
 
 Other functionalities such as full-text & faceted search were already tested with Solr/lucene, but not yet fully included in this version.
 
+**NOTE**: the library is still an work-in-progress (alpha version)
 
 ## building and local installation
 
@@ -69,9 +70,18 @@ resolvers += Resolver.mavenLocal
 
 ## TODO
 
+- [ ] add / improve tests and test coverage
 - [ ] add the library to maven central or to a public nexus, in order to simplify the build and installation processes
 - [ ] add simple examples of usage in README for calling the basic functionalities
 - [ ] import the core catalog part currently copied in `katalod` api
 - [ ] add a simple diagram, to explain better the various components and their responsabilities
 
+----
 
+## DOWNLOADS
+
+
++ v 0.0.1
+	- https://bitbucket.org/awodata/kbaselib/get/d05c14e704b0.zip
+	- https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.1.jar
+	- https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.1_with_dependencies.zip
