@@ -96,7 +96,7 @@ resolvers += Resolver.mavenLocal
 
 + v 0.0.2
 	- [kbaselib-0.0.2.jar](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.2.jar)
-	- [kbaselib-0.0.1_with_dependencies.zip](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.1_with_dependencies.zip)
+	- [kbaselib-0.0.2_with_dependencies.zip](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.2_with_dependencies.zip)
 	- [repo](https://bitbucket.org/awodata/kbaselib/get/e07936e6a335.zip)
 
 + v 0.0.1
