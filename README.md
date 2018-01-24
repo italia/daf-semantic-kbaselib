@@ -43,16 +43,20 @@ If the library is available on remote/local maven repositories, we can use it wi
 </dependency>
 ```
 
-testing on virtualbox:
+### local install
+
++ maven local install
 ```bash
-/home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar
 mvn clean install -Dfile=target/kbaselib-0.0.2.jar -DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.2 -Dpackaging=jar -DgeneratePom=true 
 
-mkdir -p /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/
-cp /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar  /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/kbaselib-0.0.2.jar
-cp -R /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/ /home/ubuntu/.m2/re
-pository/it/almawave/linkeddata/kb/kbaselib_2.11.8/
+```
 
++ copying / install library for sbt
+we can prepare the jar with sbt conventions for scala
+```bash 
+# mkdir -p /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/
+
+cp -R ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/ ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/
 ```
 
 ### managing the dependency from extenral sbt projects
