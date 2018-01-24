@@ -1,8 +1,8 @@
 #!/bin/bash
 
-mvn install -Dfile=target/kbaselib-0.0.1.jar -DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.1 -Dpackaging=jar 
-
-cp ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.1/kbaselib-0.0.1.jar ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.1/kbaselib-0.0.1.jar
+mvn install -Dfile=target/kbaselib-0.0.2.jar -DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.2 -Dpackaging=jar 
+mkdir -p  ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/
+cp ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/kbaselib-0.0.2.jar
 
 <<NOTE
 

@@ -22,10 +22,10 @@ Other functionalities such as full-text & faceted search were already tested wit
 
 The library can be built and installed locally, with maven:
 
-```
+```bash
 mvn clean install \
-	-Dfile=target/kbaselib-0.0.1.jar -Dpackaging=jar \
-	-DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.1 
+	-Dfile=target/kbaselib-0.0.2.jar -Dpackaging=jar \
+	-DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.2 
 ```
 
 After the creation and the `mvn install` command, the library will be available to projects, and we can use the library in the usual way.
@@ -35,21 +35,35 @@ After the creation and the `mvn install` command, the library will be available 
 
 If the library is available on remote/local maven repositories, we can use it with:
 
-```
+```xml
 <dependency>
 	<groupId>it.almawave.linkeddata.kb</groupId>
 	<artifactId>kbaselib</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 </dependency>
+```
+
+testing on virtualbox:
+```bash
+/home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar
+mvn clean install -Dfile=target/kbaselib-0.0.2.jar -DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.2 -Dpackaging=jar -DgeneratePom=true 
+
+mkdir -p /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/
+cp /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar  /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/kbaselib-0.0.2.jar
+cp -R /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib/ /home/ubuntu/.m2/re
+pository/it/almawave/linkeddata/kb/kbaselib_2.11.8/
+
 ```
 
 ### managing the dependency from extenral sbt projects
 
 A temporary workaround to handle the correct naming convention needed by sbt is to manually create the artifact, for example:
 
-```
-cp	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.1/kbaselib-0.0.1.jar \
-	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.1/kbaselib-0.0.1.jar
+```bash
+mkdir -p  ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/
+
+cp	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/0.0.2/kbaselib-0.0.2.jar \
+	~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/kbaselib-0.0.2.jar
 ```
 
 The dependency in sbt can be added with:
@@ -60,11 +74,12 @@ libraryDependencies += "it.almawave.linkeddata.kb" % "kbaselib" % "0.0.1"
 
 where it's important to verify that we are using the library published on the local maven repository for a specific version of scala.
 
-```
+```scala
 crossPaths := false
 
 resolvers += Resolver.mavenLocal
 ```
+
 
 * * *
 
