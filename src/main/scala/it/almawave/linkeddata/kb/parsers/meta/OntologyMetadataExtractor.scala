@@ -30,16 +30,17 @@ import it.almawave.linkeddata.kb.file.RDFFileRepository
  */
 object OntologyMetadataExtractor {
 
+  // REVIEW: this could be helpful in som cases for CLI
   def apply(source_url: URL): OntologyInformation = {
     val repo: Repository = new RDFFileRepository(source_url)
-    apply(source_url, repo)
+    if (!repo.isInitialized()) repo.initialize()
+    val info = apply(source_url, repo)
+    if (repo.isInitialized()) repo.shutDown()
+    info
   }
 
   // REFACTORIZATION here! CHECK possible different storage for repository
   def apply(source_url: URL, repo: Repository): OntologyInformation = {
-
-    if (!repo.isInitialized())
-      repo.initialize()
 
     val sparql = SPARQL(repo)
 
@@ -174,9 +175,6 @@ object OntologyMetadataExtractor {
 
     val data = parseData()
     val meta = parseMeta()
-
-    if (repo.isInitialized())
-      repo.shutDown()
 
     OntologyInformation(meta, data)
   }

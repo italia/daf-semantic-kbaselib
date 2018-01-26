@@ -23,7 +23,7 @@ import scala.collection.JavaConverters._
  * val sail = val new RDFFileSail(url)
  *
  */
-class RDFFileSail(urls: List[URL], contexts: String*) extends MemoryStore {
+class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
 
   def this(url: URL, contexts: String*) = this(List(url), contexts: _*)
 
