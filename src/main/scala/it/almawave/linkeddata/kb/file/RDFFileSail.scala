@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.eclipse.rdf4j.sail.memory.MemoryStore
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import org.slf4j.LoggerFactory
 
 /**
  * examples:
@@ -37,9 +38,13 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
     load()
   }
 
+  // SEE: memory usage
+  // EX: http://www.javapractices.com/topic/TopicAction.do?Id=83
+
   private def load() {
 
     val conn = this.getConnection
+    // IDEA: conn.begin()
 
     urls.foreach { url =>
 
@@ -59,9 +64,13 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
         }
       conn.commit()
 
+      logger.debug(s"added ${model.size()} triples from URL ${url}")
+
       input.close()
 
     }
+
+    // IDEA: conn.commit()
 
     conn.close()
 

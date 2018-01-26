@@ -16,6 +16,9 @@ import it.almawave.linkeddata.kb.catalog.models.RDFData
 import it.almawave.linkeddata.kb.utils.JSONHelper
 import org.eclipse.rdf4j.rio.Rio
 import it.almawave.linkeddata.kb.repo.RDFRepository
+import it.almawave.linkeddata.kb.parsers.GuessRDFMIME
+import scala.util.Success
+import scala.util.Failure
 
 /**
  * REFACTORIZATION
@@ -34,7 +37,7 @@ object MainOntologyRepositoryWrapper extends App {
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
 
   val onto = new OntologyRepositoryWrapper(url)
-//    .withDependencies()
+    .withDependencies()
 
   val info = onto.information.meta
   val json = JSONHelper.writeToString(info)
@@ -115,9 +118,10 @@ class OntologyRepositoryWrapper(source_url: URL) {
     dependencies.foreach { dep_url =>
 
       val url = new URL(dep_url)
-      val mime = Rio.getWriterFormatForFileName(url.getPath).get
-
-      conn.add(url, "", mime)
+      GuessRDFMIME.guess(url) match {
+        case Success(mime) => conn.add(url, "", mime)
+        case Failure(ok)   => println("ERROR: " + ok)
+      }
 
       println("URL: " + url)
 
