@@ -1,4 +1,4 @@
-package it.almawave.kb.catalog.federation
+package it.almawave.linkeddata.kb.federation
 
 import org.eclipse.rdf4j.sail.federation.Federation
 import org.eclipse.rdf4j.repository.sail.SailRepository
@@ -9,9 +9,9 @@ import org.eclipse.rdf4j.query.BindingSet
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository
 import org.eclipse.rdf4j.query.TupleQueryResultHandler
-import it.almawave.kb.catalog.file.RDFQueryResultHandler
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
 import it.almawave.linkeddata.kb.file.RDFFileSail
+import it.almawave.linkeddata.kb.catalog.file.RDFQueryResultHandler
 
 /**
  * this is a small POC to show how to use federation by convention over a collection of self-contained repository

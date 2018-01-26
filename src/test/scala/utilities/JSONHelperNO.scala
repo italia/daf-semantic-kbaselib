@@ -6,7 +6,7 @@ import com.typesafe.config.Config
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.ConfigRenderOptions
 
-object JSONHelper {
+object JSONHelperNO {
 
   val render_options = ConfigRenderOptions.concise()
     .setJson(true)

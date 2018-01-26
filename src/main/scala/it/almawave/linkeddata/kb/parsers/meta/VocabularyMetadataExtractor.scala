@@ -64,20 +64,31 @@ object VocabularyMetadataExtractor {
       val concepts: Set[String] = sparql.query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?concept 
-        WHERE { ?concept a ?klass. ?klass rdfs:subClassOf* skos:Concept . } 
+        WHERE { 
+          ?concept a ?klass. 
+          ?klass rdfs:subClassOf* skos:Concept . 
+        } 
         """)
         .map(_.getOrElse("concept", "owl:Thing").toString()).toSet
 
       val titles: Seq[(String, String)] = sparql.query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT DISTINCT * {  ?uri a skos:ConceptScheme . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+        SELECT DISTINCT * 
+        WHERE { 
+          ?uri a skos:ConceptScheme . 
+          ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) 
+        }
         """)
         .map { item => (item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]) }
 
       // TODO: case class
       val descriptions: Seq[(String, String)] = sparql.query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT DISTINCT * {  ?uri a skos:ConceptScheme . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
+        SELECT DISTINCT * 
+        WHERE { 
+          ?uri a skos:ConceptScheme . 
+          ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) 
+        }
         """)
         .map { item => (item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]) }
 

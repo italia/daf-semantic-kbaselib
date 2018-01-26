@@ -1,4 +1,4 @@
-package it.almawave.kb.catalog.file
+package it.almawave.linkeddata.kb.catalog.file
 
 import java.net.URL
 

@@ -1,47 +1,99 @@
 package it.almawave.linkeddata.kb.parsers.meta
 
 import java.net.URL
-import java.util.Properties
 
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-
-import org.eclipse.rdf4j.common.iteration.Iterations
-import org.eclipse.rdf4j.repository.Repository
-import org.eclipse.rdf4j.sail.memory.MemoryStore
-import org.eclipse.rdf4j.sail.config.SailRegistry
-import org.eclipse.rdf4j.repository.sail.SailRepository
-import org.eclipse.rdf4j.sail.lucene.LuceneSail
-import org.eclipse.rdf4j.sail.solr.SolrIndex
-
-import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
 import it.almawave.linkeddata.kb.catalog.models.OntologyInformation
 import it.almawave.linkeddata.kb.catalog.SPARQL
-import it.almawave.linkeddata.kb.file.RDFFileRepository
+
+import org.eclipse.rdf4j.repository.Repository
+import org.eclipse.rdf4j.common.iteration.Iterations
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.utils.JSONHelper
 
 /**
- * This is a simple helper object designed to extract as much information as possible from a single ontology.
- * The idea is to extract all the informations once for all.
+ * REFACTORIZATION
  *
- * CHECK: for handling language-based literals, we could introduce a custom case class
- * (which will be later exposed as a clearer swagger model, too)
+ * this is a first attempt to re-engineer the logic behind the extraction,
+ * adding also an explicit external reference to the internal repository
+ *
+ * TODO: for each ontology/vocabulary, should be provided a configurable import of all the dependencies
+ *
+ * for ontologies: this will directly references the defined imports, as well as the dependencies expressed by prefixes/namespaces declaration
+ * for vocabulary: this will reference the prefixes/namespaces declaration
+ *
+ *
  *
  */
-object OntologyMetadataExtractor {
+object MainOntologyRepositoryWrapper extends App {
 
-  def apply(source_url: URL): OntologyInformation = {
-    val repo: Repository = new RDFFileRepository(source_url)
-    apply(source_url, repo)
-  }
+  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
+
+  val onto = new OntologyRepositoryWrapper(url)
+
+  val info = onto.information.meta
+  val json = JSONHelper.writeToString(info)
+  println(json)
+
+  val repo = onto.repository
+  repo.initialize()
+
+  val results = SPARQL(repo).query("""
+    SELECT DISTINCT ?concept ?property 
+    WHERE {
+      ?concept a owl:Class .
+      # ?concept owl:subclassOf* owl:Class .
+      ?property rdfs:domain ?concept .
+    }  
+    ORDER BY ?concept ?property
+  """)
+    .map { item =>
+      val concept = item.get("concept").get.toString().replaceAll("^.*[#/](.*)$", "$1")
+      val property = item.get("property").get.toString().replaceAll("^.*[#/](.*)$", "$1")
+      (concept, property)
+    }
+
+  results.toList
+    .groupBy(_._1).map { el => (el._1, el._2.toList.map(_._2)) }
+    .foreach { item =>
+
+      println("\n" + item._1)
+      println("\t" + item._2.mkString("|"))
+
+      val ref_daf = item._2.map { el => (item._1, el) }.map { el => s"${onto.ID}.${el._1}.${el._2}" }
+      println("REF: " + ref_daf)
+
+    }
+
+  println("ONTOLOGY: " + onto.ID)
+
+  repo.shutDown()
+
+}
+
+// IDEA for refactoring...
+class OntologyRepositoryWrapper(source_url: URL) {
+
+  val ID = source_url.toString().replaceAll("^.*[#/](.*?)(\\.[a-z]*)*$", "$1")
+
+  // REVIEW
+  private val _repo: Repository = new RDFFileRepository(source_url)
+  private val sparql = SPARQL(_repo)
+
+  if (!_repo.isInitialized())
+    _repo.initialize()
+
+  private val _information = this.parse() // extract metadata
+
+  if (_repo.isInitialized())
+    _repo.shutDown()
 
   // REFACTORIZATION here! CHECK possible different storage for repository
-  def apply(source_url: URL, repo: Repository): OntologyInformation = {
-
-    if (!repo.isInitialized())
-      repo.initialize()
-
-    val sparql = SPARQL(repo)
+  private def parse(): OntologyInformation = {
 
     // CHECK: this is an experiment... SEE: RDFFrame class
     // TODO: etichette dei concetti
@@ -61,7 +113,7 @@ object OntologyMetadataExtractor {
     def parseData() = {
 
       println(s"getting basic informations for ${source_url}")
-      val conn = repo.getConnection
+      val conn = _repo.getConnection
       val contextsIDS = Iterations.asList(conn.getContextIDs)
       val subjects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSet
       val properties = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getPredicate }.distinct.toSet
@@ -175,10 +227,11 @@ object OntologyMetadataExtractor {
     val data = parseData()
     val meta = parseMeta()
 
-    if (repo.isInitialized())
-      repo.shutDown()
-
     OntologyInformation(meta, data)
   }
+
+  def repository = _repo
+
+  def information = _information
 
 }

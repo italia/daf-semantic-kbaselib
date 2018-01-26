@@ -1,4 +1,4 @@
-package it.almawave.kb.catalog.meta
+package it.almawave.linkeddata.kb.catalog.meta
 
 /**
  * TODO

@@ -1,8 +1,8 @@
-package it.almawave.kb.catalog.meta
+package it.almawave.linkeddata.kb.catalog.meta
 
-import utilities.JSONHelper
 import java.net.URL
 import it.almawave.linkeddata.kb.parsers.meta.VocabularyMetadataExtractor
+import it.almawave.linkeddata.kb.utils.JSONHelper
 
 object MainVocabularyMetadataExtractor extends App {
 
@@ -10,7 +10,7 @@ object MainVocabularyMetadataExtractor extends App {
   println(s"\n\nextracting informations from\n${url}\n...")
 
   val results = VocabularyMetadataExtractor(url)
-  val json = JSONHelper.write(results)
+  val json = JSONHelper.writeToString(results)
   println(json)
 
 }

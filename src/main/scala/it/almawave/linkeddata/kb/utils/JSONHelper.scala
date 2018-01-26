@@ -35,9 +35,34 @@ object JSONHelper {
     json_writer.writeValueAsString(tree)
   }
 
+  def read(json: String): JsonNode = {
+    val content = json.replaceAll("(,)\\s+]", "]") // hack for removing trailing commas (invalid JSON)
+    json_reader.readTree(content)
+  }
+
   def pretty(json: String): String = {
-    val tree = json_reader.readTree(json)
+    //    val tree = json_reader.readTree(json)
+    val tree = read(json)
     json_writer.writeValueAsString(tree)
   }
+
+  // REFACTORIZATION ........................................
+
+  //  def write(obj: Any): String = {
+  //    json_writer.writeValueAsString(obj)
+  //  }
+
+  //  val render_options = ConfigRenderOptions.concise()
+  //    .setJson(true)
+  //    .setFormatted(true)
+
+  //  def write(json_tree: JsonNode): String = {
+  //    json_writer.writeValueAsString(json_tree)
+  //  }
+
+  //  def pretty(json: String): String = {
+  //    val tree = read(json)
+  //    write(tree)
+  //  }
 
 }

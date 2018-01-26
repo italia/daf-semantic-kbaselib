@@ -8,7 +8,12 @@ import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
 import com.typesafe.config.Config
 import it.almawave.linkeddata.kb.parsers.meta.OntologyMetadataExtractor
 import it.almawave.linkeddata.kb.parsers.meta.VocabularyMetadataExtractor
+import org.eclipse.rdf4j.repository.Repository
+import it.almawave.linkeddata.kb.file.RDFFileRepository
 
+/*
+ * CHECK: this class could be merged with catalog class
+ */
 object ResourcesLoader {
 
   def apply(config_path: String) =
@@ -33,9 +38,7 @@ class ResourcesLoader(configuration: Config) {
     //remote: "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master"
 
     val modified_url = url.toString().replaceAll(conf.getString("remote"), conf.getString("local"))
-
     val path = Paths.get(modified_url).normalize().toUri()
-
     path.toURL()
   }
 
@@ -59,7 +62,9 @@ class ResourcesLoader(configuration: Config) {
 
         val data_url = if (useCache) onto_source else onto_source
 
-        OntologyMetadataExtractor(data_url).meta
+        // CHECK: creating multiple repositories
+        val repo: Repository = new RDFFileRepository(data_url)
+        OntologyMetadataExtractor(data_url, repo).meta
 
       }
 
@@ -77,6 +82,7 @@ class ResourcesLoader(configuration: Config) {
       .getConfigList("data")
       .toStream
       .map { item =>
+
         val onto_path = item.getValue("path").unwrapped()
         // TODO: use local cache!
         val voc_source: URL = new URL(s"${remote}${onto_path}")

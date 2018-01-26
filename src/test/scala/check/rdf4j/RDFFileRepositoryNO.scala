@@ -15,18 +15,18 @@ import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
 import org.eclipse.rdf4j.query.BindingSet
 
-object RDFFileRepository extends App {
+object RDFFileRepositoryNO extends App {
 
   val onto_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl"
 
-  SPARQL.query(
+  SPARQLNO.query(
     "http://dati.gov.it/onto/CLV-AP_IT/",
     """SELECT * WHERE { GRAPH ?graph { ?uri ?prop ?obj . } }""",
     onto_url)
 
 }
 
-object SPARQL {
+object SPARQLNO {
 
   def query(baseURI: String, query: String, urls: String*) = {
     val repo = new SailRepository(new MemoryStore)
