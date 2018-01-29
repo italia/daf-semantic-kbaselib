@@ -30,6 +30,9 @@ class URIDependenciesExtractor(repo: Repository) {
       .map(_.replaceAll("^(.*)[#/](.*)$", "$1"))
       .distinct
 
+    // CHECK: transitive dependencies?
+    // CHECK: dependecies from explicit owl imports?
+
     conn.close()
 
     subs ++ prps

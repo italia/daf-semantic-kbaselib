@@ -37,31 +37,15 @@ object MainOntologyRepositoryWrapper extends App {
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
 
   val onto = new OntologyRepositoryWrapper(url)
-    .withDependencies()
+  // REVIEW .withDependencies()
 
   val info = onto.information.meta
   val json = JSONHelper.writeToString(info)
   println(json)
 
-  val repo = onto.repository
-  repo.initialize()
+  println("ONTOLOGY: " + onto.ID)
 
-  val results = SPARQL(repo).query("""
-    SELECT DISTINCT ?concept ?property 
-    WHERE {
-      ?concept a owl:Class .
-      ?property rdfs:domain ?concept .
-    }  
-    ORDER BY ?concept ?property
-  """)
-    .map { item =>
-      val concept = item.get("concept").get.toString().replaceAll("^.*[#/](.*)$", "$1")
-      val property = item.get("property").get.toString().replaceAll("^.*[#/](.*)$", "$1")
-      (concept, property)
-    }
-
-  results.toList
-    .groupBy(_._1).map { el => (el._1, el._2.toList.map(_._2)) }
+  onto.entities.toList
     .foreach { item =>
 
       println("\n" + item._1)
@@ -72,14 +56,6 @@ object MainOntologyRepositoryWrapper extends App {
       println(ref_daf.mkString(" | "))
 
     }
-
-  println("ONTOLOGY: " + onto.ID)
-
-  println("\nDEPENDENCIES: ")
-  onto.dependencies
-    .foreach { item => println(item) }
-
-  repo.shutDown()
 
 }
 
@@ -92,11 +68,14 @@ class OntologyRepositoryWrapper(source_url: URL) {
   private var _repo: Repository = new RDFFileRepository(source_url)
   private val sparql = SPARQL(_repo)
 
+  // REFACTORING: a method for embedding open/close repo as builder or side-effect
   // extracting general informations.......................................................
   if (!_repo.isInitialized()) _repo.initialize()
 
   private val _information = this.parse() // extract metadata
   val dependencies: Seq[String] = new URIDependenciesExtractor(_repo).extract().toList
+
+  val entities = parse_entities
 
   if (_repo.isInitialized()) _repo.shutDown()
   // extracting general informations.......................................................
@@ -107,8 +86,33 @@ class OntologyRepositoryWrapper(source_url: URL) {
 
   def information = _information
 
-  // TODO: resolve & import dependencies
+  // this is for extraction on concept.properties
+  private def parse_entities = {
 
+    SPARQL(_repo).query("""
+      SELECT DISTINCT ?concept ?property 
+      WHERE {
+        ?concept a owl:Class .
+        ?property rdfs:domain ?concept .
+      }  
+      ORDER BY ?concept ?property
+    """)
+      .map { item =>
+        val concept = item.get("concept").get.toString().replaceAll("^.*[#/](.*)$", "$1")
+        val property = item.get("property").get.toString().replaceAll("^.*[#/](.*)$", "$1")
+        (concept, property)
+      }
+      .groupBy(_._1).map { el => (el._1, el._2.toList.map(_._2)) }
+
+  }
+
+  /**
+   *  TODO: resolve & import dependencies
+   *
+   *  CHECK: since some of the public URL of the ontologies/vocabularies are not currently published,
+   *  we should replace them with raw.github... source (temporarly)
+   *
+   */
   def withDependencies(): OntologyRepositoryWrapper = {
 
     if (!_repo.isInitialized()) _repo.initialize()

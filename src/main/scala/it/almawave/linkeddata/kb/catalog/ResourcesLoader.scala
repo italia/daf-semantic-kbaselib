@@ -63,8 +63,9 @@ class ResourcesLoader(configuration: Config) {
         val data_url = if (useCache) onto_source else onto_source
 
         // CHECK: creating multiple repositories
-        val repo: Repository = new RDFFileRepository(data_url)
-        OntologyMetadataExtractor(data_url, repo).meta
+        //        val repo: Repository = new RDFFileRepository(data_url)
+
+        OntologyMetadataExtractor(data_url).meta
 
       }
 

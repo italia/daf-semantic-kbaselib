@@ -28,5 +28,8 @@ object MainResourcesLoader extends App {
     val json = JSONHelper.writeToString(meta)
     println(json)
   }
+  
+  
+  // TODO: port the OntologyRepository logic to vocabulary, refactorize!
 
 }
