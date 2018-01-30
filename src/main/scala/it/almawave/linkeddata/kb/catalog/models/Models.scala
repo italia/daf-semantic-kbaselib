@@ -11,7 +11,7 @@ import java.util.Date
 
 case class OntologyInformation(meta: OntologyMeta, data: RDFData)
 
-case class VocabularyInformation(meta: VocabularyMeta, data: RDFData)
+case class VocabularyInformation(meta: VocabularyMeta_NEW, data: RDFData)
 
 case class ItemByLanguage(lang: String, value: String)
 
@@ -74,12 +74,37 @@ case class VocabularyMeta(
   version: Seq[(String, String)],
   creators: Set[String])
 
+// TODO: aggiornare i modelli
+case class VocabularyMeta_NEW(
+  id: String,
+  url: URL,
+  source: URL,
+  instances: Set[String],
+  titles: Map[String, String],
+  descriptions: Map[String, String],
+
+  publishedBy: String, // TODO
+  owner: String, // TODO
+  creators: Seq[Map[String, String]], // TODO
+
+  langs: Seq[String], // CHECK: LANG
+  licenses: Seq[URIWithLabel],
+
+  version: Seq[(String, String)],
+
+  lastEditDate: String,
+  tags: Seq[URIWithLabel],
+  categories: Seq[URIWithLabel],
+  keywords: Seq[String])
+
 case class RDFData(
   subjects: Set[Resource],
   properties: Set[IRI],
   objects: Set[Value],
   contexts: Set[Resource])
 
+case class AssetType(assetType: String, representationTechnique: String)
+  
   
 /*
  * CHECK for case class -> Map conversion:
@@ -92,3 +117,4 @@ def getCCParams(cc: AnyRef) = (Map[String, Any]() /: cc.getClass.getDeclaredFiel
 	}
 
  */
+

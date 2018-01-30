@@ -10,6 +10,7 @@ import it.almawave.linkeddata.kb.parsers.meta.OntologyMetadataExtractor
 import it.almawave.linkeddata.kb.parsers.meta.VocabularyMetadataExtractor
 import org.eclipse.rdf4j.repository.Repository
 import it.almawave.linkeddata.kb.file.RDFFileRepository
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta_NEW
 
 /*
  * CHECK: this class could be merged with catalog class
@@ -71,7 +72,7 @@ class ResourcesLoader(configuration: Config) {
 
   }
 
-  def fetchVocabularies(useCache: Boolean = true): Seq[VocabularyMeta] = {
+  def fetchVocabularies(useCache: Boolean = true): Seq[VocabularyMeta_NEW] = {
 
     val onto_conf = conf.getConfig("vocabularies")
 

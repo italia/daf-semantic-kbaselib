@@ -13,6 +13,9 @@ import it.almawave.linkeddata.kb.catalog.models.VocabularyInformation
 import it.almawave.linkeddata.kb.catalog.models.RDFData
 import it.almawave.linkeddata.kb.catalog.SPARQL
 import it.almawave.linkeddata.kb.file.RDFFileRepository
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta_NEW
+import it.almawave.linkeddata.kb.catalog.models.URIWithLabel
+import it.almawave.linkeddata.kb.catalog.models.AssetType
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single vocabulary.
@@ -46,7 +49,7 @@ object VocabularyMetadataExtractor {
       .groupBy { item => item._1 }
       .map { item => (item._1, item._2.toList.map(_._2)) }.toMap
 
-    def parseMeta(): VocabularyMeta = {
+    def parseMeta(): VocabularyMeta_NEW = {
 
       val source: URL = source_url
 
@@ -61,7 +64,7 @@ object VocabularyMetadataExtractor {
 
       val voc_url = if (_voc_url.isEmpty) source else new URL(_voc_url(0)("uri").asInstanceOf[String])
 
-      val concepts: Set[String] = sparql.query("""
+      val instances: Set[String] = sparql.query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?concept 
         WHERE { 
@@ -71,43 +74,97 @@ object VocabularyMetadataExtractor {
         """)
         .map(_.getOrElse("concept", "owl:Thing").toString()).toSet
 
-      val titles: Seq[(String, String)] = sparql.query("""
+      val titles: Map[String, String] = sparql.query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT * 
         WHERE { 
           ?uri a skos:ConceptScheme . 
-          ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) 
+          OPTIONAL { ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+          OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) } 
         }
         """)
-        .map { item => (item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]) }
+        .map { item => (item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String]) }
+        .toMap
 
       // TODO: case class
-      val descriptions: Seq[(String, String)] = sparql.query("""
+      val descriptions: Map[String, String] = sparql.query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT DISTINCT * 
+        SELECT DISTINCT ?lang ?label  
         WHERE { 
           ?uri a skos:ConceptScheme . 
-          ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) 
+          OPTIONAL { ?uri rdfs:comment ?label . BIND(LANG(?label) AS ?lang) }
+          OPTIONAL { ?uri dct:description ?label . BIND(LANG(?label) AS ?lang) } 
         }
         """)
-        .map { item => (item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]) }
+        .map { item => (item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String]) }
+        .toMap
 
       // TODO: case class
       val version: Seq[(String, String)] = Seq.empty // TODO!
 
-      val creators: Set[String] = Set.empty // TODO!
+      val creators: Seq[Map[String, String]] = List() // TODO!
 
       // TODO: we should add the parsing of `DCAT-AP_IT` for the vocabulary threaten as a dataset.
 
-      VocabularyMeta(
+      val publishedBy: String = sparql.query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT * 
+        WHERE { ?uri a skos:ConceptScheme . ?uri dct:publisher ?publisher_uri .}  
+      """)
+        .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
+        .headOption.getOrElse("")
+
+      val owner: String = sparql.query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT * 
+        WHERE { ?uri a skos:ConceptScheme . ?uri dct:rightsHolder ?holder_uri .}  
+      """)
+        .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
+        .headOption.getOrElse("")
+
+      val langs: Seq[String] = sparql.query("""
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?lang  
+        WHERE {
+          ?uri a skos:ConceptScheme . 
+          ?uri ?prp ?label . BIND(LANG(?label) AS ?lang) .
+        }  
+      """)
+        .map { item => item.getOrElse("lang", "").asInstanceOf[String] }
+        .filterNot { item => item.trim().equalsIgnoreCase("") }
+
+      val licenses: Seq[URIWithLabel] = List()
+      val versions: Seq[(String, String)] = List()
+
+      val tags: Seq[URIWithLabel] = List()
+      val categories: Seq[URIWithLabel] = List()
+      val keywords: Seq[String] = List()
+
+      val lastEditDate: String = ""
+
+      val asset = AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
+
+      VocabularyMeta_NEW(
         id,
-        voc_url,
-        source,
-        concepts,
+        source_url,
+        source_url,
+        instances,
         titles,
         descriptions,
-        version,
-        creators)
+        publishedBy, // TODO
+        owner, // TODO
+        creators, // TODO
+        langs, // CHECK: LANG
+        licenses,
+        versions,
+        lastEditDate,
+        tags,
+        categories,
+        keywords)
 
     }
 

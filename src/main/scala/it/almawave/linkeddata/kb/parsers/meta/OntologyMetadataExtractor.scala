@@ -25,6 +25,7 @@ import it.almawave.linkeddata.kb.catalog.models.ItemByLanguage
 import it.almawave.linkeddata.kb.catalog.models.Version
 import it.almawave.linkeddata.kb.catalog.models.LANG
 import it.almawave.linkeddata.kb.utils.DateHelper
+import it.almawave.linkeddata.kb.catalog.models.AssetType
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single ontology.

@@ -3,6 +3,7 @@ package it.almawave.linkeddata.kb.catalog
 import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
 import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
 import it.almawave.linkeddata.kb.utils.JSONHelper
+import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta_NEW
 
 // TODO: create a JUnit for checking conventions!
 
@@ -11,7 +12,7 @@ object MainResourcesLoader extends App {
   val loader = ResourcesLoader("src/main/resources/conf/catalog.conf")
 
   val ontologies: Seq[OntologyMeta] = loader.fetchOntologies(false)
-  val vocabularies: Seq[VocabularyMeta] = loader.fetchVocabularies(false)
+  val vocabularies: Seq[VocabularyMeta_NEW] = loader.fetchVocabularies(false)
 
   println("\n\nONTOLOGIES")
   ontologies.foreach { meta =>
@@ -28,8 +29,7 @@ object MainResourcesLoader extends App {
     val json = JSONHelper.writeToString(meta)
     println(json)
   }
-  
-  
+
   // TODO: port the OntologyRepository logic to vocabulary, refactorize!
 
 }
