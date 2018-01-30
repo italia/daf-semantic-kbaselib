@@ -10,6 +10,9 @@ object SPARQL {
 }
 
 /**
+ * TODO: refactoring as a facade for extracting results into
+ * + tuples: `Seq[Map[String, Any]]`
+ * + graphs: `Seq[Map[String, Map[String, ...]]]`
  *
  */
 class SPARQL(repo: Repository) {

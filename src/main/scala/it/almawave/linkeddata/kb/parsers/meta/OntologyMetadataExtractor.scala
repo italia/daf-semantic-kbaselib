@@ -93,8 +93,8 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
     val prefix: String = id.replaceAll("_", "").replaceAll("-", "").toLowerCase()
 
     val namespace: String = sparql.query("""
-          SELECT DISTINCT ?uri { ?uri a owl:Ontology . } 
-        """)
+      SELECT DISTINCT ?uri { ?uri a owl:Ontology . } 
+    """)
       .map(_.getOrElse("uri", source_url.toString()).asInstanceOf[String])
       .map { _.replaceAll("^(.*)[/#]$", "$1") } // hack for avoid using both `http://example/` and `http://example`
       .distinct
@@ -105,7 +105,11 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
         SELECT DISTINCT ?uri 
         WHERE { ?onto_uri rdf:type owl:Ontology ; rdfs:isDefinedBy ?uri . }
       """)
-    val onto_url = if (_onto_url.isEmpty) source else new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
+
+    val onto_url = if (_onto_url.isEmpty)
+      source
+    else
+      new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
 
     val concepts: Set[String] = sparql.query("""
         SELECT DISTINCT ?concept 
@@ -171,7 +175,7 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
 
     //    val creators: Seq[Map[String, String]] = sparql.query("""
     val creators: Seq[Map[String, String]] = sparql.query("""
-          PREFIX dc: <http://purl.org/dc/elements/1.1/>
+      PREFIX dc: <http://purl.org/dc/elements/1.1/>
       SELECT DISTINCT ?lang ?creator 
       WHERE { 
         ?uri a owl:Ontology . ?uri dc:creator ?creator . BIND(LANG(?creator) AS ?lang) .
@@ -256,21 +260,6 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
       keywords,
 
       provenance)
-
-    // REFACTORIZATION : ORIGINAL
-    //    OntologyMeta(
-    //      id,
-    //      source,
-    //      onto_url,
-    //      prefix,
-    //      namespace,
-    //      concepts,
-    //      imports,
-    //      titles,
-    //      descriptions,
-    //      version,
-    //      creators,
-    //      provenance)
 
   }
 

@@ -90,7 +90,7 @@ case class VocabularyMeta_NEW(
   langs: Seq[String], // CHECK: LANG
   licenses: Seq[URIWithLabel],
 
-  version: Seq[(String, String)],
+  version: Seq[Version],
 
   lastEditDate: String,
   tags: Seq[URIWithLabel],

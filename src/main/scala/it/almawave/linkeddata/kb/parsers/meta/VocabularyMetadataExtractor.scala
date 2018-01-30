@@ -16,6 +16,8 @@ import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta_NEW
 import it.almawave.linkeddata.kb.catalog.models.URIWithLabel
 import it.almawave.linkeddata.kb.catalog.models.AssetType
+import it.almawave.linkeddata.kb.catalog.models.Version
+import it.almawave.linkeddata.kb.utils.DateHelper
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single vocabulary.
@@ -51,7 +53,7 @@ object VocabularyMetadataExtractor {
 
     def parseMeta(): VocabularyMeta_NEW = {
 
-      val source: URL = source_url
+      //      val source: URL = source_url
 
       val id: String = source_url.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
 
@@ -62,7 +64,7 @@ object VocabularyMetadataExtractor {
         WHERE { ?uri a adms:SemanticAsset }
       """)
 
-      val voc_url = if (_voc_url.isEmpty) source else new URL(_voc_url(0)("uri").asInstanceOf[String])
+      val voc_url = if (_voc_url.isEmpty) source_url else new URL(_voc_url(0)("uri").asInstanceOf[String])
 
       val instances: Set[String] = sparql.query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -101,9 +103,6 @@ object VocabularyMetadataExtractor {
         .map { item => (item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String]) }
         .toMap
 
-      // TODO: case class
-      val version: Seq[(String, String)] = Seq.empty // TODO!
-
       val creators: Seq[Map[String, String]] = List() // TODO!
 
       // TODO: we should add the parsing of `DCAT-AP_IT` for the vocabulary threaten as a dataset.
@@ -137,20 +136,62 @@ object VocabularyMetadataExtractor {
         .map { item => item.getOrElse("lang", "").asInstanceOf[String] }
         .filterNot { item => item.trim().equalsIgnoreCase("") }
 
-      val licenses: Seq[URIWithLabel] = List()
-      val versions: Seq[(String, String)] = List()
+      val licenses: Seq[URIWithLabel] = sparql.query("""
+        PREFIX dcat: <http://www.w3.org/ns/dcat#>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?license_uri 
+        WHERE {
+          ?uri a skos:ConceptScheme . 
+          ?uri dcat:distribution ?distribution . ?distribution dct:license ?license_uri .
+        }
+      """)
+        .map(_.getOrElse("license_uri", "").asInstanceOf[String])
+        .filterNot(_.equalsIgnoreCase(""))
+        .map { item => URIWithLabel(item.replaceAll("^.*[#/](.*?)$", "$1"), item) }
+
+      // TODO: case class
+      val versions: Seq[Version] = sparql.query("""
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT * 
+        WHERE { 
+          ?uri a skos:ConceptScheme . 
+          ?uri owl:versionInfo ?version_info  
+        }
+      """)
+        .map { item => item.getOrElse("version_info", "").asInstanceOf[String] }
+        .map { item =>
+          val number = item
+          Version(number, null, null, null)
+        }
 
       val tags: Seq[URIWithLabel] = List()
       val categories: Seq[URIWithLabel] = List()
       val keywords: Seq[String] = List()
 
-      val lastEditDate: String = ""
+      val lastEditDate: String = sparql.query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?date_modified 
+        WHERE { ?uri a skos:ConceptScheme . ?uri dct:modified ?date_modified . }  
+      """)
+        .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
+        .headOption.getOrElse("")
 
       val asset = AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
 
+      val url: URL = sparql.query("""
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?uri 
+        WHERE { ?uri a skos:ConceptScheme . }
+      """)
+        .map { item => item.getOrElse("uri", "").asInstanceOf[String] }
+        .map { item => new URL(item) }
+        .headOption.getOrElse(null)
+
       VocabularyMeta_NEW(
         id,
-        source_url,
+        url,
         source_url,
         instances,
         titles,
