@@ -26,6 +26,7 @@ import it.almawave.linkeddata.kb.catalog.models.Version
 import it.almawave.linkeddata.kb.catalog.models.LANG
 import it.almawave.linkeddata.kb.utils.DateHelper
 import it.almawave.linkeddata.kb.catalog.models.AssetType
+import it.almawave.linkeddata.kb.utils.URIHelper
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single ontology.
@@ -70,21 +71,6 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
     .groupBy { item => item._1 }
     .map { item => (item._1, item._2.toList.map(_._2)) }.toMap
 
-  // useful for testing
-  def parseData() = {
-
-    println(s"getting basic informations for ${source_url}")
-    val conn = repo.getConnection
-    val contextsIDS = Iterations.asList(conn.getContextIDs)
-    val subjects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSet
-    val properties = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getPredicate }.distinct.toSet
-    val objects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSet
-    val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSet
-    conn.close()
-
-    RDFData(subjects, properties, objects, contexts ++ contextsIDS)
-  }
-
   def parseMeta(): OntologyMeta = {
 
     val source: URL = source_url
@@ -122,25 +108,29 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
         WHERE {  ?uri a owl:Ontology . ?uri owl:imports ?import_uri . }
       """)
       .map(_.get("import_uri").get.asInstanceOf[String])
-      .map { item => item.replaceAll("(.*)[#/]", "$1") }
-      .map { item => URIWithLabel(item.replaceAll("^.*[#/](.*?)$", "$1"), item) }
+      .map { item =>
+        val uri = item
+        val label = URIHelper.extractLabelFromURI(item)
+        val lang = ""
+        URIWithLabel(label, uri, lang)
+      }
 
-    val titles: Map[String, String] = sparql.query("""
+    val titles: Seq[ItemByLanguage] = sparql.query("""
         SELECT DISTINCT * 
         WHERE {  ?uri a owl:Ontology . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
       """)
       .map { item =>
-        (item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String])
+        ItemByLanguage(item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String])
       }
-      .toMap
+      .toList
 
     // TODO: case class | Map
-    val descriptions: Map[String, String] = sparql.query("""
+    val descriptions: Seq[ItemByLanguage] = sparql.query("""
         SELECT DISTINCT * 
         WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
       """)
-      .map { item => (item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]) }
-      .toMap
+      .map { item => ItemByLanguage(item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]) }
+      .toList
 
     // TODO: case class
     val versions: Seq[Version] = sparql.query("""
@@ -228,7 +218,12 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
       """)
       .map(_.getOrElse("license_uri", "").asInstanceOf[String])
       .filterNot(_.equalsIgnoreCase(""))
-      .map { item => URIWithLabel(item.replaceAll("^.*[#/](.*?)$", "$1"), item) }
+      .map { item =>
+        val uri = item
+        val label = URIHelper.extractLabelFromURI(uri)
+        val lang = ""
+        URIWithLabel(label, uri, lang)
+      }
 
     val tags: Seq[URIWithLabel] = List()
     val categories: Seq[URIWithLabel] = List()
@@ -246,21 +241,31 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
       descriptions,
       versions,
       creators,
-
-      // CHECK with provenance
       publishedBy,
       owner,
       langs,
       lastEditDate,
       licenses,
-      // CHECK with provenance
-
       tags,
       categories,
       keywords,
-
       provenance)
 
+  }
+
+  // useful for testing
+  def parseData() = {
+
+    println(s"getting basic informations for ${source_url}")
+    val conn = repo.getConnection
+    val contextsIDS = Iterations.asList(conn.getContextIDs)
+    val subjects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSet
+    val properties = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getPredicate }.distinct.toSet
+    val objects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSet
+    val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSet
+    conn.close()
+
+    RDFData(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
   def informations() = {

@@ -11,15 +11,15 @@ import java.util.Date
 
 case class OntologyInformation(meta: OntologyMeta, data: RDFData)
 
-case class VocabularyInformation(meta: VocabularyMeta_NEW, data: RDFData)
+case class VocabularyInformation(meta: VocabularyMeta, data: RDFData)
 
 case class ItemByLanguage(lang: String, value: String)
 
-case class URIWithLabel(label: String, uri: String) {
+case class URIWithLabel(label: String, uri: String, lang: String) {
 
-  def this(label: String, uri: URI) = this(label, uri.toString())
+  def this(label: String, uri: URI) = this(label, uri.toString(), "ita")
 
-  def this(uri: String) = this(uri.toString().replaceAll("^.*[#/](.*?)$", "$1"), uri)
+  def this(uri: String) = this(uri.toString().replaceAll("^.*[#/](.*?)$", "$1"), uri, "ita")
 
 }
 
@@ -45,8 +45,10 @@ case class OntologyMeta(
   namespace: String,
   concepts: Set[String],
   imports: Seq[URIWithLabel],
-  titles: Map[String, String], // CHECK: Seq[ItemByLanguage] ADD ItemsByLanaguages as Map[ItemByLanaguage]
-  descriptions: Map[String, String],
+
+  titles: Seq[ItemByLanguage],
+  descriptions: Seq[ItemByLanguage],
+
   versions: Seq[Version],
   creators: Seq[Map[String, String]],
 
@@ -64,24 +66,15 @@ case class OntologyMeta(
 
   provenance: Seq[Map[String, Any]])
 
+// TODO: aggiornare i modelli
 case class VocabularyMeta(
   id: String,
   url: URL,
   source: URL,
-  concepts: Set[String],
-  titles: Seq[(String, String)],
-  descriptions: Seq[(String, String)],
-  version: Seq[(String, String)],
-  creators: Set[String])
-
-// TODO: aggiornare i modelli
-case class VocabularyMeta_NEW(
-  id: String,
-  url: URL,
-  source: URL,
   instances: Set[String],
-  titles: Map[String, String],
-  descriptions: Map[String, String],
+
+  titles: Seq[ItemByLanguage],
+  descriptions: Seq[ItemByLanguage],
 
   publishedBy: String, // TODO
   owner: String, // TODO
@@ -95,7 +88,7 @@ case class VocabularyMeta_NEW(
   lastEditDate: String,
   tags: Seq[URIWithLabel],
   categories: Seq[URIWithLabel],
-  keywords: Seq[String])
+  keywords: Seq[URIWithLabel])
 
 case class RDFData(
   subjects: Set[Resource],
@@ -103,18 +96,6 @@ case class RDFData(
   objects: Set[Value],
   contexts: Set[Resource])
 
+// TODO
 case class AssetType(assetType: String, representationTechnique: String)
   
-  
-/*
- * CHECK for case class -> Map conversion:
-
-def getCCParams(cc: AnyRef) = (Map[String, Any]() /: cc.getClass.getDeclaredFields) 
-	{
-	(a, f) =>
-  	f.setAccessible(true)
-  	a + (f.getName -> f.get(cc))
-	}
-
- */
-
