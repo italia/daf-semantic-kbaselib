@@ -85,7 +85,8 @@ resolvers += Resolver.mavenLocal
 - [ ] add / improve tests and test coverage
 - [x] import the core catalog part currently copied in `katalod` api
 - [x] add VOWL library, enabling simple visualizations (for ontologies)
-- [ ] add DCAT metadata parsing, improving navigation (for vocabularies)
+- [x] add DCAT metadata parsing, improving navigation (for vocabularies)
+- [ ] add DCAT metadata parsing, improving navigation (for ontologies, if it makes sense)
 - [ ] add simple examples of usage in README for calling the basic functionalities
 - [ ] add a simple diagram, to explain better the various components and their responsabilities
 - [ ] publishing the library on an available maven repository (nexus, etc), in order to simplify the build and installation processes
@@ -103,3 +104,5 @@ resolvers += Resolver.mavenLocal
 	- [kbaselib-0.0.1.jar](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.1.jar)
 	- [kbaselib-0.0.1_with_dependencies.zip](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.1_with_dependencies.zip)
 	- [repo](https://bitbucket.org/awodata/kbaselib/get/d05c14e704b0.zip)
+	
+

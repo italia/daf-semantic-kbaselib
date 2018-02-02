@@ -77,10 +77,10 @@ class OntologyRepositoryWrapper(source_url: URL) {
 
   val entities = parse_entities
 
-  if (_repo.isInitialized()) _repo.shutDown()
+  //  if (_repo.isInitialized()) _repo.shutDown()
   // extracting general informations.......................................................
 
-  private def parse(): OntologyInformation = OntologyMetadataExtractor(source_url, _repo)
+  private def parse(): OntologyInformation = OntologyMetadataExtractor(source_url, _repo).informations()
 
   def repository = _repo
 

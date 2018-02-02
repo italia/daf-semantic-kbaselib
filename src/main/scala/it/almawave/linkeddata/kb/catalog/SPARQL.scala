@@ -14,11 +14,21 @@ object SPARQL {
  * + tuples: `Seq[Map[String, Any]]`
  * + graphs: `Seq[Map[String, Map[String, ...]]]`
  *
+ * should we assume that the repository is accessible (already initialized and not shutdown?)
+ *
  */
 class SPARQL(repo: Repository) {
 
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
+
+  def start() {
+    if (!repo.isInitialized()) repo.initialize()
+  }
+
+  def stop() {
+    if (repo.isInitialized()) repo.shutDown()
+  }
 
   def query(query: String): Seq[Map[String, Any]] = {
 

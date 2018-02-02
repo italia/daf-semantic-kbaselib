@@ -8,7 +8,9 @@ import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
 
 object MainResourcesLoader extends App {
 
-  val loader = ResourcesLoader("src/main/resources/conf/catalog.conf")
+  //  val loader = ResourcesLoader("./src/main/resources/config_examples/catalog.example")
+
+  val loader = ResourcesLoader("C:/Users/Al.Serafini/repos/DAF/kataLOD/conf/catalog.conf")
 
   val ontologies: Seq[OntologyMeta] = loader.fetchOntologies(false)
   val vocabularies: Seq[VocabularyMeta] = loader.fetchVocabularies(false)

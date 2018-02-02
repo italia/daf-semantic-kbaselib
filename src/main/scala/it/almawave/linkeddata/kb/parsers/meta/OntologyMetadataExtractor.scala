@@ -39,7 +39,7 @@ import it.almawave.linkeddata.kb.utils.URIHelper
 object OntologyMetadataExtractor {
 
   // REVIEW: this could be helpful in som cases for CLI
-  def apply(source_url: URL): OntologyInformation = {
+  def apply(source_url: URL): OntologyMetadataExtractor = {
     val repo: Repository = new RDFFileRepository(source_url)
     if (!repo.isInitialized()) repo.initialize()
     val info = apply(source_url, repo)
@@ -48,12 +48,13 @@ object OntologyMetadataExtractor {
   }
 
   // REFACTORIZATION here! CHECK possible different storage for repository
-  def apply(source_url: URL, repo: Repository): OntologyInformation =
-    new OntologyMetadataExtractor(source_url, repo).informations()
+  def apply(source_url: URL, repo: Repository): OntologyMetadataExtractor =
+    new OntologyMetadataExtractor(source_url, repo)
+  //    new OntologyMetadataExtractor(source_url, repo).informations()
 
 }
 
-class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
+class OntologyMetadataExtractor(val source_url: URL, val repo: Repository) {
 
   val sparql = SPARQL(repo)
 
@@ -73,9 +74,7 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
 
   def parseMeta(): OntologyMeta = {
 
-    val source: URL = source_url
-
-    val id: String = source.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
+    val id: String = source_url.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
     val prefix: String = id.replaceAll("_", "").replaceAll("-", "").toLowerCase()
 
     val namespace: String = sparql.query("""
@@ -91,9 +90,8 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
         SELECT DISTINCT ?uri 
         WHERE { ?onto_uri rdf:type owl:Ontology ; rdfs:isDefinedBy ?uri . }
       """)
-
     val onto_url = if (_onto_url.isEmpty)
-      source
+      source_url
     else
       new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
 
@@ -231,7 +229,7 @@ class OntologyMetadataExtractor(source_url: URL, repo: Repository) {
 
     OntologyMeta(
       id,
-      source,
+      source_url,
       onto_url,
       prefix,
       namespace,

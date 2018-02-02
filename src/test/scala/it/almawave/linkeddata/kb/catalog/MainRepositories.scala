@@ -11,7 +11,7 @@ object MainRepositories extends App {
 
   val conf = ConfigFactory.parseFile(new File("src/main/resources/conf/catalog.conf"))
 
-  new RDFCatalog(conf)
+  val catalog = new RDFCatalog(conf)
 
 }
 
@@ -31,6 +31,7 @@ object MainRepositories extends App {
  */
 class RDFCatalog(configuration: Config) {
 
+  // general repository
   val repo: Repository = new SailRepository(new MemoryStore())
 
   // at startup we should load default configs, then override (jgit?)

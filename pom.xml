@@ -124,13 +124,8 @@
 		</dependency>
 
 
-		<!-- TODO: jgit 
-		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit</artifactId>
-			<version>4.10.0.201712302008-r</version>
-		</dependency>
-		-->
+		<!-- TODO: jgit <dependency> <groupId>org.eclipse.jgit</groupId> <artifactId>org.eclipse.jgit</artifactId> 
+			<version>4.10.0.201712302008-r</version> </dependency> -->
 
 
 	</dependencies>
@@ -217,6 +212,38 @@
 				</configuration>
 			</plugin>
 
+			<!-- sources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<show>private</show>
+					<nohelp>true</nohelp>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- scaladoc -->
 			<plugin>
@@ -237,7 +264,13 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>Compile</id>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>doc-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>Compile</id> <!-- serve? -->
 						<goals>
 							<goal>compile</goal>
 							<goal>testCompile</goal>

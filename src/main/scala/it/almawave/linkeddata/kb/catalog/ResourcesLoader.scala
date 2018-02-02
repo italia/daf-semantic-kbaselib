@@ -20,7 +20,7 @@ object ResourcesLoader {
   def apply(config_path: String) =
     new ResourcesLoader(ConfigFactory.parseFileAnySyntax(Paths.get(config_path).normalize().toFile()))
 
-  //  def apply(config_path: String) = new ResourcesLoader(ConfigFactory.parseResources(config_path))
+  def apply(conf: Config) = new ResourcesLoader(conf.resolve())
 
   def create(conf: Config) = new ResourcesLoader(conf)
 
@@ -63,14 +63,18 @@ class ResourcesLoader(configuration: Config) {
         val onto_source: URL = new URL(s"${remote}${onto_path}")
         val onto_cache: URL = Paths.get(s"${local}${onto_path}").normalize().toUri().toURL()
 
-        val data_url = if (useCache) onto_source else onto_cache
+        println("\n\nSOURCE: " + onto_source)
+        println("CACHE: " + onto_cache)
 
-        logger.debug(s"loading RDF from: ${data_url}")
+        val data_url = if (!useCache) onto_source else onto_cache
+
+        println(s"loading RDF from: ${data_url}")
 
         // CHECK: creating multiple repositories
         //        val repo: Repository = new RDFFileRepository(data_url)
 
-        OntologyMetadataExtractor(data_url).meta
+        // REFACTORING...
+        OntologyMetadataExtractor(data_url).informations().meta
 
       }
 
@@ -94,7 +98,7 @@ class ResourcesLoader(configuration: Config) {
         val voc_source: URL = new URL(s"${remote}${onto_path}")
         val voc_cache: URL = Paths.get(s"${local}${onto_path}").normalize().toUri().toURL()
 
-        val data_url = if (useCache) voc_source else voc_cache
+        val data_url = if (!useCache) voc_source else voc_cache
 
         logger.debug(s"loading RDF from: ${data_url}")
 

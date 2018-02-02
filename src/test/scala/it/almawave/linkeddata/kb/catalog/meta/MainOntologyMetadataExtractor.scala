@@ -14,7 +14,7 @@ object MainOntologyMetadataExtractor extends App {
   val results = OntologyMetadataExtractor(url)
   println(results)
 
-  val json = JSONHelper.writeToString(results.meta)
+  val json = JSONHelper.writeToString(results.informations().meta)
   println(json)
 
 }
