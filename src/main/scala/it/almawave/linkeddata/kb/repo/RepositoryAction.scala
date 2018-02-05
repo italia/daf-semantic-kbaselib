@@ -9,13 +9,22 @@ import scala.util.Success
 import scala.concurrent.Future
 
 /*
-   * this could be useful for simplifying code: 
+   * this could be useful for simplifying code:
    * 	+ default connection handling (open/close)
    * 	+ default transaction handling
+   *
+   * RepositoryAction(repo){ conn =>
+   * 	...
+   * }("some error message...")
+   *
    */
 object RepositoryAction {
 
   def apply[R](repo: Repository)(conn_action: (RepositoryConnection => Any))(msg_err: String)(implicit logger: Logger): Try[R] = {
+
+    // CHECK: verify the repository is active! otherwise, activate it
+    //    var repo_was_active = repo.isInitialized()
+    //    if (!repo_was_active) repo.initialize()
 
     // NOTE: we could imagine using a connection pool here
     val _conn = repo.getConnection
@@ -39,6 +48,9 @@ object RepositoryAction {
     }
 
     _conn.close()
+
+    // return to the original repository active / not active state
+    //    if (!repo_was_active) repo.shutDown()
 
     // gets the result as a Future
     //  TODO:  Future.fromTry(results)

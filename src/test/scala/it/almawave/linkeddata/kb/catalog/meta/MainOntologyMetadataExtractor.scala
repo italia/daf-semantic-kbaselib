@@ -10,11 +10,10 @@ object MainOntologyMetadataExtractor extends App {
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
   println(s"\n\nextracting informations from\n${url}\n...")
 
-  //  val repo = new RDFFileRepository(url)
-  val results = OntologyMetadataExtractor(url)
+  val results = OntologyMetadataExtractor(url).informations()
   println(results)
 
-  val json = JSONHelper.writeToString(results.informations().meta)
+  val json = JSONHelper.writeToString(results.meta)
   println(json)
 
 }
