@@ -14,7 +14,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
 import org.eclipse.rdf4j.sail.solr.SolrIndex
 
-import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
 import it.almawave.linkeddata.kb.catalog.models.OntologyInformation
 import it.almawave.linkeddata.kb.catalog.SPARQL
@@ -48,29 +48,16 @@ object OntologyMetadataExtractor {
   }
 
   // REFACTORIZATION here! CHECK possible different storage for repository
-  def apply(source_url: URL, repo: Repository): OntologyMetadataExtractor =
+  def apply(source_url: URL, repo: Repository): OntologyMetadataExtractor = {
     new OntologyMetadataExtractor(source_url, repo)
-  //    new OntologyMetadataExtractor(source_url, repo).informations()
+  }
 
 }
 
+@Deprecated
 class OntologyMetadataExtractor(val source_url: URL, val repo: Repository) {
 
   val sparql = SPARQL(repo)
-
-  // CHECK: this is an experiment... SEE: RDFFrame class
-  // TODO: etichette dei concetti
-  lazy val frames = sparql.query("""
-      SELECT DISTINCT ?super ?concept ?property 
-      WHERE { 
-        ?concept a ?klass . ?klass rdfs:subClassOf* ?super . 
-        ?concept ?property [] .
-      }
-      ORDER BY ?super ?concept ?property
-      """)
-    .map { item => (item.get("concept").get.asInstanceOf[String], item.get("property").get.asInstanceOf[String]) }
-    .groupBy { item => item._1 }
-    .map { item => (item._1, item._2.toList.map(_._2)) }.toMap
 
   def parseMeta(): OntologyMeta = {
 
@@ -263,10 +250,12 @@ class OntologyMetadataExtractor(val source_url: URL, val repo: Repository) {
     val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSet
     conn.close()
 
-    RDFData(subjects, properties, objects, contexts ++ contextsIDS)
+    RDFData_OLD(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
   def informations() = {
+
+    if (!repo.isInitialized()) repo.initialize()
 
     val data = parseData()
     val meta = parseMeta()

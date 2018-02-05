@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.common.iteration.Iterations
 
 import it.almawave.linkeddata.kb.catalog.models.VocabularyInformation
-import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.catalog.SPARQL
 import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
@@ -40,22 +40,10 @@ object VocabularyMetadataExtractor {
 
 }
 
+@Deprecated
 class VocabularyMetadataExtractor(source_url: URL, repo: Repository) {
 
   val sparql = SPARQL(repo)
-
-  // CHECK: this is an experiment... SEE: RDFFrame class
-  val frames = sparql.query("""
-      SELECT DISTINCT ?super ?concept ?property 
-      WHERE { 
-        ?concept a ?klass . ?klass rdfs:subClassOf* ?super . 
-        ?concept ?property [] .
-      }
-      ORDER BY ?super ?concept ?property
-    """)
-    .map { item => (item.get("concept").get.asInstanceOf[String], item.get("property").get.asInstanceOf[String]) }
-    .groupBy { item => item._1 }
-    .map { item => (item._1, item._2.toList.map(_._2)) }.toMap
 
   def parseMeta(): VocabularyMeta = {
 
@@ -278,10 +266,12 @@ class VocabularyMetadataExtractor(source_url: URL, repo: Repository) {
     val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSet
     conn.close()
 
-    RDFData(subjects, properties, objects, contexts ++ contextsIDS)
+    RDFData_OLD(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
   def informations() = {
+
+    if (!repo.isInitialized()) repo.initialize()
 
     val data = parseData()
     val meta = parseMeta()

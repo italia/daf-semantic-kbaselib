@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.common.iteration.Iterations
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import it.almawave.linkeddata.kb.catalog.models.RDFData
+import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.utils.JSONHelper
 import org.eclipse.rdf4j.rio.Rio
 import it.almawave.linkeddata.kb.repo.RDFRepository
@@ -122,7 +122,7 @@ class OntologyRepositoryWrapper(source_url: URL) {
     dependencies.foreach { dep_url =>
 
       val url = new URL(dep_url)
-      GuessRDFMIME.guess(url) match {
+      GuessRDFMIME.guess_format(url) match {
         case Success(mime) => conn.add(url, "", mime)
         case Failure(ok)   => println("ERROR: " + ok)
       }
