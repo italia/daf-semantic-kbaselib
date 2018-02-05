@@ -9,9 +9,9 @@ import java.util.Date
 
 // CHECK: ai fini della navigazione bisogna capire se usare solo titles/descriptions it
 
-case class OntologyInformation(meta: OntologyMeta, data: RDFData)
+case class OntologyInformation(meta: OntologyMeta, data: RDFData_OLD)
 
-case class VocabularyInformation(meta: VocabularyMeta, data: RDFData)
+case class VocabularyInformation(meta: VocabularyMeta, data: RDFData_OLD)
 
 case class ItemByLanguage(lang: String, value: String)
 
@@ -24,10 +24,10 @@ case class URIWithLabel(label: String, uri: String, lang: String) {
 }
 
 case class Version(
-  number: String,
-  date: String,
+  number:  String,
+  date:    String,
   comment: Map[String, String],
-  uri: String)
+  uri:     String)
 
 // TODO: add a regex / case class extractor for semantic versioning
 // TODO: add a proper date format
@@ -38,63 +38,70 @@ case class DateInfo(value: String)
 
 case class OntologyMeta(
 
-  id: String,
-  source: URL,
-  url: URL,
-  prefix: String,
+  id:        String,
+  source:    URL,
+  url:       URL,
+  prefix:    String,
   namespace: String,
-  concepts: Set[String],
-  imports: Seq[URIWithLabel],
+  concepts:  Set[String],
+  imports:   Seq[URIWithLabel],
 
-  titles: Seq[ItemByLanguage],
+  titles:       Seq[ItemByLanguage],
   descriptions: Seq[ItemByLanguage],
 
   versions: Seq[Version],
   creators: Seq[Map[String, String]],
 
   // CHECK with provenance
-  publishedBy: String,
-  owner: String,
-  langs: Seq[String], // CHECK: LANG
+  publishedBy:  String,
+  owner:        String,
+  langs:        Seq[String], // CHECK: LANG
   lastEditDate: String,
-  licenses: Seq[URIWithLabel],
+  licenses:     Seq[URIWithLabel],
 
-  tags: Seq[URIWithLabel],
+  tags:       Seq[URIWithLabel],
   categories: Seq[URIWithLabel],
-  keywords: Seq[String],
+  keywords:   Seq[String],
   // CHECK with provenance
 
   provenance: Seq[Map[String, Any]])
 
 // TODO: aggiornare i modelli
 case class VocabularyMeta(
-  id: String,
-  url: URL,
-  source: URL,
+  id:        String,
+  url:       URL,
+  source:    URL,
   instances: Set[String],
 
-  titles: Seq[ItemByLanguage],
+  titles:       Seq[ItemByLanguage],
   descriptions: Seq[ItemByLanguage],
 
   publishedBy: String, // TODO
-  owner: String, // TODO
-  creators: Seq[Map[String, String]], // TODO
+  owner:       String, // TODO
+  creators:    Seq[Map[String, String]], // TODO
 
-  langs: Seq[String], // CHECK: LANG
+  langs:    Seq[String], // CHECK: LANG
   licenses: Seq[URIWithLabel],
 
   version: Seq[Version],
 
   lastEditDate: String,
-  tags: Seq[URIWithLabel],
-  categories: Seq[URIWithLabel],
-  keywords: Seq[URIWithLabel])
+  tags:         Seq[URIWithLabel],
+  categories:   Seq[URIWithLabel],
+  keywords:     Seq[URIWithLabel])
+
+@Deprecated
+case class RDFData_OLD(
+  subjects:   Set[Resource],
+  properties: Set[IRI],
+  objects:    Set[Value],
+  contexts:   Set[Resource])
 
 case class RDFData(
-  subjects: Set[Resource],
-  properties: Set[IRI],
-  objects: Set[Value],
-  contexts: Set[Resource])
+  subjects:   Seq[Resource],
+  properties: Seq[IRI],
+  objects:    Seq[Value],
+  contexts:   Seq[Resource])
 
 // TODO
 case class AssetType(assetType: String, representationTechnique: String)

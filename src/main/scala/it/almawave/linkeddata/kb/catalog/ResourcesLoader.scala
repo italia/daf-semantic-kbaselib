@@ -26,6 +26,7 @@ object ResourcesLoader {
 
 }
 
+@Deprecated
 class ResourcesLoader(configuration: Config) {
 
   import scala.collection.JavaConversions._
