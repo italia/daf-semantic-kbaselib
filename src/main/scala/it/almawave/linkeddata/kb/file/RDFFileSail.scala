@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
+import it.almawave.linkeddata.kb.parsers.GuessRDFMIME
 
 /**
  * examples:
@@ -51,7 +52,9 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
       logger.debug(s"loading RDF from url: <${url}>")
       val input = url.openStream()
 
-      val format: RDFFormat = Rio.getParserFormatForFileName(url.toString()).get
+      // val format: RDFFormat = Rio.getParserFormatForFileName(url.toString()).get
+      
+      val format: RDFFormat = GuessRDFMIME.guess_format(url).get
 
       // CHECK: val model = Rio.parse(input, baseURI, format, parser_config, vf, error_listener, ctxs: _*)
       val model = Rio.parse(input, baseURI, format, ctxs: _*)
@@ -60,6 +63,8 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
       model.unmodifiable()
         .toStream
         .foreach { st =>
+          // conn.addStatement(st.getSubject, st.getPredicate, st.getObject)
+          // conn.addStatement(st.getSubject, st.getPredicate, st.getObject, null)
           conn.addStatement(st.getSubject, st.getPredicate, st.getObject, st.getContext)
         }
       conn.commit()
