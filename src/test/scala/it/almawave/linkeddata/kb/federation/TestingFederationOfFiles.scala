@@ -25,6 +25,7 @@ object TestingFederationFiles extends App {
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Livello0/latest/l0.ttl")
+    .map(new URL(_))
 
   val federation = new Federation
   federation.setReadOnly(true)
@@ -32,7 +33,7 @@ object TestingFederationFiles extends App {
 
   urls.foreach { url =>
     val context = "http://dati.gov.it/examples/" + url.toString().replaceAll(".*:/.*[#/](.*)\\..*", "$1")
-    val urlSail = new RDFFileSail(new URL(url), context)
+    val urlSail = new RDFFileSail(List(url), context)
     federation.addMember(new SailRepository(urlSail))
   }
 

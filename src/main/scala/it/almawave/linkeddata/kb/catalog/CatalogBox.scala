@@ -63,13 +63,13 @@ class CatalogBox(config: Config) extends RDFBox {
       _vocabularies.foldLeft(0)((a, b) => a + b.triples)
   }
 
-  /*
+/*
  * TODO:
  *
  * 1) withDependency
  * 2) vocabulary...
- * 3) vocabulary - de-normalization (CHECK: su quali dati?)
- * 4) ontology - onto.concept.prop (CHECK: su quali dati?)
+ * 3) vocabulary	-	de-normalization	(CHECK: su quali dati?)
+ * 4) ontology		-	onto.concept.prop	(CHECK: su quali dati?)
  *
  */
 
@@ -83,7 +83,6 @@ class CatalogBox(config: Config) extends RDFBox {
 
     conf.getConfigList("ontologies.data")
       .toStream
-      .par
       .foreach { onto_conf =>
         val source_path = onto_conf.getString("path")
         val source_url = new URI(base_path + source_path).normalize().toURL()
@@ -108,7 +107,6 @@ class CatalogBox(config: Config) extends RDFBox {
 
     conf.getConfigList("vocabularies.data")
       .toStream
-      .par
       .foreach { voc_conf =>
         val source_path = voc_conf.getString("path")
         val source_url = new URI(base_path + source_path).normalize().toURL()

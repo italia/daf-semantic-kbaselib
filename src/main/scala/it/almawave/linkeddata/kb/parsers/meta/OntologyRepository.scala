@@ -32,6 +32,7 @@ import scala.util.Failure
  * for vocabulary: this will reference the prefixes/namespaces declaration
  *
  */
+@Deprecated
 object MainOntologyRepositoryWrapper extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")

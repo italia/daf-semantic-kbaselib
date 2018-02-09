@@ -1,0 +1,22 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX clvapit: <http://dati.gov.it/onto/clvapit#> 
+
+# SEE code_level_1,label_level_1,code_level_2,label_level_2,code_level_3,label_level_3
+
+SELECT ?code ?label ?uri ?parent ?rank ?scheme 
+
+WHERE {
+
+  ?uri a skos:Concept .
+  ?uri skos:notation ?code .
+  ?uri skos:prefLabel ?label .
+  ?uri clvapit:hasRankOrder ?rank .
+  
+  OPTIONAL {
+    ?uri skos:broader ?parent .
+	?uri skos:inScheme ?scheme .
+  }
+  	
+}
+
+ORDER BY ?rank ?notation

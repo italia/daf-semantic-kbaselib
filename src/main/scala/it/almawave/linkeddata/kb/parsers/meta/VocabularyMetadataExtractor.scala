@@ -234,6 +234,8 @@ class VocabularyMetadataExtractor(source_url: URL, repo: Repository) {
       .map { item => new URL(item) }
       .headOption.getOrElse(null)
 
+    val dependencies: Seq[String] = List()
+
     VocabularyMeta(
       id,
       url,
@@ -250,7 +252,8 @@ class VocabularyMetadataExtractor(source_url: URL, repo: Repository) {
       lastEditDate,
       tags,
       categories,
-      keywords)
+      keywords,
+      dependencies)
 
   }
 

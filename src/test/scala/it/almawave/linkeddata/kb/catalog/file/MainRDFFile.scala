@@ -10,7 +10,7 @@ import it.almawave.linkeddata.kb.file.RDFFileSail;
 object MainRDFSail extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
-  val rdf_files = new RDFFileSail(url)
+  val rdf_files = new RDFFileSail(List(url))
 
   val repo = new SailRepository(rdf_files)
   repo.initialize()

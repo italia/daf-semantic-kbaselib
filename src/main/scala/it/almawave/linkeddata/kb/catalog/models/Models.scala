@@ -88,7 +88,8 @@ case class VocabularyMeta(
   lastEditDate: String,
   tags:         Seq[URIWithLabel],
   categories:   Seq[URIWithLabel],
-  keywords:     Seq[URIWithLabel])
+  keywords:     Seq[URIWithLabel],
+  dependencies: Seq[String])
 
 @Deprecated
 case class RDFData_OLD(

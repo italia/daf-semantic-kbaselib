@@ -24,6 +24,10 @@ import java.net.URI
 
 object MainCatalogBox extends App {
 
+  //  System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl")
+  //  val sys_props = System.getProperties()
+  //  sys_props.remove("javax.xml.parsers.DocumentBuilderFactory")
+
   val conf = ConfigFactory.parseFile(Paths.get("src/main/resources/conf/catalog.conf").normalize().toFile())
 
   val catalog = new CatalogBox(conf)
@@ -35,7 +39,7 @@ object MainCatalogBox extends App {
   catalog.vocabularies.foreach(println(_))
 
   // TODO
-  //  val ontologies_with_deps = catalog.ontologies.map { o => o.withImports() }
+  val ontologies_with_deps = catalog.ontologies.map { o => o.withImports() }
   // TEST: ${ontologies_with_deps}
 
   println(s"""
@@ -54,6 +58,7 @@ object MainCatalogBox extends App {
 
   // REVIEW withImports!
   //  val bbox = catalog.ontologies(0).withImports()
+  // CHECK: redirect with problems with RDF/XML
   //  println(bbox)
 
   catalog.stop()

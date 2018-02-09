@@ -14,6 +14,7 @@ import it.almawave.linkeddata.kb.utils.URIHelper
 import it.almawave.linkeddata.kb.catalog.models.Version
 import it.almawave.linkeddata.kb.catalog.models.AssetType
 import java.net.URI
+import org.eclipse.rdf4j.common.iteration.Iterations
 
 object VocabularyParser {
 
@@ -59,6 +60,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val categories: Seq[URIWithLabel] = this.parse_dcat_themes()
     val keywords: Seq[URIWithLabel] = this.parse_dcat_keywords()
 
+    val dependencies: Seq[String] = this.parse_dependencies()
+
     VocabularyMeta(
       id,
       voc_url,
@@ -75,7 +78,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       lastEditDate,
       tags,
       categories,
-      keywords)
+      keywords,
+      dependencies)
   }
 
   def parse_voc_url(): URL = {
@@ -273,8 +277,34 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       }
   }
 
+  def parse_dependencies(): Seq[String] = {
+
+    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
+
+    SPARQL(repo).query("""
+      SELECT DISTINCT ?concept 
+      WHERE {
+        ?subject a ?concept 
+      }  
+    """)
+      .map(item => item.toMap.getOrElse("concept", "").asInstanceOf[String])
+      .map(item => item.replaceAll("^(.*)[#/].*?$", "$1"))
+      .distinct
+
+  }
+
   // should we shutdown the repository after using it?
   if (!repo.isInitialized()) repo.initialize()
+}
+
+object TestingBaseExtraction extends App {
+
+  val url = "http://dati.gov.it/onto/clvapit#Feature"
+
+  val txt = url.replaceAll("^(.*)[#/].*?$", "$1")
+  println("verify: " + txt)
+
 }
 
 // CHECK
