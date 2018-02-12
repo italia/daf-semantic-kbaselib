@@ -13,6 +13,7 @@ import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
 import it.almawave.linkeddata.kb.catalog.models.URIWithLabel
 import it.almawave.linkeddata.kb.parsers.OntologyParser
 import org.eclipse.rdf4j.query.QueryLanguage
+import it.almawave.linkeddata.kb.utils.URLHelper
 
 object OntologyBox {
 
@@ -47,7 +48,7 @@ class OntologyBox(val meta: OntologyMeta) extends RDFBox {
   """.trim()
 
   def withImports(): OntologyBox = {
-    val rdf_imports = meta.imports.map(_.uri).map(new URL(_))
+    val rdf_imports = meta.imports.map(_.uri).map(u => URLHelper.follow_redirect(new URL(u)))
     new OntologyBoxWithImports(meta)
   }
 
@@ -60,4 +61,6 @@ class OntologyBoxWithImports(meta: OntologyMeta) extends OntologyBox(meta) {
   override val repo: Repository = new RDFFileRepository(meta.source :: _imports, meta.url.toString())
 
 }
+
+
 

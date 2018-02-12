@@ -28,7 +28,7 @@ object TESTRDF4JXMLParser extends App {
 
     println("\n\n_________________________\n\nURL> " + url)
 
-    val url_redirected = URLHelper.follow_url(url)
+    val url_redirected = URLHelper.follow_redirect(url)
 
     val box: VocabularyBox = VocabularyBox.parse(url_redirected.get)
     box.start()

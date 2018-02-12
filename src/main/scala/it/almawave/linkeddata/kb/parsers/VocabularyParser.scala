@@ -289,7 +289,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       }  
     """)
       .map(item => item.toMap.getOrElse("concept", "").asInstanceOf[String])
-      .map(item => item.replaceAll("^(.*)[#/].*?$", "$1"))
+      .map(item => item.replaceAll("^(.*)[#/].*?$", "$1").trim())
       .distinct
 
   }

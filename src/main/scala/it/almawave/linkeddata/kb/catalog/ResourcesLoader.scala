@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory
 /*
  * CHECK: this class could be merged with catalog class
  */
+@Deprecated
 object ResourcesLoader {
 
   def apply(config_path: String) =

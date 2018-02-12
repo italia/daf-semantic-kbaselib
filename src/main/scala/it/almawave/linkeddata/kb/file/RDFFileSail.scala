@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import it.almawave.linkeddata.kb.utils.URLHelper
 import scala.util.Success
 import scala.util.Failure
+import scala.util.Try
 
 /**
  * examples:
@@ -55,12 +56,14 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
 
     urls.foreach { u =>
 
-      URLHelper.follow_url(u) match {
+      URLHelper.follow_redirect(u) match {
         
         case Success(url) =>   
           
           _logger.debug(s"\nloading RDF from url: <${url}>")
-            println(s"\nRDF> loading RDF from url: <${url}>")
+//            println(s"\nRDF> loading RDF from url: <${url}>")
+            
+            try {
             val input = url.openStream()
       
             // val format: RDFFormat = Rio.getParserFormatForFileName(url.toString()).get
@@ -91,10 +94,15 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
             
         
            } else {
-             Failure(new RuntimeException(""))
+             println(s"cannot guess RDF format for URL ${url}")
            }
           
-          case Failure(err) => err.printStackTrace()
+         
+            
+        } catch {
+          
+          case err:Throwable => println(err)
+        }
         
       }
       

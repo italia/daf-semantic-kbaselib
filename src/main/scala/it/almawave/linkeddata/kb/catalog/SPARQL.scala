@@ -30,14 +30,23 @@ class SPARQL(repo: Repository) {
     if (repo.isInitialized()) repo.shutDown()
   }
 
+  def ask(query: String): Boolean = {
+    val conn = repo.getConnection
+    val result = conn.prepareBooleanQuery(QueryLanguage.SPARQL, query).evaluate()
+    conn.close()
+    result
+  }
+
   def query(query: String): Seq[Map[String, Any]] = {
 
     // TODO: handle UPDATE by Exception
 
     if (query.contains("SELECT ") || query.contains("select ")) {
       queryTuple(query)
-    } else {
+    } else if (query.contains("CONSTRUCT ") || query.contains("construct ") || query.contains("DESCRIBE ") || query.contains("describe ")) {
       queryGraph(query)
+    } else {
+      throw new RuntimeException("cannot handle this type of query")
     }
 
   }

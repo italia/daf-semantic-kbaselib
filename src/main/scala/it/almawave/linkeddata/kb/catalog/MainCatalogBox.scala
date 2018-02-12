@@ -24,10 +24,6 @@ import java.net.URI
 
 object MainCatalogBox extends App {
 
-  //  System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl")
-  //  val sys_props = System.getProperties()
-  //  sys_props.remove("javax.xml.parsers.DocumentBuilderFactory")
-
   val conf = ConfigFactory.parseFile(Paths.get("src/main/resources/conf/catalog.conf").normalize().toFile())
 
   val catalog = new CatalogBox(conf)
@@ -52,14 +48,9 @@ object MainCatalogBox extends App {
     
     n° vocabularies loaded:      ${catalog.vocabularies.size}
     n° triples in vocabularies:  ${catalog.vocabularies.foldLeft(0)(_ + _.triples)}
-    
+             with dependencies:  ${catalog.vocabulariesWithDependencies().foldLeft(0)(_ + _.triples)}
   
   """)
-
-  // REVIEW withImports!
-  //  val bbox = catalog.ontologies(0).withImports()
-  // CHECK: redirect with problems with RDF/XML
-  //  println(bbox)
 
   catalog.stop()
 

@@ -125,7 +125,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       """)
       .map(_.get("import_uri").get.asInstanceOf[String])
       .map { item =>
-        val uri = item
+        val uri = item.trim()
         val label = URIHelper.extractLabelFromURI(item)
         val lang = ""
         URIWithLabel(label, uri, lang)

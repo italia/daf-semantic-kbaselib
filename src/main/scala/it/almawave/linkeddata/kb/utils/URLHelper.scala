@@ -7,7 +7,7 @@ import java.net.URLDecoder
 
 object URLHelper {
 
-  def follow_url(url: URL): Try[URL] = {
+  def follow_redirect(url: URL): Try[URL] = {
 
     val scheme = url.toURI().getScheme
 
@@ -34,7 +34,7 @@ object URLHelper {
             Try { url }
           } else {
             //            println("now using url: " + next_url)
-            follow_url(new URL(next_url))
+            follow_redirect(new URL(next_url))
           }
 
         case code => Try {

@@ -22,6 +22,22 @@ import java.security.MessageDigest
 import scala.util.Random
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.eclipse.rdf4j.sail.Sail
+import java.net.URL
+import it.almawave.linkeddata.kb.file.RDFFileRepository
+
+object RDFBox {
+
+  def parse(rdf_source: URL): RDFBox = {
+
+    new RDFBox {
+
+      override val repo = new RDFFileRepository(rdf_source)
+
+    }
+
+  }
+
+}
 
 /*
  * an RDFBox is a component that acts as a simple container of RDF informations:

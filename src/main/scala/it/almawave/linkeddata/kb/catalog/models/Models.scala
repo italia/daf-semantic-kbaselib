@@ -68,6 +68,7 @@ case class OntologyMeta(
 
 // TODO: aggiornare i modelli
 case class VocabularyMeta(
+
   id:        String,
   url:       URL,
   source:    URL,
@@ -89,7 +90,9 @@ case class VocabularyMeta(
   tags:         Seq[URIWithLabel],
   categories:   Seq[URIWithLabel],
   keywords:     Seq[URIWithLabel],
-  dependencies: Seq[String])
+  dependencies: Seq[String] // ontologies from which the vocabulary depends on
+
+)
 
 @Deprecated
 case class RDFData_OLD(

@@ -14,9 +14,15 @@ object MainVocabularyBoxParser extends App {
   println(s"\n\nextracting informations from\n${url}\n...")
 
   val box = VocabularyBox.parse(url)
-  println(box)
 
   val json = JSONHelper.writeToString(box.meta)
   println(json)
 
+  println(box)
+  println("triples: " + box.triples)
+
+//  val exp = box.withRepositories()
+//  println(exp)
+//  println(exp.triples)
+  
 }

@@ -13,6 +13,9 @@ import org.eclipse.rdf4j.sail.inferencer.fc.DedupingInferencer
 import org.eclipse.rdf4j.common.iteration.Iterations
 import org.eclipse.rdf4j.sail.federation.Federation
 import org.eclipse.rdf4j.sail.Sail
+import scala.util.Try
+import scala.util.Failure
+import scala.util.Success
 
 class CatalogBox(config: Config) extends RDFBox {
 
@@ -27,6 +30,7 @@ class CatalogBox(config: Config) extends RDFBox {
 
   private val _ontologies = new ListBuffer[OntologyBox]
   private val _vocabularies = new ListBuffer[VocabularyBox]
+  private val _remotes = new ListBuffer[RemoteOntologyBox]
 
   def ontologies = _ontologies.toList
   def vocabularies = _vocabularies.toList
@@ -38,7 +42,7 @@ class CatalogBox(config: Config) extends RDFBox {
     // load ontologies!
     this.load_ontologies
 
-    // load ocabularies!
+    // load vocabularies!
     this.load_vocabularies
 
     // starts the different kbboxes
@@ -47,6 +51,7 @@ class CatalogBox(config: Config) extends RDFBox {
     // adding triples to global federated repository
     _ontologies.foreach { x => federation.addMember(x.repo) }
     _vocabularies.foreach { x => federation.addMember(x.repo) }
+    _remotes.foreach { x => federation.addMember(x.repo) }
 
   }
 
@@ -63,7 +68,7 @@ class CatalogBox(config: Config) extends RDFBox {
       _vocabularies.foldLeft(0)((a, b) => a + b.triples)
   }
 
-/*
+  /*
  * TODO:
  *
  * 1) withDependency
@@ -72,6 +77,10 @@ class CatalogBox(config: Config) extends RDFBox {
  * 4) ontology		-	onto.concept.prop	(CHECK: su quali dati?)
  *
  */
+
+  def getVocabularyByID(vocabularyID: String) = Try {
+    this._vocabularies.toStream.filter(_.id.equals(vocabularyID)).head
+  }
 
   private def load_ontologies = {
 
@@ -86,7 +95,6 @@ class CatalogBox(config: Config) extends RDFBox {
       .foreach { onto_conf =>
         val source_path = onto_conf.getString("path")
         val source_url = new URI(base_path + source_path).normalize().toURL()
-        //        val box = new OntologyBox(source_url)
         val box = OntologyBox.parse(source_url)
         box.start()
         box.stop()
@@ -95,6 +103,11 @@ class CatalogBox(config: Config) extends RDFBox {
 
     _ontologies.toStream
 
+  }
+
+  // TODO: same for vocabulary?
+  private def getOntologyBoxByContext(context: String) = Try {
+    _ontologies.toStream.filter(_.context.equals(context)).head
   }
 
   private def load_vocabularies = {
@@ -108,6 +121,7 @@ class CatalogBox(config: Config) extends RDFBox {
     conf.getConfigList("vocabularies.data")
       .toStream
       .foreach { voc_conf =>
+
         val source_path = voc_conf.getString("path")
         val source_url = new URI(base_path + source_path).normalize().toURL()
         val box = VocabularyBox.parse(source_url)
@@ -120,6 +134,61 @@ class CatalogBox(config: Config) extends RDFBox {
 
   }
 
+  private def load_remotes: Stream[RemoteOntologyBox] = {
+    Stream.Empty
+  }
+
   // CHECK: repository <all>
+
+  def vocabulariesWithDependencies(): Seq[VocabularyBox] = {
+
+    this.vocabularies.map { vbox =>
+
+      val vocID = vbox.id
+      //      println(s"\n\nVOCAB: ${vocID}")
+
+      // find vocabulary by id
+      var voc_box = this.getVocabularyByID(vocID).get
+      //      println("VOC BOX (no dep):	" + voc_box)
+
+      val triples_no_deps = voc_box.triples
+
+      // resolve internal dependencies
+      val ontos = this.resolve_dependencies(voc_box)
+
+      // resolve repositories
+      //      val repos = ontos.map(_.repo)
+      // federation with repositories
+      voc_box = voc_box.federateWith(ontos)
+
+      //      println("VOC BOX (with dep):	" + voc_box)
+
+      val triples_deps = voc_box.triples
+
+      //      if (triples_deps > triples_no_deps) println(s"${vocID} has more triples!")
+
+      voc_box
+    }
+
+  }
+
+  // resolve only internal dependencies
+  private def internal_dependencies(voc_box: VocabularyBox) = {
+    val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
+    voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
+  }
+
+  private def resolve_dependencies(voc_box: VocabularyBox): Seq[OntologyBox] = {
+
+    // list of dependencies
+    val deps = this.internal_dependencies(voc_box).map(new URL(_))
+
+    // boxes found
+    deps.flatMap { dep_ctx =>
+      this.ontologies.toList
+        .filter(_.context.trim().equals(dep_ctx.toString().trim()))
+    }
+
+  }
 
 }
