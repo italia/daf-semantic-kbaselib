@@ -22,14 +22,12 @@ object TestingStandardizationHelper extends App {
   // DEBUG
   cells.foreach(c => println(c))
 
-  val deep = cells.toList.map(_.toList.size).max
-  val max = std.max_levels(vbox)
-  println("LEVELS: " + deep, max)
+  //  val deep = cells.toList.map(_.toList.size).max
+  val MAX_LEVELS = std.max_levels(vbox)
 
   // DEBUG
-  val keys = cells.toList.filter(_.toList.size == max)(0).flatMap(_.map(_._1))
-  
-  println("KEYS: " + keys.mkString(" | "))
+  val keys = cells.toList.filter(_.toList.size == MAX_LEVELS)(0).flatMap(_.map(_._1))
+  println("\n\nKEYS: " + keys.mkString(" | "))
   println("KEYS size: " + keys.size)
 
   vbox.stop()

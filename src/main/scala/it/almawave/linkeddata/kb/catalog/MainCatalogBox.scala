@@ -31,6 +31,7 @@ object MainCatalogBox extends App {
 
   println("\n#### ontologies")
   catalog.ontologies.foreach(println(_))
+
   println("\n#### vocabularies")
   catalog.vocabularies.foreach(println(_))
 
@@ -54,6 +55,7 @@ object MainCatalogBox extends App {
 
   catalog.stop()
 
+  @Deprecated
   def show_concepts() {
     val counted = SPARQL(catalog.repo).query("""
     

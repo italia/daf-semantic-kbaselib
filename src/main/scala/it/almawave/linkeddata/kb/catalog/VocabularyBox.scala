@@ -37,7 +37,7 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
   //  val assetType = extract_assetType()
 
   override def toString() = s"""
-    VocabularyBox [${id}, ${status}, ${triples} triples, ${context}]
+    VocabularyBox [${id}, ${status}, ${triples} triples, ${context}] [${extract_assetType._1}]
   """.trim()
 
   // REVIEW
@@ -55,7 +55,8 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
    */
   def extract_assetType() = {
 
-    if (!repo.isInitialized()) repo.initialize()
+    val active = repo.isInitialized()
+    if (!active) repo.initialize()
 
     val reresentation_uri = SPARQL(repo).query("""
       PREFIX adms: <http://www.w3.org/ns/adms#> 
@@ -65,11 +66,13 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
       } 
     """)
       .toList(0)
-      .getOrElse("representation", "SKOS").asInstanceOf[String]
+      .getOrElse("representation", "default:SKOS").asInstanceOf[String]
 
     val representaton_id = reresentation_uri.replaceAll(".*[#/](.*)", "$1")
-    (representaton_id, reresentation_uri)
 
+    if (!active) repo.shutDown()
+
+    (representaton_id, reresentation_uri)
   }
 
 }
@@ -87,28 +90,6 @@ class VocabularyBoxWithDependencies(vocab: VocabularyBox, ontos: Seq[OntologyBox
 
 }
 
-//class VocabularyBoxWithRepositories(meta: VocabularyMeta, base_repo: Repository) extends VocabularyBox(meta) {
-//
-//  // TODO: add dependencies in meta!
-//  val _ontologies = meta.dependencies
-//    .map { x => new URL(x) }.toList
-//
-//  val federation = new Federation()
-//  federation.addMember(base_repo)
-//
-//  _ontologies.map { url =>
-//
-//    println("importing URL " + url)
-//
-//    //    val _repo = OntologyBox.parse(url).repo
-//    //    federation.addMember(_repo)
-//
-//  }
-//
-//  override val repo: Repository = new SailRepository(federation)
-//
-//}
-
 // creating the internal RDFFIleRepository from all the rdf sources
 class VocabularyBoxWithImports(meta: VocabularyMeta) extends VocabularyBox(meta) {
 
@@ -119,6 +100,7 @@ class VocabularyBoxWithImports(meta: VocabularyMeta) extends VocabularyBox(meta)
 
 }
 
+// just for simple testing, it will be removed!
 object MainVocabularyBoxWithImports extends App {
 
   val voc = VocabularyBox.parse(new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio.ttl"))
