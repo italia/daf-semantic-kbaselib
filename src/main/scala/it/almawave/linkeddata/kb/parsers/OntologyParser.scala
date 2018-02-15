@@ -89,7 +89,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     sparql.query("""
       SELECT DISTINCT ?uri { ?uri a owl:Ontology . }
     """)
-      .map(_.getOrElse("uri", default_namespace).asInstanceOf[String])
+      //      .map(_.getOrElse("uri", default_namespace).asInstanceOf[String]) // REFACTORIZATION
+      .map(_.getOrElse("uri", default_namespace).toString())
       .map { _.replaceAll("^(.*)[/#]$", "$1") } // hack for avoid using both `http://example/` and `http://example`
       .distinct
       .toSet
@@ -105,7 +106,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     val onto_url = if (_onto_url.isEmpty)
       rdf_source
     else
-      new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
+      new URL(_onto_url(0)("uri").toString().replaceAll("(.*)[#/]", "$1"))
+    // REFACTORIZATION: new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
 
     onto_url
   }
@@ -123,7 +125,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         SELECT DISTINCT ?import_uri 
         WHERE {  ?uri a owl:Ontology . ?uri owl:imports ?import_uri . }
       """)
-      .map(_.get("import_uri").get.asInstanceOf[String])
+      //      .map(_.get("import_uri").get.asInstanceOf[String]) // REFACTORIZATION
+      .map(_.get("import_uri").get.toString())
       .map { item =>
         val uri = item.trim()
         val label = URIHelper.extractLabelFromURI(item)
@@ -138,7 +141,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         WHERE {  ?uri a owl:Ontology . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
       """)
       .map { item =>
-        ItemByLanguage(item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String])
+        // REFACTORIZATION: item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]
+        ItemByLanguage(item.get("lang").get.toString(), item.get("label").toString())
       }
       .toList
   }
@@ -149,7 +153,10 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         SELECT DISTINCT * 
         WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
       """)
-      .map { item => ItemByLanguage(item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]) }
+      .map { item =>
+        // REFACTORIZATION : item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]
+        ItemByLanguage(item.get("lang").get.toString(), item.get("comment").get.toString())
+      }
       .toList
   }
 
@@ -163,8 +170,11 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       """)
       .toList
       .map { item =>
-        val _creator = item.getOrElse("creator", "").asInstanceOf[String]
-        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").asInstanceOf[String])
+        val _creator = item.getOrElse("creator", "").toString()
+        // REFACTORIZATION : .asInstanceOf[String]
+
+        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").toString())
+        // REFACTORIZATION: .asInstanceOf[String])
       }
   }
 
@@ -181,16 +191,20 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
         // TODO: simplify!
 
-        val lang = item.getOrElse("lang", "").asInstanceOf[String]
+        val lang = item.getOrElse("lang", "").toString()
+        // REFACTORIZATION: .asInstanceOf[String]
 
         val _matcher = "^.*?(\\d+\\.\\d+(\\.\\d+)*).*\\s+-\\s+(.*)\\s+-\\s+(.*)$"
-        val _vv = item.getOrElse("version_info", "").asInstanceOf[String]
+        val _vv = item.getOrElse("version_info", "").toString()
+        // REFACTORIZATION: .asInstanceOf[String]
         val number = _vv.replaceAll(_matcher, "$1")
         val source_date = _vv.replaceAll(_matcher, "$3")
 
         val _comment = _vv.replaceAll(_matcher, "$4")
-        val uri = item.getOrElse("uri", "").asInstanceOf[String]
-        val version_iri = item.getOrElse("version_iri", "").asInstanceOf[String]
+        val uri = item.getOrElse("uri", "").toString()
+        // REFACTORIZATION: .asInstanceOf[String]
+        val version_iri = item.getOrElse("version_iri", "").toString()
+        // REFACTORIZATION: .asInstanceOf[String]
 
         val comment = Map(lang -> _comment)
         val date = DateHelper.format(DateHelper.parseDate(source_date))
@@ -225,7 +239,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       SELECT DISTINCT ?lang 
       WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
     """)
-      .map(_.get("lang").getOrElse("").asInstanceOf[String])
+      .map(_.get("lang").getOrElse("").toString())
+      // REFACTORIZATION: .asInstanceOf[String])
       .distinct
   }
 
@@ -247,7 +262,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
           ?uri a owl:Ontology . ?uri dct:license ?license_uri .
         }
       """)
-      .map(_.getOrElse("license_uri", "").asInstanceOf[String])
+      .map(_.getOrElse("license_uri", "").toString())
+      // REFACTORIZTION: .asInstanceOf[String])
       .filterNot(_.equalsIgnoreCase(""))
       .map { item =>
         val uri = item

@@ -47,6 +47,8 @@ class StandardizationProcess(catalog: CatalogBox) {
   // extract hierarchy for a specific VocabularyBox
   def extract_hierarchy(vbox: VocabularyBox): Try[Seq[Hierarchy]] = Try {
 
+    // TODO: JUNit test for hierarchy!! CHECK: orders of items in path
+
     // extract the full path / hierarchy to an individual (the uri represents the individual we start from)
     SPARQL(vbox.repo).query(QUERY.hierarchy())
       .groupBy(_.getOrElse("uri", "").asInstanceOf[String]).toList
@@ -98,7 +100,7 @@ class StandardizationProcess(catalog: CatalogBox) {
                 .toList.flatMap(_.toList).toList
                 .map(el => (s"${el._1}_level${level}", el._2))
 
-              // extracting a list of actual fields (no internal metadata)
+              // actual fields (no internal metadata)
               val fields = group_cells.toList.map(_._1).toList
                 .filter(_.contains("_level"))
                 .filterNot(_.contains("_meta"))
@@ -117,7 +119,7 @@ class StandardizationProcess(catalog: CatalogBox) {
                 val field_value = map.getOrElse(field_name, "").asInstanceOf[Object]
                 val field_datatype = map.getOrElse(s"_type_${field_name}", "String").asInstanceOf[Object]
                 val field_meta1 = map.getOrElse(s"_meta1_${field_name}", "UnknownOntology.UnknownConcept.unkownProperty").asInstanceOf[String]
-                val field_meta2 = group_cells.filter(_._1.contains("_meta2")).headOption.map(_._2).getOrElse("UnknownVocabulary.${level}").asInstanceOf[String]
+                val field_meta2 = group_cells.filter(_._1.contains("_meta2")).headOption.map(_._2).getOrElse(s"UnknownVocabulary.level${level}").asInstanceOf[String]
 
                 Cell(
                   uri,
@@ -140,7 +142,8 @@ class StandardizationProcess(catalog: CatalogBox) {
 
       // List[Future] -> Future[List]
       // la future contiene una lista di gruppi di celle, da ri-organizzare prima dell'output!
-      val futs_seq: Future[Seq[Cell]] = Future.sequence(future_with_cells).map { el => el.flatMap(_.toList) }
+      val futs_seq: Future[Seq[Cell]] = Future.sequence(future_with_cells)
+        .map { el => el.flatMap(_.toList).sortBy { cell => cell.uri } }
 
       // awaiting all the computed futures
       Await.result(futs_seq, Duration.Inf)
@@ -165,7 +168,7 @@ class StandardizationProcess(catalog: CatalogBox) {
       "uri://unknown",
       "", "",
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-      "UnknowOntology.UnknownConcept.unkownProperty", "")
+      "UnknowOntology.UnknownConcept.unkownProperty", "UnknownVocabulary.level1")
   }
   // MODELS ....................................................................
 

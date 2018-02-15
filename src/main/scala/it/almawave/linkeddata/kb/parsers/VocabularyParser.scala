@@ -88,7 +88,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT DISTINCT ?uri 
         WHERE { ?uri a skos:ConceptScheme . }
       """)
-      .map { item => item.getOrElse("uri", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("uri", "").toString() }
+      // REFACTORIZATION: .asInstanceOf[String] }
       .map { item => new URL(item) }
       .headOption.getOrElse(rdf_source)
   }
@@ -116,7 +117,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
           OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) } 
         }
         """)
-      .map { item => ItemByLanguage(item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String]) }
+      .map { item =>
+        ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("label", "").toString())
+        // REFACTORIZATION: ItemByLanguage(item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String])
+      }
       .toList
   }
 
@@ -131,7 +135,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
           OPTIONAL { ?uri dct:description ?label . BIND(LANG(?label) AS ?lang) } 
         }
         """)
-      .map { item => ItemByLanguage(item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String]) }
+      .map { item =>
+        ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("label", "").toString())
+        // REFACTORIZATION: ItemByLanguage(item.getOrElse("lang", "").asInstanceOf[String], item.getOrElse("label", "").asInstanceOf[String])
+      }
       .toList
   }
 
@@ -142,7 +149,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT * 
         WHERE { ?uri a skos:ConceptScheme . ?uri dct:publisher ?publisher_uri .}  
       """)
-      .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("publisher_uri", "").toString() }
       .headOption.getOrElse("")
   }
 
@@ -157,7 +165,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT * 
         WHERE { ?uri a skos:ConceptScheme . ?uri dct:rightsHolder ?holder_uri .}  
       """)
-      .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("holder_uri", "").toString() }
       .headOption.getOrElse("")
   }
 
@@ -170,7 +179,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
           ?uri ?prp ?label . BIND(LANG(?label) AS ?lang) .
         }  
       """)
-      .map { item => item.getOrElse("lang", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("lang", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("lang", "").toString() }
       .filterNot { item => item.trim().equalsIgnoreCase("") }
   }
 
@@ -185,7 +195,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
           ?uri dcat:distribution ?distribution . ?distribution dct:license ?license_uri .
         }
       """)
-      .map(_.getOrElse("license_uri", "").asInstanceOf[String])
+      // REFACTORIZATION: .map(_.getOrElse("license_uri", "").asInstanceOf[String])
+      .map(_.getOrElse("license_uri", "").toString())
       .filterNot(_.equalsIgnoreCase(""))
       .map { item =>
         val uri = item
@@ -204,7 +215,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
           ?uri owl:versionInfo ?version_info  
         }
       """)
-      .map { item => item.getOrElse("version_info", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("version_info", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("version_info", "").toString() }
       .map { item =>
         val number = item
         Version(number, null, null, null)
@@ -218,7 +230,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT DISTINCT ?date_modified 
         WHERE { ?uri a skos:ConceptScheme . ?uri dct:modified ?date_modified . }  
       """)
-      .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("date_modified", "").toString() }
       .headOption.getOrElse("")
   }
 
@@ -235,8 +248,12 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       WHERE { ?uri a skos:ConceptScheme . ?uri dcat:keyword ?keyword . BIND(LANG(?keyword) AS ?lang) } 
     """)
       .map { item =>
+        /*REFACTORIZATION
         val label = item.getOrElse("keyword", "").asInstanceOf[String].trim()
         val lang = item.getOrElse("lang", "").asInstanceOf[String]
+        */
+        val label = item.getOrElse("keyword", "").toString().trim()
+        val lang = item.getOrElse("lang", "").toString().trim()
         val uri = s"keywords://${lang}#${label.replaceAll("\\s", "+")}"
         URIWithLabel(label, uri, lang)
       }
@@ -252,7 +269,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         ?uri a skos:ConceptScheme . ?uri dcat:theme ?theme .
       } 
     """)
-      .map { item => item.getOrElse("theme", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("theme", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("theme", "").toString() }
       .map { item =>
         val uri = item
         val label = URIHelper.extractLabelFromURI(uri)
@@ -268,7 +286,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       SELECT DISTINCT ?subject  
       WHERE { ?uri a skos:ConceptScheme . ?uri dct:subject ?subject . } 
     """)
-      .map { item => item.getOrElse("subject", "").asInstanceOf[String] }
+      // REFACTORIZATION: .map { item => item.getOrElse("subject", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("subject", "").toString() }
       .map { item =>
         val uri = item
         val label = URIHelper.extractLabelFromURI(uri)
@@ -288,7 +307,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         ?subject a ?concept 
       }  
     """)
-      .map(item => item.toMap.getOrElse("concept", "").asInstanceOf[String])
+      // REFACTORIZATION: .map(item => item.toMap.getOrElse("concept", "").asInstanceOf[String])
+      .map(item => item.toMap.getOrElse("concept", "").toString())
       .map(item => item.replaceAll("^(.*)[#/].*?$", "$1").trim())
       .distinct
 

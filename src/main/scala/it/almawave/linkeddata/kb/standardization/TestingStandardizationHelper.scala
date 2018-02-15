@@ -41,11 +41,6 @@ object TestingStandardizationHelper extends App {
       val MAX_LEVELS = std.max_levels(vbox).get
       logger.info("MAX_LEVELS: " + MAX_LEVELS)
 
-      // DEBUG
-      //  val keys = cells.toList.filter(_.toList.size == MAX_LEVELS)(0).flatMap(_.map(_._1))
-      //  println("\n\nALL KEYS: " + keys.mkString(" | "))
-      //  println("ALL KEYS size: " + keys.size)
-
       vbox.stop()
 
       logger.info(s"#############################\n\n")

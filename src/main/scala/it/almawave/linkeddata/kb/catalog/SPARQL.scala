@@ -69,8 +69,14 @@ class SPARQL(repo: Repository) {
 
     val tuples = conn.prepareTupleQuery(QueryLanguage.SPARQL, query).evaluate()
     val binding_names = tuples.getBindingNames.toSet
-    while (tuples.hasNext())
-      results += tuples.next()
+
+    while (tuples.hasNext()) {
+
+      val tuple:BindingSet = tuples.next()
+
+      results += tuple
+
+    }
 
     conn.close()
 
