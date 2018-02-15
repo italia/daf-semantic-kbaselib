@@ -4,32 +4,54 @@ import java.nio.file.Paths
 import it.almawave.linkeddata.kb.catalog.CatalogBox
 import com.typesafe.config.ConfigFactory
 import it.almawave.linkeddata.kb.catalog.SPARQL
+import it.almawave.linkeddata.kb.utils.JSONHelper
+import scala.util.Try
+import org.slf4j.LoggerFactory
 
 object TestingStandardizationHelper extends App {
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   val conf = ConfigFactory.parseFile(Paths.get("src/main/resources/conf/catalog.conf").normalize().toFile())
   val catalog = new CatalogBox(conf)
   catalog.start()
 
-  val std = new StandardizationHelper(catalog)
+  val std = new StandardizationProcess(catalog)
 
-  val vocID = "Licenze" //AccommodationTypology"
-  val vbox = std.vocabularyWithDependency(vocID).get
-  vbox.start()
+  //   ALL
+  std.vocabulariesWithDependencies().foreach { vbox =>
 
-  val cells = std.standardize_data(vbox) // TODO: introduce a model!
+    // DEBUG single
+    //    val vocID = "Licenze" //AccommodationTypology"
+    //    val vbox = std.vocabularyWithDependency(vocID).get
 
-  // DEBUG
-  cells.foreach(c => println(c))
+    Try {
 
-  //  val deep = cells.toList.map(_.toList.size).max
-  val MAX_LEVELS = std.max_levels(vbox)
+      vbox.start()
+      logger.info(s"\n\n#### Vocabulary: ${vbox} ####")
 
-  // DEBUG
-  val keys = cells.toList.filter(_.toList.size == MAX_LEVELS)(0).flatMap(_.map(_._1))
-  println("\n\nKEYS: " + keys.mkString(" | "))
-  println("KEYS size: " + keys.size)
+      // DEBUG
+      val cells = std.standardize_data(vbox) // TODO: introduce a model!
+      //        .foreach { item =>
+      //          logger.info("\nITEM:\n\t" + item.map(e => (e.name, e.value)).mkString("\n\t"))
+      //        }
 
-  vbox.stop()
+      logger.debug(JSONHelper.writeToString(cells.toList))
+
+      val MAX_LEVELS = std.max_levels(vbox).get
+      logger.info("MAX_LEVELS: " + MAX_LEVELS)
+
+      // DEBUG
+      //  val keys = cells.toList.filter(_.toList.size == MAX_LEVELS)(0).flatMap(_.map(_._1))
+      //  println("\n\nALL KEYS: " + keys.mkString(" | "))
+      //  println("ALL KEYS size: " + keys.size)
+
+      vbox.stop()
+
+      logger.info(s"#############################\n\n")
+    }
+
+  } // ALL
+
   catalog.stop()
 }

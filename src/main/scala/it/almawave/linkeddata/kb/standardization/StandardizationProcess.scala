@@ -10,14 +10,20 @@ import com.google.common.util.concurrent.Futures
 import scala.concurrent.impl.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import it.almawave.linkeddata.kb.utils.JSONHelper
+import scala.util.Success
+import scala.util.Failure
 
-class StandardizationHelper(catalog: CatalogBox) {
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
+/**
+ * This class adds support for the extraction of metadata,
+ * needed to run the standardization process for a dataset on a vocabulary.
+ */
+class StandardizationProcess(catalog: CatalogBox) {
 
   import scala.concurrent.ExecutionContext.Implicits.global
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  // extract a list of VocabularyBox
+  // extracts a list of VocabularyBox
   def vocabulariesWithDependencies(): Seq[VocabularyBox] = catalog.vocabulariesWithDependencies()
 
   // extract a VocabularyBox by VocabularyID
@@ -30,12 +36,18 @@ class StandardizationHelper(catalog: CatalogBox) {
       throw new RuntimeException(s"vocabulary ${vocID} not found!")
   }
 
-  // extract the maximum
-  def max_levels(vbox: VocabularyBox): Int = extract_hierarchy(vbox: VocabularyBox).map(_.path.size).max
+  // extracts the deeper level of hierarchy
+  def max_levels(vbox: VocabularyBox): Try[Int] = {
+    extract_hierarchy(vbox: VocabularyBox) match {
+      case Success(h)   => Success(h.map(_.path.size).max)
+      case Failure(err) => Failure(err) // CHECK: maybe 0?
+    }
+  }
 
   // extract hierarchy for a specific VocabularyBox
-  def extract_hierarchy(vbox: VocabularyBox): Seq[Hierarchy] = {
+  def extract_hierarchy(vbox: VocabularyBox): Try[Seq[Hierarchy]] = Try {
 
+    // extract the full path / hierarchy to an individual (the uri represents the individual we start from)
     SPARQL(vbox.repo).query(QUERY.hierarchy())
       .groupBy(_.getOrElse("uri", "").asInstanceOf[String]).toList
       .sortBy(_._1)
@@ -52,18 +64,16 @@ class StandardizationHelper(catalog: CatalogBox) {
     val MAX_LEVELS = this.max_levels(vbox)
 
     // 1) the vocabulary is decomposed in a list of hierarchies, each one derived from each leaf
-    val hierarchies = extract_hierarchy(vbox)
+    val hierarchies = extract_hierarchy(vbox).getOrElse(List())
 
     // 2) each hierarchy is then expandend with details for each element in the path
     hierarchies.toStream.map { hierarchy =>
 
-      type ROW = List[(String, Any)] // TODO: parse to case class!
+      type GROUP_CELLS = List[(String, Any)] // TODO: parse to case class!
       // NOTE: the internal metadata (level 1, level2, type... could be saved properly)
       // NOTE: List[(String, Any)] <-> Map[String, Any]
 
-      //      case class DTS_CELL()
-
-      val testing: List[Future[ROW]] = hierarchy.path
+      val future_with_cells: Seq[Future[Seq[Cell]]] = hierarchy.path
         .zipWithIndex
         .map {
 
@@ -72,19 +82,65 @@ class StandardizationHelper(catalog: CatalogBox) {
             val level = l + 1
 
             // we use a Future here to try improving performances when collecting results from many SPARQL queries
-            Future {
-              SPARQL(vbox.repo).query(QUERY.details(vbox.id, level, uri, lang))
+            val fut_group: Future[List[Cell]] = Future {
+
+              /*
+               *  TODO: we should avoid do several times the same query!
+               *  IDEA:
+               *  	1) collect all the URIs for resources
+               *  	2) launch queries
+               *  	3) using results as an in-memory cache
+               *
+               *  IDEA: Future{  SPARQL(vbox.repo).query(QUERY.details(vbox.id, level, uri, lang)) } ...
+               */
+              val group_cells: GROUP_CELLS = SPARQL(vbox.repo)
+                .query(QUERY.details(vbox.id, level, uri, lang))
                 .toList.flatMap(_.toList).toList
-                .map(el => (el._1 + "_level" + level, el._2))
+                .map(el => (s"${el._1}_level${level}", el._2))
+
+              // extracting a list of actual fields (no internal metadata)
+              val fields = group_cells.toList.map(_._1).toList
+                .filter(_.contains("_level"))
+                .filterNot(_.contains("_meta"))
+                .filterNot(_.contains("_type"))
+
+              // results as Map
+              val map = group_cells.toMap
+
+              /*
+               *  each record has a number of pseudo-columns, used to add internal metadata informations:
+               *  we can parse them into a proper structured Cell object, in order to have all the data
+               *  available for further flexible processing
+               */
+              fields.map { field_name =>
+
+                val field_value = map.getOrElse(field_name, "").asInstanceOf[Object]
+                val field_datatype = map.getOrElse(s"_type_${field_name}", "String").asInstanceOf[Object]
+                val field_meta1 = map.getOrElse(s"_meta1_${field_name}", "UnknownOntology.UnknownConcept.unkownProperty").asInstanceOf[String]
+                val field_meta2 = group_cells.filter(_._1.contains("_meta2")).headOption.map(_._2).getOrElse("UnknownVocabulary.${level}").asInstanceOf[String]
+
+                Cell(
+                  uri,
+                  field_name,
+                  field_value,
+                  field_datatype,
+                  field_meta1,
+                  field_meta2)
+              }
+
             }
+
+            fut_group
 
           // CHECK: lookup of property into the existing ontologies! -> OntologyID.ConceptID.propertyID
           // CHECK: FILL: List.fill(MAX_LEVELS - _details.size)(null)
 
         }
+        .toStream
 
       // List[Future] -> Future[List]
-      val futs_seq = Future.sequence(testing)
+      // la future contiene una lista di gruppi di celle, da ri-organizzare prima dell'output!
+      val futs_seq: Future[Seq[Cell]] = Future.sequence(future_with_cells).map { el => el.flatMap(_.toList) }
 
       // awaiting all the computed futures
       Await.result(futs_seq, Duration.Inf)
@@ -92,8 +148,26 @@ class StandardizationHelper(catalog: CatalogBox) {
 
   }
 
-  // MODELS
+  // MODELS ....................................................................
   case class Hierarchy(uri: String, path: List[String])
+
+  // TODO: move elesewhere
+  case class Cell(
+    uri:         String,
+    name:        String,
+    value:       Object,
+    datatype:    Object,
+    meta_level1: String,
+    meta_level2: String)
+
+  object Cell {
+    val EMPTY = Cell(
+      "uri://unknown",
+      "", "",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+      "UnknowOntology.UnknownConcept.unkownProperty", "")
+  }
+  // MODELS ....................................................................
 
   object QUERY {
 
