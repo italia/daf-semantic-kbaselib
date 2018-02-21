@@ -251,7 +251,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
           ?uri a owl:Ontology . ?uri dct:modified ?date_modified .
         }
       """)
-      .map(_.getOrElse("last_edit_date", "").asInstanceOf[String])
+      //.map(_.getOrElse("last_edit_date", "").asInstanceOf[String])
+      .map(_.getOrElse("last_edit_date", "").toString())
       .headOption.getOrElse("")
   }
 

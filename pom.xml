@@ -10,7 +10,7 @@
 
 	<!-- CHECK: usage of classifier for properly handling the scala version -->
 
-	<url>https://bitbucket.org/awodata/kbaselib</url>
+	<url>http://10.121.172.7:10080/opendata/patrimonio_inps/rest-endpoints/kbaselib</url>
 
 	<licenses>
 		<license>

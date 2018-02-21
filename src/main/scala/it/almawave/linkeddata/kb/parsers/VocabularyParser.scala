@@ -235,9 +235,9 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       .headOption.getOrElse("")
   }
 
-  def parse_asset_type() = {
-    AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
-  }
+//  def parse_asset_type() = {
+//    AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
+//  }
 
   def parse_dcat_keywords() = {
     sparql.query("""

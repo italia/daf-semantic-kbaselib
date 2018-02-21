@@ -41,9 +41,9 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
   """.trim()
 
   // REVIEW
-  def withImports() = {
-    new VocabularyBoxWithImports(meta)
-  }
+  //  def withImports() = {
+  //    new VocabularyBoxWithImports(meta)
+  //  }
 
   def federateWith(ontos: Seq[OntologyBox]) = {
     new VocabularyBoxWithDependencies(this, ontos)
@@ -58,21 +58,32 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
     val active = repo.isInitialized()
     if (!active) repo.initialize()
 
-    val reresentation_uri = SPARQL(repo).query("""
-      PREFIX adms: <http://www.w3.org/ns/adms#> 
-      SELECT ?representation 
-      WHERE { 
-        OPTIONAL { ?uri adms:representationTechnique ?representation . }
-      } 
-    """)
+    /*
+     * SEE example:
+     * https://github.com/italia/daf-ontologie-vocabolari-controllati/blob/master/VocabolariControllati/Licenze/Licenze.ttl#L179-L180
+     * 	+	dct:type <http://purl.org/adms/assettype/Taxonomy> ;
+     * 	+	adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS>
+     */
+    val representation_uri = SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+				PREFIX adms: <http://www.w3.org/ns/adms#> 
+				SELECT ?representation_type ?representation_technique  
+				WHERE { 
+  				OPTIONAL { 
+  				  ?uri dct:type ?representation_type .
+  				  ?uri adms:representationTechnique ?representation_technique . 
+  				}
+				} 
+		""")
       .toList(0)
-      .getOrElse("representation", "default:SKOS").asInstanceOf[String]
+      .getOrElse("representation_technique", "default:SKOS").asInstanceOf[String]
 
-    val representaton_id = reresentation_uri.replaceAll(".*[#/](.*)", "$1")
+    val representaton_id = representation_uri.replaceAll(".*[#/](.*)", "$1")
 
     if (!active) repo.shutDown()
 
-    (representaton_id, reresentation_uri)
+    (representaton_id, representation_uri)
+
   }
 
 }
@@ -90,68 +101,13 @@ class VocabularyBoxWithDependencies(vocab: VocabularyBox, ontos: Seq[OntologyBox
 
 }
 
+// REVIEW
 // creating the internal RDFFIleRepository from all the rdf sources
-class VocabularyBoxWithImports(meta: VocabularyMeta) extends VocabularyBox(meta) {
-
-  // TODO: add dependencies in meta!
-  val _dependencies = meta.dependencies.map { x => new URL(x) }.toList
-
-  override val repo: Repository = new RDFFileRepository(meta.source :: _dependencies, meta.url.toString())
-
-}
-
-// just for simple testing, it will be removed!
-object MainVocabularyBoxWithImports extends App {
-
-  val voc = VocabularyBox.parse(new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio.ttl"))
-  //  voc.start()
-  //
-  //  SPARQL(voc.repo).query("""
-  //    SELECT DISTINCT ?concept
-  //    WHERE {
-  //      ?s a ?concept .
-  //    }
-  //  """)
-  //    .map(_.toMap.getOrElse("concept", "").toString())
-  //    .map(_.replaceAll("^.*[#/](.*?)$", "$1"))
-  //    .foreach { item =>
-  //      println(item)
-  //    }
-  //  voc.stop()
-  //
-  //  val t1 = voc.triples
-  //  println("triples: " + t1)
-  //  println(voc.concepts.mkString(" | "))
-  //
-  //  println("\n...............................\n")
-
-  println("DEP " + voc.meta.dependencies)
-
-  val extra = voc.withImports()
-
-  println("DEP " + extra.meta.dependencies)
-
-  System.exit(0)
-  extra.start()
-
-  SPARQL(extra.repo).query("""
-    SELECT DISTINCT ?concept 
-    WHERE {
-      ?s a ?concept .
-    }
-  """)
-    .map(_.toMap.getOrElse("concept", "").toString())
-    .map(_.replaceAll("^.*[#/](.*?)$", "$1"))
-    .foreach { item =>
-      println(item)
-    }
-  extra.stop()
-
-  println(extra.concepts.mkString(" | "))
-  val t2 = extra.triples
-  println("triples: " + t2)
-
-}
-
-
-
+//class VocabularyBoxWithImports(meta: VocabularyMeta) extends VocabularyBox(meta) {
+//
+//  // TODO: add dependencies in meta!
+//  val _dependencies = meta.dependencies.map { x => new URL(x) }.toList
+//
+//  override val repo: Repository = new RDFFileRepository(meta.source :: _dependencies, meta.url.toString())
+//
+//}

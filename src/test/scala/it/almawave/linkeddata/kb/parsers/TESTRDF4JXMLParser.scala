@@ -1,17 +1,11 @@
 package it.almawave.linkeddata.kb.parsers
 
 import java.net.URL
-import java.io.File
-import scala.io.Source
 import it.almawave.linkeddata.kb.catalog.VocabularyBox
-import scala.util.Try
 import java.net.HttpURLConnection
-import java.net.URLDecoder
-import scala.util.Success
-import scala.util.Failure
-import it.almawave.linkeddata.kb.utils.JSONHelper
 import it.almawave.linkeddata.kb.utils.URLHelper
 
+// TODO: review or drop this
 object TESTRDF4JXMLParser extends App {
 
   // GENRAL CONFIG
@@ -41,7 +35,7 @@ object TESTRDF4JXMLParser extends App {
 
     println("BOX: " + box.triples)
 
-    println("BOX with imports: " + box.withImports().triples)
+    //    println("BOX with imports: " + box.withImports().triples)
 
     box.stop()
 

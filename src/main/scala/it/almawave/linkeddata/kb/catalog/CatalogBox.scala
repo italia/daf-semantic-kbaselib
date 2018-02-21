@@ -144,28 +144,21 @@ class CatalogBox(config: Config) extends RDFBox {
 
     this.vocabularies.map { vbox =>
 
+      // getting the vocabulary id
       val vocID = vbox.id
-      //      println(s"\n\nVOCAB: ${vocID}")
 
       // find vocabulary by id
       var voc_box = this.getVocabularyByID(vocID).get
-      //      println("VOC BOX (no dep):	" + voc_box)
 
       val triples_no_deps = voc_box.triples
 
       // resolve internal dependencies
       val ontos = this.resolve_dependencies(voc_box)
 
-      // resolve repositories
-      //      val repos = ontos.map(_.repo)
       // federation with repositories
       voc_box = voc_box.federateWith(ontos)
 
-      //      println("VOC BOX (with dep):	" + voc_box)
-
       val triples_deps = voc_box.triples
-
-      //      if (triples_deps > triples_no_deps) println(s"${vocID} has more triples!")
 
       voc_box
     }

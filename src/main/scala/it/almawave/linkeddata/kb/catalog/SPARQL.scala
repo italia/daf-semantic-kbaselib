@@ -51,6 +51,7 @@ class SPARQL(repo: Repository) {
 
   }
 
+  // TODO
   def queryGraph(query: String): Seq[Map[String, Any]] = {
     //    val conn = repo.getConnection
     //    val statements = conn.prepareGraphQuery(QueryLanguage.SPARQL, query).evaluate()
@@ -61,6 +62,7 @@ class SPARQL(repo: Repository) {
     throw new RuntimeException("GRAPH QUERY Not implemented yet!")
   }
 
+  // REFACTORIZE
   def queryTuple(query: String): Seq[Map[String, Any]] = {
 
     val conn = repo.getConnection
@@ -72,7 +74,7 @@ class SPARQL(repo: Repository) {
 
     while (tuples.hasNext()) {
 
-      val tuple:BindingSet = tuples.next()
+      val tuple: BindingSet = tuples.next()
 
       results += tuple
 
@@ -80,6 +82,7 @@ class SPARQL(repo: Repository) {
 
     conn.close()
 
+    // projection of the results in terms of a stream
     results.toStream
       .map { _.map { el => (el.getName, el.getValue.stringValue()) }.toMap }
 

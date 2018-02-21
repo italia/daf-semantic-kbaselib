@@ -39,7 +39,7 @@ object RDFBox {
 
 }
 
-/*
+/**
  * an RDFBox is a component that acts as a simple container of RDF informations:
  * internally it relies to some specific RDF Repository implementation, but wraps its logic adding more tailored functions.
  */
@@ -103,7 +103,6 @@ trait RDFBox {
   }
 
   def triples = {
-    if (!repo.isInitialized()) repo.initialize()
     val conn = repo.getConnection
     val triples = conn.prepareTupleQuery(QueryLanguage.SPARQL, """
       SELECT ?graph ?sub ?prp ?obj
@@ -121,26 +120,13 @@ trait RDFBox {
     if (!repo.isInitialized()) repo.initialize()
     val conn = repo.getConnection
     val ctx = SimpleValueFactory.getInstance.createIRI(context)
-    //    val statements = conn.prepareTupleQuery(QueryLanguage.SPARQL, """
-    //      SELECT ?graph ?sub ?prp ?obj
-    //      WHERE {
-    //        { ?sub ?prp ?obj }
-    //        UNION
-    //        { GRAPH ?graph { ?sub ?prp ?obj } }
-    //      }
-    //    """)
-    //      .evaluate()
-    //      .toStream
-
     val statements = conn.getStatements(null, null, null, true)
-
     conn.close()
     statements
   }
 
   // useful for testing
   def parseData() = {
-
     val conn = repo.getConnection
     val contextsIDS: Seq[Resource] = Iterations.asList(conn.getContextIDs)
     val subjects: Seq[Resource] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSeq
@@ -148,7 +134,6 @@ trait RDFBox {
     val objects: Seq[Value] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSeq
     val contexts: Seq[Resource] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSeq
     conn.close()
-
     RDFData(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
