@@ -68,16 +68,6 @@ class CatalogBox(config: Config) extends RDFBox {
       _vocabularies.foldLeft(0)((a, b) => a + b.triples)
   }
 
-  /*
- * TODO:
- *
- * 1) withDependency
- * 2) vocabulary...
- * 3) vocabulary	-	de-normalization	(CHECK: su quali dati?)
- * 4) ontology		-	onto.concept.prop	(CHECK: su quali dati?)
- *
- */
-
   def getVocabularyByID(vocabularyID: String) = Try {
     this._vocabularies.toStream.filter(_.id.equals(vocabularyID)).head
   }
@@ -90,6 +80,8 @@ class CatalogBox(config: Config) extends RDFBox {
     else
       new URI(conf.getString("ontologies.path_remote"))
 
+//    if(conf.hasPath("ontologies.data")) {}
+    
     conf.getConfigList("ontologies.data")
       .toStream
       .foreach { onto_conf =>
@@ -132,10 +124,6 @@ class CatalogBox(config: Config) extends RDFBox {
 
     _vocabularies.toStream
 
-  }
-
-  private def load_remotes: Stream[RemoteOntologyBox] = {
-    Stream.Empty
   }
 
   // CHECK: repository <all>
