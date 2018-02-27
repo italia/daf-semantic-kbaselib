@@ -1,1 +1,0 @@
-These examples are an attempt to rewrite the logic behind the semantic_standardization: once they work, they will be exported elesewhere
