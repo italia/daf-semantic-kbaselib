@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import java.io.File
 
 object FileDatastore {
   def apply(base: String) = {
@@ -71,6 +72,19 @@ class FileDatastore(val base_path: Path) {
       .filter(_.toFile().isFile())
       .filter(_.toString().matches(s".*\\.(${extension.mkString("|")})"))
       .map(_.toUri().normalize())
+
+  }
+
+  def listFilesIn(item: File): Seq[File] = {
+
+    item match {
+
+      case file if (file.isFile()) => Stream(file)
+
+      case dir if (dir.isDirectory()) =>
+        item #:: dir.listFiles().toStream.flatMap(el => listFilesIn(el)).toStream
+
+    }
 
   }
 

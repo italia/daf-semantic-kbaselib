@@ -80,8 +80,8 @@ class CatalogBox(config: Config) extends RDFBox {
     else
       new URI(conf.getString("ontologies.path_remote"))
 
-//    if(conf.hasPath("ontologies.data")) {}
-    
+    //    if(conf.hasPath("ontologies.data")) {}
+
     conf.getConfigList("ontologies.data")
       .toStream
       .foreach { onto_conf =>

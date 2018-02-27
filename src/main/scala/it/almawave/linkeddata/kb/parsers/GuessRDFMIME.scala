@@ -20,28 +20,6 @@ import org.eclipse.rdf4j.rio.ParseErrorListener
 import java.io.ByteArrayInputStream
 import org.slf4j.LoggerFactory
 
-object MainGuessRDFMIME extends App {
-
-  //  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/MappingTema-Sottotema/MappingDataThemeEurovoc.rdf")
-
-  val url = new URL("http://dati.gov.it/onto/clvapit#")
-  //    val url = new File("D:/CLV-AP_IT_301").toURI().toURL()
-  //  val url = new File("D:/CLV-AP_IT_protege").toURI().toURL()
-  //      val url = new File("D:/CLV-AP_IT").toURI().toURL()
-
-  val ok = GuessRDFMIME.guess_format(url)
-  println(ok)
-
-  //  CHECK: redirect
-  //  val url = "http://bit.ly/23414"
-  //  val conn = url.openConnection().asInstanceOf[HttpURLConnection]
-  //  conn.setInstanceFollowRedirects(false)
-  //  conn.connect()
-  //  val url_real = new URL(conn.getHeaderField("Location"))
-  //  println(url_real)
-
-}
-
 /**
  * A simple facility class for detecting MIME type of a remote URL,
  * trying to use the standard RDF4J parsers.
