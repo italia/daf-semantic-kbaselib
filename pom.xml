@@ -87,11 +87,11 @@
 		</dependency>
 
 		<!-- owlapi-rio per OWL! -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>net.sourceforge.owlapi</groupId> -->
-<!-- 			<artifactId>owlapi-rio</artifactId> -->
-<!-- 			<version>5.1.4</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>net.sourceforge.owlapi</groupId> -->
+		<!-- <artifactId>owlapi-rio</artifactId> -->
+		<!-- <version>5.1.4</version> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>virtuoso</groupId>
@@ -131,8 +131,14 @@
 		</dependency>
 
 
-		<!-- TODO: jgit <dependency> <groupId>org.eclipse.jgit</groupId> <artifactId>org.eclipse.jgit</artifactId> 
-			<version>4.10.0.201712302008-r</version> </dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>4.10.0.201712302008-r</version>
+			<scope>test</scope>
+		</dependency>
+
 
 
 	</dependencies>

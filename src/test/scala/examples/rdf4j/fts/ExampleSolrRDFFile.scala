@@ -12,6 +12,7 @@ import scala.collection.mutable.ListBuffer
 import org.eclipse.rdf4j.model.Statement
 import examples.rdf4j.RDFFileSail
 
+// TODO: review the example
 object ExampleSolrRDFFile extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")

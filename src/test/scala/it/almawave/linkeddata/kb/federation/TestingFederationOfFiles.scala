@@ -14,17 +14,27 @@ import it.almawave.linkeddata.kb.file.RDFFileSail
 import it.almawave.linkeddata.kb.catalog.file.RDFQueryResultHandler
 
 /**
- * this is a small POC to show how to use federation by convention over a collection of self-contained repository
+ * this is a small POC to show how to use federation by convention over a collection of self-contained repository,
+ * using also a remote SPARQL endpoint.
+ *
+ * NOTE:
+ * 	using a combination of `Federation.setDistinct` and `SPARQLRepository.enableQuadMode` it's possible
+ * 	to obtain multiple copies of the same URI, taken from different (local or remote) context.
+ *
+ * TODO:
+ * 	we should benchmark the queries, in case we could improve performances when avoiding duplication
+ * (for example forcing the usage of local copies as a "cache")
+ *
  */
 object TestingFederationFiles extends App {
 
   // CHECK: repository manager
 
   val urls = List(
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneCategoriePuntoInteresse/POICategoryClassification.ttl",
+    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/poi-category-classification/poi-category-classification.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Livello0/latest/l0.ttl")
+    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/l0/latest/l0-AP_IT.ttl")
     .map(new URL(_))
 
   val federation = new Federation
@@ -37,13 +47,10 @@ object TestingFederationFiles extends App {
     federation.addMember(new SailRepository(urlSail))
   }
 
-  //    federation.addMember(new SPARQLRepository("http://localhost:9999/blazegraph/sparql"))
-  //  try {
-  //    federation.addMember(new SPARQLRepository("http://localhost:8899/sparql"))
-  //    //  concept=_:node1c0ooj3pkx40
-  //  } catch {
-  //    case err: Throwable => err.printStackTrace()
-  //  }
+  //  TESTING with blazegraph (SPARQLRepository)
+  val sparql_repo = new SPARQLRepository("http://localhost:9999/blazegraph/sparql")
+  sparql_repo.enableQuadMode(true)
+  federation.addMember(sparql_repo)
 
   val repo = new SailRepository(federation)
   repo.initialize()
@@ -57,18 +64,36 @@ object TestingFederationFiles extends App {
     SELECT DISTINCT ?graph ?concept 
     
     WHERE {
-      GRAPH ?graph {
+      {
+        GRAPH ?graph {
+          ?concept a owl:Class .
+          FILTER(!isBlank(?concept))
+        }
+		    FILTER(BOUND(?graph))
+      }
+      UNION 
+      {
         ?concept a owl:Class .
         FILTER(!isBlank(?concept))
+        BIND(<graph://default> AS ?graph)
       }
     }
     
     ORDER BY ?graph ?concept 
-    # LIMIT 100
     
   """).evaluate(handler)
 
-  handler.toStream.foreach { item => println(item) }
+  // as an example, here we can get a list of concetxt for each published concept
+  handler
+    .toStream
+    .toList
+    .map { item => (item.getBinding("concept").getValue, item.getBinding("graph").getValue) }
+    .toList
+    .groupBy { _._1 }
+    .map { item => (item._1, item._2.map(_._2).toList) }
+    .foreach { item =>
+      println(s"${item._1}\n\tIN [ ${item._2.mkString(" | ")} ]")
+    }
 
   conn.close()
 
