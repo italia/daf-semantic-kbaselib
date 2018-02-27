@@ -7,7 +7,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository
 import it.almawave.linkeddata.kb.catalog.SPARQL
 import it.almawave.linkeddata.kb.file.RDFFileSail;
 
-object MainRDFSail extends App {
+object MainRDFFileSail extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
   val rdf_files = new RDFFileSail(List(url))
