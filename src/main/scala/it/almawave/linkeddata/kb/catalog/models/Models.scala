@@ -9,9 +9,9 @@ import java.util.Date
 
 // CHECK: ai fini della navigazione bisogna capire se usare solo titles/descriptions it
 
-case class OntologyInformation(meta: OntologyMeta, data: RDFData_OLD)
+case class OntologyInformation(meta: OntologyMeta, data: RDFData)
 
-case class VocabularyInformation(meta: VocabularyMeta, data: RDFData_OLD)
+case class VocabularyInformation(meta: VocabularyMeta, data: RDFData)
 
 case class ItemByLanguage(lang: String, value: String)
 
@@ -94,12 +94,7 @@ case class VocabularyMeta(
 
 )
 
-@Deprecated
-case class RDFData_OLD(
-  subjects:   Set[Resource],
-  properties: Set[IRI],
-  objects:    Set[Value],
-  contexts:   Set[Resource])
+
 
 case class RDFData(
   subjects:   Seq[Resource],

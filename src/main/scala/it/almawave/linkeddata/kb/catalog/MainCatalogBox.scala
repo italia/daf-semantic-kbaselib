@@ -55,32 +55,4 @@ object MainCatalogBox extends App {
 
   catalog.stop()
 
-  @Deprecated
-  def show_concepts() {
-    val counted = SPARQL(catalog.repo).query("""
-    
-    #SELECT (COUNT(?s) AS ?triples) 
-    #WHERE { 
-    #  ?s ?p ?o .
-    #}
-    
-    SELECT DISTINCT ?graph ?concept 
-    WHERE {
-    
-      { ?s a ?concept }
-      UNION 
-      { GRAPH ?graph { ?s a ?concept } }
-    
-    }
-    
-  """)
-      .toStream
-      .groupBy { x => x.getOrElse("graph", "") }
-      .map { x => (x._1, x._2.toList.map(_.getOrElse("concept", "")).distinct) }
-      .map { x => (x._1.toString().replaceAll("^.*[#/](.*?)(\\..*)*$", "$1"), x._2.map(_.toString().replaceAll("^.*[#/](.*)$", "$1"))) }
-
-    println("COUNTED? ")
-    counted.foreach { x => println(x) }
-  }
-
 }

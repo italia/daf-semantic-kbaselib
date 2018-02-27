@@ -12,7 +12,6 @@ import org.eclipse.rdf4j.common.iteration.Iterations
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.utils.JSONHelper
 import org.eclipse.rdf4j.rio.Rio
 import it.almawave.linkeddata.kb.repo.RDFRepository
@@ -61,6 +60,7 @@ object MainOntologyRepositoryWrapper extends App {
 }
 
 // IDEA for refactoring...
+@Deprecated
 class OntologyRepositoryWrapper(source_url: URL) {
 
   val ID = source_url.toString().replaceAll("^.*[#/](.*?)(\\.[a-z]*)*$", "$1")
@@ -70,16 +70,12 @@ class OntologyRepositoryWrapper(source_url: URL) {
   private val sparql = SPARQL(_repo)
 
   // REFACTORING: a method for embedding open/close repo as builder or side-effect
-  // extracting general informations.......................................................
   if (!_repo.isInitialized()) _repo.initialize()
 
   private val _information = this.parse() // extract metadata
   val dependencies: Seq[String] = new URIDependenciesExtractor(_repo).extract().toList
 
   val entities = parse_entities
-
-  //  if (_repo.isInitialized()) _repo.shutDown()
-  // extracting general informations.......................................................
 
   private def parse(): OntologyInformation = OntologyMetadataExtractor(source_url, _repo).informations()
 
@@ -128,15 +124,10 @@ class OntologyRepositoryWrapper(source_url: URL) {
         case Failure(ok)   => println("ERROR: " + ok)
       }
 
-      println("URL: " + url)
-
     }
     conn.commit()
 
     if (_repo.isInitialized()) _repo.shutDown()
-
-    //    val urls = source_url :: dependencies.map(u => new URL(u)).toList
-    //    _repo = new RDFFileRepository(urls)
 
     this
   }

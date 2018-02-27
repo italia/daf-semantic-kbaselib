@@ -16,7 +16,6 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.IRI
-import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.catalog.models.RDFData
 import java.security.MessageDigest
 import scala.util.Random

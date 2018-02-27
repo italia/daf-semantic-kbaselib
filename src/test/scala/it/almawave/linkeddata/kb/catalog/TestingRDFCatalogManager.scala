@@ -1,21 +1,13 @@
-package it.almawave.linkeddata.kb.repo.catalog
+package it.almawave.linkeddata.kb.catalog
 
 import org.junit.Before
 import org.junit.After
 import org.junit.Test
 import java.net.URL
-import org.eclipse.rdf4j.rio.Rio
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory
-import org.eclipse.rdf4j.model.util.Models
-import org.eclipse.rdf4j.model.Model
 import it.almawave.linkeddata.kb.repo.RDFRepository
 import it.almawave.linkeddata.kb.repo.RDFRepositoryBase
-import org.eclipse.rdf4j.repository.sail.SailRepository
-import org.eclipse.rdf4j.sail.memory.MemoryStore
-import org.eclipse.rdf4j.query.QueryLanguage
-import scala.collection.mutable.ListBuffer
 import org.junit.Assert
 
 class TestingRDFCatalogmanager {
@@ -67,7 +59,7 @@ class TestingRDFCatalogmanager {
   def remove_ontology() {
 
     val test_onto = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl"
-    add_vocabulary() // TODO: refactorization here (avoiding dependent test)!!
+    add_ontology() // TODO: refactorization here (avoiding dependent test)!!
     mock.catalog.removeOntologyByURI(test_onto)
 
     Assert.assertEquals(0, mock.store.size(test_onto).get)
@@ -77,9 +69,11 @@ class TestingRDFCatalogmanager {
   @Test
   def add_vocabulary() {
 
-    val voc_id = "CLV-AP_IT"
-    val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio.ttl"
+    val voc_id = "licences"
+    val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl"
     val voc_mime = "text/turtle"
+
+    // choose a context!
     val voc_context = s"http://dati.gov.it/vocabularies/${voc_id}"
     val voc_base = voc_context
 
@@ -101,14 +95,14 @@ class TestingRDFCatalogmanager {
   @Test
   def remove_vocabulary() {
 
-    val voc_uri = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio.ttl"
+    val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl"
     val voc_id = "CLV-AP_IT"
     val voc_context = s"http://dati.gov.it/vocabularies/${voc_id}"
 
     add_vocabulary() // TODO: refactorization!!
-    mock.catalog.removeVocabularyByURI(voc_uri)
+    mock.catalog.removeVocabularyByURI(voc_url)
 
-    Assert.assertEquals(0, mock.store.size(voc_uri).get)
+    Assert.assertEquals(0, mock.store.size(voc_url).get)
 
   }
 

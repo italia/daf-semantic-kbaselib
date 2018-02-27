@@ -8,7 +8,7 @@ SELECT ?code ?label ?uri ?parent ?rank ?scheme
 WHERE {
 
   ?uri a skos:Concept .
-  ?uri skos:notation ?code .
+  ?uri skos:notation ?code .w
   ?uri skos:prefLabel ?label .
   ?uri clvapit:hasRankOrder ?rank .
   

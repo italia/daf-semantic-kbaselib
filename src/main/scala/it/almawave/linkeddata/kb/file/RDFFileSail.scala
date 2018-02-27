@@ -54,11 +54,11 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
     val conn = this.getConnection
     // IDEA: conn.begin()
 
-    urls.foreach { u =>
+    urls.foreach { url_src =>
 
-      URLHelper.follow_redirect(u) match {
+      URLHelper.follow_redirect(url_src) match {
         
-        case Success(url) =>   
+        case Success(url) =>   {
           
           _logger.debug(s"\nloading RDF from url: <${url}>")
 //            println(s"\nRDF> loading RDF from url: <${url}>")
@@ -100,8 +100,13 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
          
             
         } catch {
-          
-          case err:Throwable => println(err)
+          case err:Throwable => logger.error(s"problem parsing ${url_src}!\n${err.getMessage}")
+        }
+        
+        }
+        
+        case Failure(err) => {
+          logger.error(s"problem parsing ${url_src}!\n${err.getMessage}")
         }
         
       }

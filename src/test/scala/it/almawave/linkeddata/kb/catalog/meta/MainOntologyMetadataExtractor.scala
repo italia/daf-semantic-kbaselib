@@ -5,6 +5,7 @@ import it.almawave.linkeddata.kb.parsers.meta.OntologyMetadataExtractor
 import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.utils.JSONHelper
 
+@Deprecated
 object MainOntologyMetadataExtractor extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")

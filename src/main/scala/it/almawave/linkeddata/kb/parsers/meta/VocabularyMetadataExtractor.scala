@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.common.iteration.Iterations
 
 import it.almawave.linkeddata.kb.catalog.models.VocabularyInformation
-import it.almawave.linkeddata.kb.catalog.models.RDFData_OLD
 import it.almawave.linkeddata.kb.catalog.SPARQL
 import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
@@ -20,6 +19,7 @@ import it.almawave.linkeddata.kb.utils.DateHelper
 import java.net.URI
 import it.almawave.linkeddata.kb.utils.URIHelper
 import it.almawave.linkeddata.kb.catalog.models.ItemByLanguage
+import it.almawave.linkeddata.kb.catalog.models.RDFData
 
 /**
  * This is a simple helper object designed to extract as much information as possible from a single vocabulary.
@@ -263,13 +263,13 @@ class VocabularyMetadataExtractor(source_url: URL, repo: Repository) {
     println(s"getting basic informations for ${source_url}")
     val conn = repo.getConnection
     val contextsIDS = Iterations.asList(conn.getContextIDs)
-    val subjects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSet
-    val properties = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getPredicate }.distinct.toSet
-    val objects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSet
-    val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSet
+    val subjects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSeq
+    val properties = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getPredicate }.distinct.toSeq
+    val objects = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSeq
+    val contexts = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSeq
     conn.close()
 
-    RDFData_OLD(subjects, properties, objects, contexts ++ contextsIDS)
+    RDFData(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
   def informations() = {
