@@ -1,6 +1,7 @@
 package it.almawave.linkeddata.kb.catalog
 
 import com.typesafe.config.Config
+
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.memory.MemoryStore
@@ -16,6 +17,18 @@ import org.eclipse.rdf4j.sail.Sail
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
+import java.io.File
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.internal.storage.file.FileRepository
+import org.eclipse.jgit.transport.URIish
+import org.eclipse.jgit.util.FileUtils
+import com.typesafe.config.ConfigFactory
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import org.eclipse.jgit.merge.MergeStrategy
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits._
 
 class CatalogBox(config: Config) extends RDFBox {
 
@@ -35,7 +48,21 @@ class CatalogBox(config: Config) extends RDFBox {
   def ontologies = _ontologies.toList
   def vocabularies = _vocabularies.toList
 
+  // REVIEW HERE ............................................................................................
+
+  val store = {
+    val root = Paths.get(conf.getString("ontologies.path_local")).normalize().toAbsolutePath().toFile()
+    new RDFFilesStore(root)
+  }
+
+  val git = GitHandler(conf.getConfig("git"))
+
+  // REVIEW HERE ............................................................................................
+
   override def start() {
+
+    // synchronize with remote git repository
+    Await.ready(git.synchronize(), Duration.Inf)
 
     if (!repo.isInitialized()) repo.initialize()
 
@@ -173,3 +200,6 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
 }
+
+// GIT ------------------------------------------------------------------
+

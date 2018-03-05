@@ -33,7 +33,7 @@ import scala.util.Try
 class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
 
   val _logger = LoggerFactory.getLogger(this.getClass)
-  
+
   // REVIEW def this(url: URL, contexts: String*) = this(List(url), contexts: _*)
 
   val vf = SimpleValueFactory.getInstance
@@ -57,61 +57,50 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
     urls.foreach { url_src =>
 
       URLHelper.follow_redirect(url_src) match {
-        
-        case Success(url) =>   {
-          
+
+        case Success(url) => {
+
           _logger.debug(s"\nloading RDF from url: <${url}>")
-//            println(s"\nRDF> loading RDF from url: <${url}>")
-            
-            try {
+
+          try {
             val input = url.openStream()
-      
-            // val format: RDFFormat = Rio.getParserFormatForFileName(url.toString()).get
-            
-//            val format: RDFFormat = GuessRDFMIME.guess_format(url)
-            
-           val guess = GuessRDFMIME.guess_format(url) 
-      
-           if(guess.isSuccess) {
-           
-            // CHECK: val model = Rio.parse(input, baseURI, format, parser_config, vf, error_listener, ctxs: _*)
-            val model = Rio.parse(input, baseURI, guess.get, ctxs: _*)
-      
-            conn.begin()
-            model.unmodifiable()
-              .toStream
-              .foreach { st =>
-                // REVIEW: conn.addStatement(st.getSubject, st.getPredicate, st.getObject)
-                // REVIEW: conn.addStatement(st.getSubject, st.getPredicate, st.getObject, null)
-                conn.addStatement(st.getSubject, st.getPredicate, st.getObject, st.getContext)
-              }
-            conn.commit()
-      
-            _logger.debug(s"added ${model.size()} triples from URL ${url}")
-      
-            input.close()
-        
-            
-        
-           } else {
-             println(s"cannot guess RDF format for URL ${url}")
-           }
-          
-         
-            
-        } catch {
-          case err:Throwable => logger.error(s"problem parsing ${url_src}!\n${err.getMessage}")
+
+            val guess = GuessRDFMIME.guess_format(url)
+
+            if (guess.isSuccess) {
+
+              // CHECK: val model = Rio.parse(input, baseURI, format, parser_config, vf, error_listener, ctxs: _*)
+              val model = Rio.parse(input, baseURI, guess.get, ctxs: _*)
+
+              conn.begin()
+              model.unmodifiable()
+                .toStream
+                .foreach { st =>
+                  // REVIEW: conn.addStatement(st.getSubject, st.getPredicate, st.getObject)
+                  // REVIEW: conn.addStatement(st.getSubject, st.getPredicate, st.getObject, null)
+                  conn.addStatement(st.getSubject, st.getPredicate, st.getObject, st.getContext)
+                }
+              conn.commit()
+
+              _logger.debug(s"added ${model.size()} triples from URL ${url}")
+
+              input.close()
+
+            } else {
+              println(s"cannot guess RDF format for URL ${url}")
+            }
+
+          } catch {
+            case err: Throwable => logger.error(s"problem parsing ${url_src}!\n${err.getMessage}")
+          }
+
         }
-        
-        }
-        
+
         case Failure(err) => {
           logger.error(s"problem parsing ${url_src}!\n${err.getMessage}")
         }
-        
+
       }
-      
-      
 
     }
 

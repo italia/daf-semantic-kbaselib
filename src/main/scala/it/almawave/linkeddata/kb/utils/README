@@ -1,0 +1,2 @@
+TODO: refactorization of all the classes in this package.
+NOTE: this package contains some helpers which are used for specific tasks: in most cases those functionalities could be logically rearranged to avoid duplications, and to simplify code and naming conventions.
