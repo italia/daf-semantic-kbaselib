@@ -1,6 +1,5 @@
 package it.almawave.linkeddata.kb.repo.managers
 
-
 import org.slf4j.LoggerFactory
 import com.typesafe.config.ConfigFactory
 import org.eclipse.rdf4j.rio.RDFFormat
@@ -32,7 +31,6 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import it.almawave.linkeddata.kb.repo.RDFRepositoryBase
 
-
 import it.almawave.linkeddata.kb.utils.TryHandlers._
 import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
 
@@ -43,22 +41,23 @@ import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
  * TODO: add case classes as models
  *
  */
+@Deprecated
 class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
 
   implicit val logger = LoggerFactory.getLogger(this.getClass)
 
   /*
-   * TODO: we need a persistance to handle the lists, 
+   * TODO: we need a persistance to handle the lists,
    * or do we need to retrieve them from triplestore?
-   * 
+   *
    * TODO: merge here katalod engine
-   * 
+   *
    * IDEA:
    * 	1) explore contexts
    * 	2) filter by rootURI
    * 	3.a) ?uri a owl:Ontology -> ?uri is ontology!
    *	3.b) ?uri a skos:ConceptScheme -> ?uri is a vocabulary!
-   *   
+   *
    */
   def ontologies(): Seq[String] = ???
   def vocabularies(): Seq[String] = ???
@@ -67,13 +66,13 @@ class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
    *  CHECK: contexts
    *  1) ontology baseURI as context
    *  2) prefix from ontologyID
-   *  
+   *
    *  TODO: move to OntologyMeta / Ontology case classes, with metadata
    */
   def addOntology(
     rdfURL: URL, mime: String,
     ontologyID: String,
-    prefix: String, namespace: String,
+    prefix:     String, namespace: String,
     contexts: String*) = Try {
 
     // detect format
@@ -114,8 +113,8 @@ class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
   def addVocabulary(
     rdfURL: URL, mime: String,
     vocabularyID: String,
-    namespace: String,
-    contexts: String*) = Try {
+    namespace:    String,
+    contexts:     String*) = Try {
 
     // detect format
     val format = chooseMimeFormat(rdfURL, mime).get
@@ -160,11 +159,12 @@ class RDFCatalogManager(kbrepo: RDFRepositoryBase) {
 }
 
 // TODO
+@Deprecated
 case class OntologyMeta(
-    url: URL, mime: String,
-    ontologyID: String, description: String,
-    prefix: String, namespace: String,
-    contexts: Seq[String]) {
+  url: URL, mime: String,
+  ontologyID: String, description: String,
+  prefix: String, namespace: String,
+  contexts: Seq[String]) {
 
   val dependencies: Seq[String] = Seq() // TODO
   val links: Seq[String] = Seq() // TODO
@@ -172,6 +172,7 @@ case class OntologyMeta(
 }
 
 // TODO
+@Deprecated
 case class RDFOntologyDocument(meta: OntologyMeta) {
 
   val _vf = SimpleValueFactory.getInstance
@@ -268,6 +269,7 @@ case class RDFOntologyDocument(meta: OntologyMeta) {
 
 }
 
+@Deprecated
 class OLDRDFDocumentParser(model: Model) {
 
   // prefix is used for ontologies
@@ -357,8 +359,8 @@ class OLDRDFDocumentParser(model: Model) {
       namespaces: 
         ${namespaces.mkString("\n\t")}
       
-      nÂ° of subjects: ${subjects.distinct.size}
-      nÂ° of bnodes: ${bnodes.distinct.size}
+      n° of subjects: ${subjects.distinct.size}
+      n° of bnodes: ${bnodes.distinct.size}
       
       concepts:
         ${concepts.mkString("\n\t")}

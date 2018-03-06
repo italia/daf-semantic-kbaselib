@@ -50,24 +50,26 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
   }
 
   // NOTE: this method is a workaround for missing representation_type
-  def infer_vocabulary_type() = SPARQL(repo).query("""
-    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT DISTINCT ?ontology_uri 
-    WHERE {
-      [] a ?concept . 
-      OPTIONAL {
-        ?concept a owl:Class .
-      	?concept rdfs:isDefinedBy ?onto_uri .
-        BIND(STR(?onto_uri) AS ?ontology_uri)
+  def infer_vocabulary_type() = {
+    SPARQL(repo).query("""
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT DISTINCT ?ontology_uri 
+      WHERE {
+        [] a ?concept . 
+        OPTIONAL {
+          ?concept a owl:Class .
+        	?concept rdfs:isDefinedBy ?onto_uri .
+          BIND(STR(?onto_uri) AS ?ontology_uri)
+        }
+        OPTIONAL {
+          ?concept a* skos:Concept .
+          BIND(STR(<http://www.w3.org/2004/02/skos/core#>) AS ?ontology_uri)
+        }
       }
-      OPTIONAL {
-        ?concept a* skos:Concept .
-        BIND(STR(<http://www.w3.org/2004/02/skos/core#>) AS ?ontology_uri)
-      }
-    }
-  """).toList
-    .map(_.getOrElse("ontology_uri", "").toString())
-    .filterNot(_.trim().equals("")).distinct
+    """).toList
+      .map(_.getOrElse("ontology_uri", "").toString())
+      .filterNot(_.trim().equals("")).distinct
+  }
 
   /**
    * NOTE:	we assume we are modelling this vocabulary with a single specific representation technique (eg: SKOS)

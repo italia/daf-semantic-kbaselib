@@ -36,7 +36,7 @@ class CatalogBox(config: Config) extends RDFBox {
   import scala.collection.JavaConverters._
 
   val federation = new Federation()
-  //  new ForwardChainingRDFSInferencer(new DedupingInferencer(federation))
+  //    new ForwardChainingRDFSInferencer(new DedupingInferencer(federation))
   override val repo: Repository = new SailRepository(federation)
 
   override val conf = config.resolve()
@@ -62,7 +62,8 @@ class CatalogBox(config: Config) extends RDFBox {
   override def start() {
 
     // synchronize with remote git repository
-    Await.ready(git.synchronize(), Duration.Inf)
+    // CHECK: future -> Await.ready(git.synchronize(), Duration.Inf)
+    if (conf.getBoolean("git.synchronize")) git.synchronize()
 
     if (!repo.isInitialized()) repo.initialize()
 
@@ -107,18 +108,34 @@ class CatalogBox(config: Config) extends RDFBox {
     else
       new URI(conf.getString("ontologies.path_remote"))
 
-    //    if(conf.hasPath("ontologies.data")) {}
+    // TODO:
+    if (conf.hasPath("ontologies.data")) {
 
-    conf.getConfigList("ontologies.data")
-      .toStream
-      .foreach { onto_conf =>
-        val source_path = onto_conf.getString("path")
-        val source_url = new URI(base_path + source_path).normalize().toURL()
-        val box = OntologyBox.parse(source_url)
+      logger.info(s"using selected ontologies")
+
+      conf.getConfigList("ontologies.data")
+        .toStream
+        .foreach { onto_conf =>
+          val source_path = onto_conf.getString("path")
+          val source_url = new URI(base_path + source_path).normalize().toURL()
+          val box = OntologyBox.parse(source_url)
+          box.start()
+          box.stop()
+          _ontologies += box
+        }
+
+    } else {
+
+      logger.info(s"using all available ontologies")
+
+      store.ontologies().foreach { f =>
+        val box = OntologyBox.parse(f.toURI().toURL())
         box.start()
         box.stop()
         _ontologies += box
       }
+
+    }
 
     _ontologies.toStream
 
@@ -137,17 +154,34 @@ class CatalogBox(config: Config) extends RDFBox {
     else
       new URI(conf.getString("vocabularies.path_remote"))
 
-    conf.getConfigList("vocabularies.data")
-      .toStream
-      .foreach { voc_conf =>
+    if (conf.hasPath("vocabularies.data")) {
 
-        val source_path = voc_conf.getString("path")
-        val source_url = new URI(base_path + source_path).normalize().toURL()
-        val box = VocabularyBox.parse(source_url)
+      logger.info(s"using selected vocabularies")
+
+      conf.getConfigList("vocabularies.data")
+        .toStream
+        .foreach { voc_conf =>
+
+          val source_path = voc_conf.getString("path")
+          val source_url = new URI(base_path + source_path).normalize().toURL()
+          val box = VocabularyBox.parse(source_url)
+          box.start()
+          box.stop()
+          _vocabularies += box
+        }
+
+    } else {
+
+      logger.info(s"using all available vocabularies")
+
+      store.vocabularies().foreach { f =>
+        val box = VocabularyBox.parse(f.toURI().toURL())
         box.start()
         box.stop()
         _vocabularies += box
       }
+
+    }
 
     _vocabularies.toStream
 
@@ -181,9 +215,28 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   // resolve only internal dependencies
-  private def internal_dependencies(voc_box: VocabularyBox) = {
+  private def internal_dependencies(voc_box: VocabularyBox): Stream[String] = {
+
     val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
     voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
+
+    // TODO
+    //    if (conf.getValue("ontologies.baseURI").isInstanceOf[String]) {
+    //
+    //      val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
+    //      voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
+    //
+    //    } else {
+    //
+    //      //    HACK: aggiunta multipli base URI per consentire sviluppo nuovi vocabolari / ontologie (pre-rifattorizzazione)
+    //      //    val onto_baseURIs = this.conf.getStringList("ontologies.baseURI")
+    //      //    voc_box.meta.dependencies.toStream.filterNot { d => onto_baseURIs.filter(x => d.startsWith(x)) }
+    //
+    //      val onto_baseURI = this.conf.getStringList("ontologies.baseURI")(0).trim()
+    //      voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
+    //
+    //    }
+
   }
 
   private def resolve_dependencies(voc_box: VocabularyBox): Seq[OntologyBox] = {
@@ -200,6 +253,4 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
 }
-
-// GIT ------------------------------------------------------------------
 

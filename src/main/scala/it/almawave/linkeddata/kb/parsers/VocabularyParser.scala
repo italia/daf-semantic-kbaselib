@@ -235,9 +235,9 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       .headOption.getOrElse("")
   }
 
-//  def parse_asset_type() = {
-//    AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
-//  }
+  //  def parse_asset_type() = {
+  //    AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
+  //  }
 
   def parse_dcat_keywords() = {
     sparql.query("""
@@ -316,15 +316,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
 
   // should we shutdown the repository after using it?
   if (!repo.isInitialized()) repo.initialize()
-}
-
-object TestingBaseExtraction extends App {
-
-  val url = "http://dati.gov.it/onto/clvapit#Feature"
-
-  val txt = url.replaceAll("^(.*)[#/].*?$", "$1")
-  println("verify: " + txt)
-
 }
 
 // CHECK

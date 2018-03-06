@@ -2,7 +2,9 @@ package it.almawave.linkeddata.kb.catalog
 
 import java.io.File
 
-// TODO: export configurations!
+/*
+ *  TODO: parametric extraction of RDF file list
+ */
 class RDFFilesStore(root: File) {
 
   def vocabularies() = files_list(root)

@@ -11,45 +11,69 @@ import scala.concurrent.ExecutionContext.Implicits._
 import org.eclipse.jgit.merge.MergeStrategy
 import com.typesafe.config.ConfigFactory
 import scala.util.Success
+import org.slf4j.LoggerFactory
+
+/**
+ * REVIEW: trigger of start/stop for git in CatalogBox
+ */
+
+object MainGitHandler extends App {
+
+  val conf = ConfigFactory.parseString("""
+    git {
+    	synchronize: true
+    	remote.name: "daf-ontologie"
+    	remote.uri: "https://github.com/italia/daf-ontologie-vocabolari-controllati/"
+    	local.path: "D://DAF_ontologie-vocabolari-controllati"
+    }
+  """).getConfig("git")
+
+  val git = GitHandler(conf)
+  git.synchronize()
+
+}
 
 object GitHandler {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   def apply(conf: Config) = {
-    val synchronize_repo = conf.getBoolean("synchronize")
-    if (synchronize_repo)
-      new GitHandler(conf)
-    else new GitHandler(ConfigFactory.empty()) {
-      override def synchronize() = Future{}
-    }
+    //    val synchronize_repo = conf.getBoolean("synchronize")
+    //    logger.debug("synchronization is active? " + synchronize_repo)
+    //    if (synchronize_repo)
+    //      new GitHandler(conf)
+    //    else new GitHandler(ConfigFactory.empty()) {
+    //      override def synchronize() = {}
+    //    }
+    new GitHandler(conf)
   }
 
 }
 
 class GitHandler(conf: Config) {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   val remote_name = conf.getString("remote.name")
   val remote_uri = conf.getString("remote.uri")
-
-  val git_root = conf.getString("local.path")
-  val git_dir = Paths.get(git_root, ".git").normalize()
-
+  val path_local = conf.getString("local.path")
+  val git_dir = Paths.get(path_local).normalize()
   val default_branch = "master"
-  val synchronize_repo = conf.getBoolean("synchronize")
 
-  private var git_repo: Git = null
+  var git_repo: Git = null
 
   def start() {
 
-    if (git_repo == null) {
-      git_repo = Git.init().setDirectory(git_dir.toFile()).call()
+    logger.info(s"using git folder: ${git_dir}")
 
-      // adding the remote repository reference
-      val remote_add = git_repo.remoteAdd()
-      remote_add.setName(remote_name)
-      remote_add.setUri(new URIish(remote_uri))
-      remote_add.call()
+    git_repo = Git.init().setDirectory(git_dir.toFile()).call()
 
-    }
+    // adding the remote repository reference
+    val remote_add = git_repo.remoteAdd()
+    remote_add.setName(remote_name)
+    remote_add.setUri(new URIish(remote_uri))
+    remote_add.call()
+
   }
 
   def stop() {
@@ -59,18 +83,24 @@ class GitHandler(conf: Config) {
     remote_rm.setName(remote_name)
     remote_rm.call()
 
-    Thread.sleep(1000)
+    // CHECK: call a status just to verify the synchronization was actually finished at this point
+    // git_repo.status().call()
 
-    if (git_repo != null)
-      git_repo.close()
+    // closing git repository
+    git_repo.close()
 
   }
 
-  def synchronize() = Future {
-    this.start()
-    this.update()
-    this.delete_git_folder()
-    this.stop()
+  def synchronize() {
+
+    logger.info(s"synchronizing git from remote URI: ${remote_uri}")
+
+    start()
+
+    update()
+
+    stop()
+
   }
 
   def update() {
@@ -83,6 +113,7 @@ class GitHandler(conf: Config) {
 
     // download last version
     try {
+
       // $ git pull daf-ontologie master
       git_repo.pull()
         .setRemote(remote_name)
@@ -90,12 +121,11 @@ class GitHandler(conf: Config) {
         .setStrategy(MergeStrategy.THEIRS)
         .call()
 
-      // $ git fetch daf-ontologie
       git_repo.fetch()
         .setRemote(remote_name)
         .call()
 
-      // $ git checkout -f master
+      // NOTE: $ git checkout -f master
       git_repo.checkout()
         .setForce(true)
         .setAllPaths(true)
@@ -106,16 +136,12 @@ class GitHandler(conf: Config) {
       case err: Throwable => System.err.println("ERROR pulling: " + err)
     }
 
-    // CHECK: the idea is to save elsewhere the latest working copy of ontologies / vocabularies
-    // git_repo.archive()
-    // .setFilename("target/catalogo_ontologie.tar")
-    // .setFormat(null)
-    // .call()
-
-    // call a status just to verify the synchronization was actually finished at this point
-    git_repo.status().call()
-
   }
+
+  // TODO: git_repo.archive()
+  //    .setFilename("target/catalogo_ontologie.tar")
+  //    .setFormat(null)
+  //    .call()
 
   private def delete_git_folder() {
     try {
@@ -126,5 +152,3 @@ class GitHandler(conf: Config) {
   }
 
 }
-
-

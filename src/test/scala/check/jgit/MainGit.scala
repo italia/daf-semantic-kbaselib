@@ -37,7 +37,7 @@ object MainGit extends App {
 
   val git_remote = "daf-ontologie"
   val path_remote = "https://github.com/italia/daf-ontologie-vocabolari-controllati/"
-  val path_local = "D://ontologie-vocabolari-controllati"
+  val path_local = "D://DAF_ontologie-vocabolari-controllati"
   val git_dir = Paths.get(path_local).normalize()
 
   println("USING " + git_dir)

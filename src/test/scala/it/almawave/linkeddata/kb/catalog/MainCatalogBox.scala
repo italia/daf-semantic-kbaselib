@@ -24,10 +24,6 @@ object MainCatalogBox extends App {
       println(voc)
     }
 
-  // TODO
-  //  val ontologies_with_deps = catalog.ontologies.map { o => o.withImports() }
-  // TEST: ${ontologies_with_deps}
-
   println(s"""
     
     #### CATALOG SUMMARY
