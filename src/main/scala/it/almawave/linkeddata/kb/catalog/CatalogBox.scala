@@ -30,6 +30,9 @@ import org.eclipse.jgit.merge.MergeStrategy
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits._
 
+/*
+ * TODO: consider using inferences
+ */
 class CatalogBox(config: Config) extends RDFBox {
 
   import scala.collection.JavaConversions._
@@ -92,8 +95,7 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   override def triples = {
-    _ontologies.foldLeft(0)((a, b) => a + b.triples) +
-      _vocabularies.foldLeft(0)((a, b) => a + b.triples)
+    _ontologies.foldLeft(0)((a, b) => a + b.triples) + _vocabularies.foldLeft(0)((a, b) => a + b.triples)
   }
 
   def getVocabularyByID(vocabularyID: String) = Try {
@@ -102,13 +104,11 @@ class CatalogBox(config: Config) extends RDFBox {
 
   private def load_ontologies = {
 
-    // TODO: re-add remote gathering, with jgit
     val base_path: URI = if (conf.getBoolean("ontologies.use_cache"))
       Paths.get(conf.getString("ontologies.path_local")).normalize().toAbsolutePath().toUri()
     else
       new URI(conf.getString("ontologies.path_remote"))
 
-    // TODO:
     if (conf.hasPath("ontologies.data")) {
 
       logger.info(s"using selected ontologies")
@@ -148,7 +148,6 @@ class CatalogBox(config: Config) extends RDFBox {
 
   private def load_vocabularies = {
 
-    // TODO: re-add remote gathering, with jgit
     val base_path: URI = if (conf.getBoolean("vocabularies.use_cache"))
       Paths.get(conf.getString("vocabularies.path_local")).normalize().toAbsolutePath().toUri()
     else

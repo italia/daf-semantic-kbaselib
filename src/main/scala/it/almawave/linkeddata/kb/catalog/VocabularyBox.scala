@@ -49,8 +49,11 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
     new VocabularyBoxWithDependencies(this, ontos)
   }
 
-  // NOTE: this method is a workaround for missing representation_type
-  def infer_vocabulary_type() = {
+  /*
+   *  NOTE: this method is a workaround for missing representation_type
+   *  <this might change later>
+   */
+  def infer_ontologies() = {
     SPARQL(repo).query("""
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
       SELECT DISTINCT ?ontology_uri 
