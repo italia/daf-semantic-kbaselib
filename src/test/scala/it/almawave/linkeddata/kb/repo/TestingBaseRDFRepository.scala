@@ -17,6 +17,7 @@ import org.junit.Assume
 
 import it.almawave.linkeddata.kb.utils.RDF4JAdapters._
 import it.almawave.linkeddata.kb.utils.TryHandlers._
+import org.junit.Ignore
 
 /*
  * basic tests for the RDFRepository instances
@@ -42,7 +43,7 @@ class TestingBaseRDFRepository {
   val docWithContexts = Rio.parse(new StringReader(doc_example), base_uri, RDFFormat.TURTLE, ctxs.toIRIList: _*)
   val docNoContexts = Rio.parse(new StringReader(doc_example), base_uri, RDFFormat.TURTLE)
 
-  val dir_base = new File("src/main/resources/data/ontologies/").getAbsoluteFile
+  val dir_base = new File("src/test/resources/data/").getAbsoluteFile
 
   // TODO: find a way for executing both
   val mock: RDFRepositoryBase = RDFRepository.memory()
@@ -163,6 +164,7 @@ class TestingBaseRDFRepository {
 
   }
 
+  @Ignore("deprecated method / functionality")
   @Test
   def test_import() {
 

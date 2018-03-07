@@ -1,0 +1,25 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX l0: <http://dati.gov.it/onto/l0/>
+PREFIX clvapit: <http://dati.gov.it/onto/clvapit#>
+
+SELECT DISTINCT ?uri ?notation ?rank ?label ?parent_uri ?scheme
+
+WHERE {
+
+	#?klass a owl:Class . 
+	#FILTER(!isBlank(?klass))
+  
+	#?klass rdfs:label ?label .
+	?klass clvapit:hasRankOrder ?rank .
+  	?klass rdfs:isDefinedBy ?scheme .
+  
+	OPTIONAL { 
+      ?uri a ?klass . 
+      ?uri clvapit:situatedWithin ?parent_uri . 
+      ?uri clvapit:hasIdentifier / clvapit:identifier ?notation .
+      ?uri clvapit:name ?label .
+    }
+  
+  
+   
+}

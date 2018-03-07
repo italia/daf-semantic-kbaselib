@@ -134,10 +134,16 @@ class RDFFileManager(kbrepo: RDFRepositoryBase) {
 
   /*
    * TODO: add a configuration
-   * TODO: extends with github checkout 
-   * 
+   * TODO: extends with github checkout
+   *
    * TODO: extends with URIs
+   * 
+   * NOTE: this method has been deprecated!!
+   * 	+ in the current version of the library, ontologies and vocabularies are parsed in order to acquire basic metadata in a conventional way.
+   * 	+ we could imagine adding a configuration-based approach (expanding this example) for the RDFDataBox, when they will be implemented.
+   * 
    */
+  @Deprecated
   def importFrom(rdf_folder: String) {
 
     val logger = LoggerFactory.getLogger(this.getClass)
@@ -150,39 +156,44 @@ class RDFFileManager(kbrepo: RDFRepositoryBase) {
       .foreach {
         uri =>
 
-          // CHECK: how to put an ontology in the right context? SEE: configuration
+          try {
+            // CHECK: how to put an ontology in the right context? SEE: configuration
 
-          val format = Rio.getParserFormatForFileName(uri.toString()).get
+            val format = Rio.getParserFormatForFileName(uri.toString()).get
 
-          val rdf_doc = Rio.parse(uri.toURL().openStream(), uri.toString(), format)
+            val rdf_doc = Rio.parse(uri.toURL().openStream(), uri.toString(), format)
 
-          // adds all the namespaces explicitly declared in the file, if present
-          val doc_namespaces = rdf_doc.getNamespaces.map { ns => (ns.getPrefix, ns.getName) }.toList
-          kbrepo.prefixes.add(doc_namespaces: _*)
+            // adds all the namespaces explicitly declared in the file, if present
+            val doc_namespaces = rdf_doc.getNamespaces.map { ns => (ns.getPrefix, ns.getName) }.toList
+            kbrepo.prefixes.add(doc_namespaces: _*)
 
-          val meta = this.getMetadata(uri)
+            val meta = this.getMetadata(uri)
 
-          // if we have metadata fro prefix:<namespace>, we use it
-          if (meta.hasPath("prefix")) {
+            // if we have metadata fro prefix:<namespace>, we use it
+            if (meta.hasPath("prefix")) {
 
-            // adds the default prefix/namespace pair for this document
-            val prefix = meta.getString("prefix")
-            val namespace = meta.getString("uri")
+              // adds the default prefix/namespace pair for this document
+              val prefix = meta.getString("prefix")
+              val namespace = meta.getString("uri")
 
-            logger.debug(s"\nadding ${prefix}:${namespace}")
-            kbrepo.prefixes.add((prefix, namespace))
+              logger.debug(s"\nadding ${prefix}:${namespace}")
+              kbrepo.prefixes.add((prefix, namespace))
 
-            val contexts_list = meta.getStringList("contexts")
+              val contexts_list = meta.getStringList("contexts")
 
-            logger.debug(s"importing ${uri} in context ${contexts_list(0)}")
-            logger.debug(s"(available contexts are: ${contexts_list.mkString(" | ")})")
+              logger.debug(s"importing ${uri} in context ${contexts_list(0)}")
+              logger.debug(s"(available contexts are: ${contexts_list.mkString(" | ")})")
 
-            // adds the document to the contexts provided in .metadata
-            kbrepo.store.add(rdf_doc, contexts_list: _*)
-            kbrepo.store.add(rdf_doc) // also publish to the default context!
+              // adds the document to the contexts provided in .metadata
+              kbrepo.store.add(rdf_doc, contexts_list: _*)
+              kbrepo.store.add(rdf_doc) // also publish to the default context!
 
-          } else {
-            logger.warn(s"skipping import of ${uri}: missing meta!")
+            } else {
+              logger.warn(s"skipping import of ${uri}: missing meta!")
+            }
+
+          } catch {
+            case err: Throwable => logger.warn(s"skipping import of ${uri}: problems parsing RDF file!\n${err}")
           }
 
       }

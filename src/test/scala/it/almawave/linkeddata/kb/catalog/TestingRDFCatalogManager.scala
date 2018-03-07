@@ -9,9 +9,11 @@ import scala.collection.JavaConverters._
 import it.almawave.linkeddata.kb.repo.RDFRepository
 import it.almawave.linkeddata.kb.repo.RDFRepositoryBase
 import org.junit.Assert
+import java.nio.file.Paths
 
 class TestingRDFCatalogmanager {
 
+  val data_dir = "src/test/resources/daf-ontologie-vocabolari-controllati"
   val mock: RDFRepositoryBase = RDFRepository.memory()
 
   @Before()
@@ -32,15 +34,15 @@ class TestingRDFCatalogmanager {
   def add_ontology() {
 
     val onto_id = "CLV-AP_IT"
-    val onto_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl"
+    val onto_path = Paths.get(s"${data_dir}/Ontologie/CLV/latest/CLV-AP_IT.ttl").normalize()
     val onto_prefix = "clvapit"
-    val onto_context = s"http://dati.gov.it/ontologies/${onto_id}/"
+    val onto_context = ontology_uri(onto_id)
     val onto_mime = "text/turtle"
     val onto_base = onto_context
 
     val size_before = mock.store.size().get
 
-    mock.catalog.addOntology(new URL(onto_url), onto_mime, onto_id, onto_prefix, onto_base, onto_context)
+    mock.catalog.addOntology(onto_path.toUri().toURL(), onto_mime, onto_id, onto_prefix, onto_base, onto_context)
 
     val size_after = mock.store.size().get
 
@@ -58,11 +60,12 @@ class TestingRDFCatalogmanager {
   @Test
   def remove_ontology() {
 
-    val test_onto = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl"
+    val onto_id = "CLV-AP_IT"
+    val onto_context = ontology_uri(onto_id)
     add_ontology() // TODO: refactorization here (avoiding dependent test)!!
-    mock.catalog.removeOntologyByURI(test_onto)
+    mock.catalog.removeOntologyByURI(onto_context)
 
-    Assert.assertEquals(0, mock.store.size(test_onto).get)
+    Assert.assertEquals(0, mock.store.size(onto_context).get)
 
   }
 
@@ -70,20 +73,23 @@ class TestingRDFCatalogmanager {
   def add_vocabulary() {
 
     val voc_id = "licences"
-    val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl"
+    val voc_path = Paths.get(s"${data_dir}/VocabolariControllati/licences/licences.ttl").normalize()
     val voc_mime = "text/turtle"
 
     // choose a context!
-    val voc_context = s"http://dati.gov.it/vocabularies/${voc_id}"
+    val voc_context = vocabulary_uri(voc_id)
     val voc_base = voc_context
 
     mock.store.clear()
 
     val size_before = mock.store.size(voc_context).get
+    println("SIZE BEFORE?? " + size_before)
+    Assert.assertTrue(size_before == 0)
 
-    mock.catalog.addVocabulary(new URL(voc_url), voc_mime, voc_id, voc_base, voc_context)
+    mock.catalog.addVocabulary(voc_path.toUri().toURL(), voc_mime, voc_id, voc_base, voc_context)
 
     val size_after = mock.store.size(voc_context).get
+    println("SIZE AFTER?? " + size_after)
 
     Assert.assertTrue(size_after > size_before)
 
@@ -95,15 +101,17 @@ class TestingRDFCatalogmanager {
   @Test
   def remove_vocabulary() {
 
-    val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl"
-    val voc_id = "CLV-AP_IT"
-    val voc_context = s"http://dati.gov.it/vocabularies/${voc_id}"
+    val voc_id = "licences"
+    val voc_context = vocabulary_uri(voc_id)
 
     add_vocabulary() // TODO: refactorization!!
-    mock.catalog.removeVocabularyByURI(voc_url)
+    mock.catalog.removeVocabularyByURI(voc_context)
 
-    Assert.assertEquals(0, mock.store.size(voc_url).get)
+    Assert.assertEquals(0, mock.store.size(voc_context).get)
 
   }
+
+  def ontology_uri(id: String) = s"test://dati.gov.it/ontologies/${id}/"
+  def vocabulary_uri(id: String) = s"test://dati.gov.it/vocabularies/${id}/"
 
 }

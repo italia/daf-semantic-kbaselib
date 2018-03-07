@@ -22,11 +22,14 @@ import org.junit.Test
 import org.eclipse.rdf4j.sail.Sail
 import org.eclipse.rdf4j.sail.helpers.AbstractSail
 import org.eclipse.rdf4j.sail.SailConnection
+import java.nio.file.Paths
 
 class TestingWithContexts {
 
-  val onto_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl"
-  val voc_url = "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio.ttl"
+  val data_dir = "src/test/resources/daf-ontologie-vocabolari-controllati"
+
+  val onto_url = Paths.get(s"${data_dir}/Ontologie/CLV/latest/CLV-AP_IT.ttl").normalize().toUri().toString()
+  // val voc_url = Paths.get(s"${data_dir}/VocabolariControllati/territorial-classification/territorial-classification.ttl").normalize().toUri().toString()
 
   val repo = new SailRepository(new MemoryStore)
 
