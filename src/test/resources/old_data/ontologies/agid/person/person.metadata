@@ -1,5 +1,0 @@
-prefix: "pers"
-uri: "http://dati.gov.it/ontologies/person/"
-contexts: [
-	"http://dati.gov.it/ontologies/person/"
-]

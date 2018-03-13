@@ -1,5 +1,0 @@
-prefix: "mccm"
-uri: "http://www.mc.camcom.it/"
-contexts: [
-	"http://www.mc.camcom.it/"
-]

@@ -1,5 +1,0 @@
-# all the concepts
-SELECT DISTINCT ?concept
-WHERE {
-	?sub a ?concept
-}
