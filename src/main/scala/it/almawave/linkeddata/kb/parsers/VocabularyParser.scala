@@ -99,8 +99,9 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?concept 
         WHERE { 
-          ?concept a ?klass. 
-          ?klass rdfs:subClassOf* skos:Concept . 
+          { ?concept a ?klass. ?klass rdfs:subClassOf* skos:Concept . }
+          UNION 
+          { ?uri a ?concept . ?klass rdfs:subClassOf* owl:Class . } # IDEA: filter a specific set of classes here! 
         } 
         """)
       .map(_.getOrElse("concept", "owl:Thing").toString()).toSet

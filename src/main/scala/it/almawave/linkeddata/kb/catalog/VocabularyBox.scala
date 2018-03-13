@@ -32,18 +32,9 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
 
   override val repo: Repository = new RDFFileRepository(meta.source, context)
 
-  // TODO: collecting sparql queries by configuration & convention
-
-  //  val assetType = extract_assetType()
-
   override def toString() = s"""
     VocabularyBox [${id}, ${status}, ${triples} triples, ${context}] [${extract_assetType._1}]
   """.trim()
-
-  // REVIEW
-  //  def withImports() = {
-  //    new VocabularyBoxWithImports(meta)
-  //  }
 
   def federateWith(ontos: Seq[OntologyBox]) = {
     new VocabularyBoxWithDependencies(this, ontos)
@@ -54,24 +45,26 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
    *  <this might change later>
    */
   def infer_ontologies() = {
+
     SPARQL(repo).query("""
-      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-      SELECT DISTINCT ?ontology_uri 
-      WHERE {
-        [] a ?concept . 
-        OPTIONAL {
-          ?concept a owl:Class .
-        	?concept rdfs:isDefinedBy ?onto_uri .
-          BIND(STR(?onto_uri) AS ?ontology_uri)
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?ontology_uri
+        WHERE {
+          [] a ?concept .
+          OPTIONAL {
+            ?concept a owl:Class .
+          	?concept rdfs:isDefinedBy ?onto_uri .
+            BIND(STR(?onto_uri) AS ?ontology_uri)
+          }
+          OPTIONAL {
+            ?concept a* skos:Concept .
+            BIND(STR(<http://www.w3.org/2004/02/skos/core#>) AS ?ontology_uri)
+          }
         }
-        OPTIONAL {
-          ?concept a* skos:Concept .
-          BIND(STR(<http://www.w3.org/2004/02/skos/core#>) AS ?ontology_uri)
-        }
-      }
-    """).toList
-      .map(_.getOrElse("ontology_uri", "").toString())
-      .filterNot(_.trim().equals("")).distinct
+      """).toList
+    .map(_.getOrElse("ontology_uri", "").toString())
+    .filterNot(_.trim().equals("")).distinct
+
   }
 
   /**

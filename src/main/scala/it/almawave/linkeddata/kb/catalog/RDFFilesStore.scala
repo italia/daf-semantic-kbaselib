@@ -1,6 +1,8 @@
 package it.almawave.linkeddata.kb.catalog
 
 import java.io.File
+import com.typesafe.config.Config
+import java.nio.file.Paths
 
 /*
  *  TODO: parametric extraction of RDF file list
@@ -30,6 +32,15 @@ class RDFFilesStore(root: File) {
 
     }
 
+  }
+
+}
+
+object RDFFilesStore {
+
+  def apply(dir: String) = {
+    val root = Paths.get(dir).normalize().toAbsolutePath().toFile()
+    new RDFFilesStore(root)
   }
 
 }

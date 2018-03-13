@@ -14,6 +14,8 @@ object SPARQL {
  * + tuples: `Seq[Map[String, Any]]`
  * + graphs: `Seq[Map[String, Map[String, ...]]]`
  *
+ * TODO: merge with managers/sparql
+ * 
  * should we assume that the repository is accessible (already initialized and not shutdown?)
  *
  */

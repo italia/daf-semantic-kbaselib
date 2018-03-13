@@ -53,10 +53,7 @@ class CatalogBox(config: Config) extends RDFBox {
 
   // REVIEW HERE ............................................................................................
 
-  val store = {
-    val root = Paths.get(conf.getString("ontologies.path_local")).normalize().toAbsolutePath().toFile()
-    new RDFFilesStore(root)
-  }
+  val store = RDFFilesStore(conf.getString("ontologies.path_local"))
 
   val git = GitHandler(conf.getConfig("git"))
 
@@ -65,7 +62,6 @@ class CatalogBox(config: Config) extends RDFBox {
   override def start() {
 
     // synchronize with remote git repository
-    // CHECK: future -> Await.ready(git.synchronize(), Duration.Inf)
     if (conf.getBoolean("git.synchronize")) git.synchronize()
 
     if (!repo.isInitialized()) repo.initialize()
@@ -202,6 +198,7 @@ class CatalogBox(config: Config) extends RDFBox {
 
       // resolve internal dependencies
       val ontos = this.resolve_dependencies(voc_box)
+      //      println("ontologies ?? " + ontos)
 
       // federation with repositories
       voc_box = voc_box.federateWith(ontos)
@@ -214,27 +211,20 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   // resolve only internal dependencies
-  private def internal_dependencies(voc_box: VocabularyBox): Stream[String] = {
+  private def internal_dependencies(voc_box: VocabularyBox): Seq[String] = {
 
-    val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
-    voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
+    // TODO: extend to multiple baseURI
 
-    // TODO
-    //    if (conf.getValue("ontologies.baseURI").isInstanceOf[String]) {
-    //
-    //      val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
-    //      voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
-    //
-    //    } else {
-    //
-    //      //    HACK: aggiunta multipli base URI per consentire sviluppo nuovi vocabolari / ontologie (pre-rifattorizzazione)
-    //      //    val onto_baseURIs = this.conf.getStringList("ontologies.baseURI")
-    //      //    voc_box.meta.dependencies.toStream.filterNot { d => onto_baseURIs.filter(x => d.startsWith(x)) }
-    //
-    //      val onto_baseURI = this.conf.getStringList("ontologies.baseURI")(0).trim()
-    //      voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
-    //
-    //    }
+    val uris = this.conf.getStringList("ontologies.baseURI")
+
+    voc_box.meta.dependencies.toStream
+      .filter { d =>
+        uris.filter { u => d.startsWith(u) }.size == 1
+      }.toList
+
+    // OK - versione single baseURI
+    // val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
+    // voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
 
   }
 
