@@ -12,10 +12,15 @@ import scala.collection.mutable.ListBuffer
 import org.eclipse.rdf4j.model.Statement
 import examples.rdf4j.RDFFileSail
 
-// TODO: review the example
+/*
+ * 	This example aims to be a starting point for an implementation using indexing with triples, for example with Solr
+ *  NOTE: the package fts provides also Elasticsearch support, even if not updated to the latest version
+ *
+ *  TODO: review the example
+ */
 object ExampleSolrRDFFile extends App {
 
-  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
+  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/COV/latest/COV-AP_IT.ttl")
 
   val source_sail = new RDFFileSail(url)
 
@@ -36,8 +41,6 @@ object ExampleSolrRDFFile extends App {
     source_repo.shutDown()
 
 }
-
-
 
 class SolrRDFFile {
 

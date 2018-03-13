@@ -14,6 +14,7 @@ import scala.collection.JavaConverters._
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
 import org.eclipse.rdf4j.sail.lucene.LuceneIndex
+import it.almawave.linkeddata.kb.file.RDFFileSail
 
 /**
  * this is a small POC to show how to use federation by convention over a collection of self-contained repository.
@@ -28,13 +29,14 @@ object TestingFederationOfFiles extends App {
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Livello0/latest/l0.ttl")
+    .map(new URL(_))
 
   val federation = new Federation
   urls.foreach { url =>
 
     val context = "http://dati.gov.it/examples/" + url.toString().replaceAll(".*:/.*[#/](.*)\\..*", "$1")
 
-    val urlSail = new RDFFileSail(url, context)
+    val urlSail = new RDFFileSail(List(url), context)
 
     // testing ith lucene.................................................
     //    val lucenesail = new LuceneSail()
@@ -44,7 +46,7 @@ object TestingFederationOfFiles extends App {
     //    lucenesail.setBaseSail(urlSail)
     //    val lucrepo = new SailRepository(lucenesail)
     //    lucrepo.initialize()
-    //    
+    //
     //    val cc = lucrepo.getConnection
     //    val vf = cc.getValueFactory
     //    val format = Rio.getParserFormatForFileName(url.toString()).get
@@ -116,31 +118,3 @@ object TestingFederationOfFiles extends App {
 
 }
 
-class RDFFileSail(source: String, context: String) extends MemoryStore {
-
-  val url = new URL(source)
-
-  override def initialize() = {
-    super.initialize()
-    load()
-  }
-
-  def load() {
-
-    val cc = this.getConnection
-    val vf = this.getValueFactory
-    val format = Rio.getParserFormatForFileName(source).get
-    val ctx = vf.createIRI(context)
-    val input = url.openStream()
-    val model = Rio.parse(input, context, format, ctx)
-    input.close()
-    cc.begin()
-    model.foreach { st =>
-      cc.addStatement(st.getSubject, st.getPredicate, st.getObject, st.getContext)
-    }
-    cc.commit()
-    cc.close()
-
-  }
-
-}

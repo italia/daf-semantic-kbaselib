@@ -9,11 +9,12 @@ import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.rio.RDFFormat
 
+/*
+ * TODO: review the example...
+ */
 object WorkingSolrExample extends App {
 
-  //  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
-  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl")
-  //  val url = new File("/home/seralf/CLV-AP_IT.ttl").toURI().toURL()
+  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CLV/latest/CLV-AP_IT.ttl")
 
   val DATA_DIR = new File("target/solr/data")
 

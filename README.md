@@ -1,6 +1,8 @@
 kbaselib
 ==============
 
+[ README last update: 01/03/2018  ]
+
 The `kbaselib` library contains all the basic core functionalities needed for accessing triplestores and related RDF files.
 
 The library is designed using the RDF4J API, with the aim to provide a simplified uniform access to different triplestores. At the moment is tested using in-memory triplestore and virtuoso, but should be easily compatible with every db supporting RDF4J API. The support for blazegraph is work in progress.
@@ -32,8 +34,8 @@ In order to have the library available as a dependency from other maven/sbt proj
 
 ```bash
 mvn clean install \
-	-Dfile=target/kbaselib-0.0.2.jar -Dpackaging=jar \
-	-DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.2 
+	-Dfile=target/kbaselib-0.0.4.jar -Dpackaging=jar \
+	-DgroupId=it.almawave.linkeddata.kb -DartifactId=kbaselib -Dversion=0.0.4 
 ```
 
 After the creation and the `mvn install` command, the library will be available to projects, and we can use the library in the usual way.
@@ -44,7 +46,7 @@ After the creation and the `mvn install` command, the library will be available 
 A temporary workaround to handle the correct naming convention needed by sbt is to manually create the artifact, for example:
 
 ```bash
-# mkdir -p /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.2/
+# mkdir -p /home/ubuntu/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/0.0.4/
 
 cp -R ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib/ ~/.m2/repository/it/almawave/linkeddata/kb/kbaselib_2.11.8/
 ```
@@ -59,7 +61,7 @@ If the library is available on remote/local maven repositories, we can use it wi
 <dependency>
 	<groupId>it.almawave.linkeddata.kb</groupId>
 	<artifactId>kbaselib</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.4</version>
 </dependency>
 ```
 
@@ -67,7 +69,7 @@ If the library is available on remote/local maven repositories, we can use it wi
 
 The dependency in sbt can be added with:
 ```scala
-libraryDependencies += "it.almawave.linkeddata.kb" % "kbaselib" % "0.0.2"
+libraryDependencies += "it.almawave.linkeddata.kb" % "kbaselib" % "0.0.4"
 ```
 
 where it's important to verify that we are using the library published on the local maven repository for a specific version of scala, so it's important to check also the following part of the `build.sbt` file for sbt:
@@ -94,6 +96,9 @@ resolvers += Resolver.mavenLocal
 * * *
 
 ## DOWNLOADS
+
++ v 0.0.4
+	- TODO
 
 + v 0.0.2
 	- [kbaselib-0.0.2.jar](https://bitbucket.org/awodata/kbaselib/downloads/kbaselib-0.0.2.jar)

@@ -31,6 +31,7 @@ import scala.util.Success
 import scala.util.Failure
 
 /*
+ * This class provides an idea on th process for handling a git repository with jgit
  * CHECKING git repo synch + .git deletion
  */
 object MainGit extends App {
@@ -39,13 +40,6 @@ object MainGit extends App {
   val path_remote = "https://github.com/italia/daf-ontologie-vocabolari-controllati/"
   val path_local = "D://DAF_ontologie-vocabolari-controllati"
   val git_dir = Paths.get(path_local).normalize()
-
-  println("USING " + git_dir)
-
-  // CHECK?
-  //  val dir = new File("C:/Users/Al.Serafini/repos/DAF/kataLOD/ontologie-vocabolari-controllati")
-  //  val git = Git.open(dir, FS.detect())
-  //  git.apply()
 
   val git_repo = Git.init().setDirectory(git_dir.toFile()).call()
 
@@ -92,17 +86,11 @@ object MainGit extends App {
   remote_rm.setName(git_remote)
   remote_rm.call()
 
-  // TODO: git_repo.archive()
-  //    .setFilename("target/catalogo_ontologie.tar")
-  //    .setFormat(null)
-  //    .call()
-
   // call a status just to verify the synchronization was actually finished at this point
   git_repo.status().call()
 
   // closing git repository
   git_repo.close()
 
-  Thread.sleep(1000)
-
+  System.exit(0)
 }
