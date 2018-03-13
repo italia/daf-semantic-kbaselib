@@ -7,6 +7,9 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import scala.collection.mutable.ListBuffer
 import org.eclipse.rdf4j.model.Statement
 
+/*
+ * this is a simple class for verifying the TryHandlers helper class
+ */
 object TestingHandlers extends App {
 
   import it.almawave.linkeddata.kb.utils.TryHandlers._

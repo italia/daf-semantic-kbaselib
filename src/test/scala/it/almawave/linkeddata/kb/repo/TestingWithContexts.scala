@@ -26,10 +26,9 @@ import java.nio.file.Paths
 
 class TestingWithContexts {
 
-  val data_dir = "src/test/resources/daf-ontologie-vocabolari-controllati"
+  val data_dir = "src/test/resources/catalog-data"
 
   val onto_url = Paths.get(s"${data_dir}/Ontologie/CLV/latest/CLV-AP_IT.ttl").normalize().toUri().toString()
-  // val voc_url = Paths.get(s"${data_dir}/VocabolariControllati/territorial-classification/territorial-classification.ttl").normalize().toUri().toString()
 
   val repo = new SailRepository(new MemoryStore)
 

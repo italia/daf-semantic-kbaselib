@@ -13,7 +13,7 @@ import java.nio.file.Paths
 
 class TestingRDFCatalogmanager {
 
-  val data_dir = "src/test/resources/daf-ontologie-vocabolari-controllati"
+  val data_dir = "src/test/resources/catalog-data"
   val mock: RDFRepositoryBase = RDFRepository.memory()
 
   @Before()

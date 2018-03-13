@@ -25,6 +25,8 @@ import it.almawave.linkeddata.kb.catalog.file.RDFQueryResultHandler
  * 	we should benchmark the queries, in case we could improve performances when avoiding duplication
  * (for example forcing the usage of local copies as a "cache")
  *
+ * TODO: convert this example to a proper JUnit test class
+ *
  */
 object TestingFederationFiles extends App {
 
@@ -32,8 +34,8 @@ object TestingFederationFiles extends App {
 
   val urls = List(
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/poi-category-classification/poi-category-classification.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CLV/latest/CLV-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/POI/latest/POI-AP_IT.ttl",
     "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/l0/latest/l0-AP_IT.ttl")
     .map(new URL(_))
 
@@ -42,15 +44,17 @@ object TestingFederationFiles extends App {
   federation.setDistinct(true)
 
   urls.foreach { url =>
-    val context = "http://dati.gov.it/examples/" + url.toString().replaceAll(".*:/.*[#/](.*)\\..*", "$1")
+    println("URL: " + url)
+    val onto_id = url.toString().replaceAll(".*:/.*[#/](.*)\\..*", "$1")
+    val context = "http://dati.gov.it/examples/" + onto_id
     val urlSail = new RDFFileSail(List(url), context)
     federation.addMember(new SailRepository(urlSail))
   }
 
   //  TESTING with blazegraph (SPARQLRepository)
-  val sparql_repo = new SPARQLRepository("http://localhost:9999/blazegraph/sparql")
-  sparql_repo.enableQuadMode(true)
-  federation.addMember(sparql_repo)
+  //  val sparql_repo = new SPARQLRepository("http://localhost:9999/blazegraph/sparql")
+  //  sparql_repo.enableQuadMode(true)
+  //  federation.addMember(sparql_repo)
 
   val repo = new SailRepository(federation)
   repo.initialize()

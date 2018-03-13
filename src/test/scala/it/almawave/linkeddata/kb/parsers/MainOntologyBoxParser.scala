@@ -6,6 +6,8 @@ import it.almawave.linkeddata.kb.utils.JSONHelper
 
 /*
  * ontology metadata extraction example
+ *
+ * TODO: provide a proper JUnit test
  */
 object MainOntologyBoxParser extends App {
 
@@ -13,9 +15,12 @@ object MainOntologyBoxParser extends App {
   println(s"\n\nextracting informations from\n${url}\n...")
 
   val box = OntologyBox.parse(url)
+  box.start()
   println(box)
 
   val json = JSONHelper.writeToString(box.meta)
   println(json)
+
+  box.stop()
 
 }

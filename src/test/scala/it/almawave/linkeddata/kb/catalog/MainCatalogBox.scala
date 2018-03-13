@@ -2,10 +2,11 @@ package it.almawave.linkeddata.kb.catalog
 
 import com.typesafe.config.ConfigFactory
 import java.nio.file.Paths
+import java.io.File
 
 object MainCatalogBox extends App {
 
-  val conf = ConfigFactory.parseFile(Paths.get("src/main/resources/conf/catalog.conf").normalize().toFile())
+  val conf = ConfigFactory.parseFile(Paths.get("src/test/resources/conf/catalog.conf").normalize().toFile())
 
   val catalog = new CatalogBox(conf)
   catalog.start()

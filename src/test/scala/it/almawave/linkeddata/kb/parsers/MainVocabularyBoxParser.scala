@@ -7,13 +7,16 @@ import it.almawave.linkeddata.kb.catalog.VocabularyBox
 
 /*
  * ontology metadata extraction example
+ *
+ * TODO: provide a proper JUnit test
  */
 object MainVocabularyBoxParser extends App {
 
-  val url = new URL("file:///C:/Users/Al.Serafini/repos/DAF/daf-ontologie-vocabolari-controllati/VocabolariControllati/Licenze/Licenze.ttl")
+  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl")
   println(s"\n\nextracting informations from\n${url}\n...")
 
   val box = VocabularyBox.parse(url)
+  box.start()
 
   val json = JSONHelper.writeToString(box.meta)
   println(json)
@@ -21,8 +24,6 @@ object MainVocabularyBoxParser extends App {
   println(box)
   println("triples: " + box.triples)
 
-//  val exp = box.withRepositories()
-//  println(exp)
-//  println(exp.triples)
-  
+  box.stop()
+
 }
