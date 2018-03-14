@@ -32,7 +32,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   logger.debug(s"parsing metadata for ${rdf_source}")
 
   //  val repo: Repository = new RDFFileRepository(rdf_source)
-  val sparql = SPARQL(repo)
+  //  val sparql = SPARQL(repo)
 
   val id: String = rdf_source.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
   val prefix: String = id.replaceAll("_", "").replaceAll("-", "").toLowerCase().trim()
@@ -86,7 +86,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_namespace(default_namespace: String = ""): String = {
-    sparql.query("""
+    SPARQL(repo).query("""
       SELECT DISTINCT ?uri { ?uri a owl:Ontology . }
     """)
       //      .map(_.getOrElse("uri", default_namespace).asInstanceOf[String]) // REFACTORIZATION
@@ -99,7 +99,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_onto_url(): URL = {
-    val _onto_url = sparql.query("""
+    val _onto_url = SPARQL(repo).query("""
         SELECT DISTINCT ?uri 
         WHERE { ?onto_uri rdf:type owl:Ontology ; rdfs:isDefinedBy ?uri . }
       """)
@@ -113,18 +113,18 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_concepts(): Set[String] = {
-    sparql.query("""
-        SELECT DISTINCT ?concept 
-        WHERE { ?concept a owl:Class . FILTER(!isBlank(?concept)) } 
-      """)
+    SPARQL(repo).query("""
+      SELECT DISTINCT ?concept 
+      WHERE { ?concept a owl:Class . FILTER(!isBlank(?concept)) } 
+    """)
       .map(_.getOrElse("concept", "owl:Thing").toString()).toSet
   }
 
   def parse_imports(): Seq[URIWithLabel] = {
-    sparql.query("""
-        SELECT DISTINCT ?import_uri 
-        WHERE {  ?uri a owl:Ontology . ?uri owl:imports ?import_uri . }
-      """)
+    SPARQL(repo).query("""
+      SELECT DISTINCT ?import_uri 
+      WHERE {  ?uri a owl:Ontology . ?uri owl:imports ?import_uri . }
+    """)
       //      .map(_.get("import_uri").get.asInstanceOf[String]) // REFACTORIZATION
       .map(_.get("import_uri").get.toString())
       .map { item =>
@@ -136,10 +136,10 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_titles(): Seq[ItemByLanguage] = {
-    sparql.query("""
-        SELECT DISTINCT * 
-        WHERE {  ?uri a owl:Ontology . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
-      """)
+    SPARQL(repo).query("""
+      SELECT DISTINCT * 
+      WHERE {  ?uri a owl:Ontology . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+    """)
       .map { item =>
         // REFACTORIZATION: item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]
         ItemByLanguage(item.get("lang").get.toString(), item.get("label").toString())
@@ -149,10 +149,10 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   def parse_descriptions(): Seq[ItemByLanguage] = {
     // TODO: case class | Map
-    sparql.query("""
-        SELECT DISTINCT * 
-        WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
-      """)
+    SPARQL(repo).query("""
+      SELECT DISTINCT * 
+      WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
+    """)
       .map { item =>
         // REFACTORIZATION : item.get("lang").get.asInstanceOf[String], item.get("comment").get.asInstanceOf[String]
         ItemByLanguage(item.get("lang").get.toString(), item.get("comment").get.toString())
@@ -161,13 +161,13 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_creators(): Seq[Map[String, String]] = {
-    sparql.query("""
-        PREFIX dc: <http://purl.org/dc/elements/1.1/>
-        SELECT DISTINCT ?lang ?creator 
-        WHERE { 
-          ?uri a owl:Ontology . ?uri dc:creator ?creator . BIND(LANG(?creator) AS ?lang) .
-        }
-      """)
+    SPARQL(repo).query("""
+      PREFIX dc: <http://purl.org/dc/elements/1.1/>
+      SELECT DISTINCT ?lang ?creator 
+      WHERE { 
+        ?uri a owl:Ontology . ?uri dc:creator ?creator . BIND(LANG(?creator) AS ?lang) .
+      }
+    """)
       .toList
       .map { item =>
         val _creator = item.getOrElse("creator", "").toString()
@@ -180,13 +180,13 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   def parse_versions(): Seq[Version] = {
     // TODO: case class
-    sparql.query("""
-        SELECT DISTINCT * 
-        WHERE {  
-          ?uri a owl:Ontology . 
-          ?uri owl:versionIRI ?version_iri .
-      		?uri owl:versionInfo ?version_info . BIND(LANG(?version_info) AS ?lang) .
-    		}""")
+    SPARQL(repo).query("""
+      SELECT DISTINCT * 
+      WHERE {  
+        ?uri a owl:Ontology . 
+        ?uri owl:versionIRI ?version_iri .
+    		?uri owl:versionInfo ?version_info . BIND(LANG(?version_info) AS ?lang) .
+  		}""")
       .map { item =>
 
         // TODO: simplify!
@@ -216,26 +216,26 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_provenance(): Seq[Map[String, Any]] = {
-    sparql.query("""
-        PREFIX dc: <http://purl.org/dc/elements/1.1/>
-        PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX prov: <http://www.w3.org/ns/prov#>
-        SELECT DISTINCT * {  
-          ?uri a owl:Ontology . 
-      		OPTIONAL { ?uri dct:license ?license_uri . }
-          OPTIONAL { ?uri dct:issued ?date_issued . }
-          OPTIONAL { ?uri dct:modified ?date_modified . }
-          OPTIONAL { ?uri rdfs:isDefinedBy ?defined_by_uri . }
-      		OPTIONAL { ?uri prov:wasDerivedFrom ?derived_from_uri . }
-        }
-      """)
+    SPARQL(repo).query("""
+      PREFIX dc: <http://purl.org/dc/elements/1.1/>
+      PREFIX dct: <http://purl.org/dc/terms/>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      SELECT DISTINCT * {  
+        ?uri a owl:Ontology . 
+    		OPTIONAL { ?uri dct:license ?license_uri . }
+        OPTIONAL { ?uri dct:issued ?date_issued . }
+        OPTIONAL { ?uri dct:modified ?date_modified . }
+        OPTIONAL { ?uri rdfs:isDefinedBy ?defined_by_uri . }
+    		OPTIONAL { ?uri prov:wasDerivedFrom ?derived_from_uri . }
+      }
+    """)
   }
 
   def parse_publishedBy(): String = ""
   def parse_owner(): String = ""
 
   def parse_langs(): Seq[String] = {
-    sparql.query("""
+    SPARQL(repo).query("""
       SELECT DISTINCT ?lang 
       WHERE {  ?uri a owl:Ontology . ?uri rdfs:comment ?comment . BIND(LANG(?comment) AS ?lang) }
     """)
@@ -245,33 +245,33 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_lastEditDate(): String = {
-    sparql.query("""
-        PREFIX dct: <http://purl.org/dc/terms/>
-        SELECT DISTINCT ?last_edit_date {  
-          ?uri a owl:Ontology . ?uri dct:modified ?date_modified .
-        }
-      """)
+    SPARQL(repo).query("""
+      PREFIX dct: <http://purl.org/dc/terms/>
+      SELECT DISTINCT ?last_edit_date {  
+        ?uri a owl:Ontology . ?uri dct:modified ?date_modified .
+      }
+    """)
       //.map(_.getOrElse("last_edit_date", "").asInstanceOf[String])
       .map(_.getOrElse("last_edit_date", "").toString())
       .headOption.getOrElse("")
   }
 
   def parse_licenses(): Seq[URIWithLabel] = {
-    sparql.query("""
-        PREFIX dct: <http://purl.org/dc/terms/>
-        SELECT DISTINCT ?license_uri {  
-          ?uri a owl:Ontology . ?uri dct:license ?license_uri .
-        }
-      """)
-      .map(_.getOrElse("license_uri", "").toString())
-      // REFACTORIZTION: .asInstanceOf[String])
-      .filterNot(_.equalsIgnoreCase(""))
-      .map { item =>
-        val uri = item
-        val label = URIHelper.extractLabelFromURI(uri)
-        val lang = ""
-        URIWithLabel(label, uri, lang)
+    SPARQL(repo).query("""
+      PREFIX dct: <http://purl.org/dc/terms/>
+      SELECT DISTINCT ?license_uri {  
+        ?uri a owl:Ontology . ?uri dct:license ?license_uri .
       }
+    """)
+    .map(_.getOrElse("license_uri", "").toString())
+    // REFACTORIZTION: .asInstanceOf[String])
+    .filterNot(_.equalsIgnoreCase(""))
+    .map { item =>
+      val uri = item
+      val label = URIHelper.extractLabelFromURI(uri)
+      val lang = ""
+      URIWithLabel(label, uri, lang)
+    }
   }
 
   // should we shutdown the repository after using it?

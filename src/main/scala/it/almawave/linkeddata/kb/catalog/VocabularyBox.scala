@@ -62,8 +62,8 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
           }
         }
       """).toList
-    .map(_.getOrElse("ontology_uri", "").toString())
-    .filterNot(_.trim().equals("")).distinct
+      .map(_.getOrElse("ontology_uri", "").toString())
+      .filterNot(_.trim().equals("")).distinct
 
   }
 

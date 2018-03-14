@@ -12,14 +12,20 @@ LOAD <file:///C:/Users/Al.Serafini/repos/DAF/daf-ontologie-vocabolari-controllat
 INTO GRAPH <test://VocabolariControllati/ClassificazioneTerritorio/Istat-Classificazione-08-Territorio>
 ;
 
+----
+
 # esempio Licenze (SKOS)
 
-DROP GRAPH <test://VocabolariControllati/Licenze>
+DROP GRAPH <test://VocabolariControllati/licences>
 ;
 
-LOAD <file:///C:/Users/Al.Serafini/repos/DAF/daf-ontologie-vocabolari-controllati/VocabolariControllati/Licenze/Licenze.ttl>
-INTO GRAPH <test://VocabolariControllati/Licenze>
+LOAD <file:///C:/Users/Al.Serafini/repos/DAF/daf-ontologie-vocabolari-controllati/VocabolariControllati/licences/licences.ttl>
+INTO GRAPH <test://VocabolariControllati/licences>
 ;
+
+
+
+
 
 
 

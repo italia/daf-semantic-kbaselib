@@ -36,13 +36,14 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   logger.debug(s"parsing metadata for ${rdf_source}")
 
   //  val repo: Repository = new RDFFileRepository(rdf_source)
-  val sparql = SPARQL(repo)
+  //  val sparql = SPARQL(repo)
 
   val id: String = rdf_source.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
 
   def parse_meta(): VocabularyMeta = {
 
     val voc_url = this.parse_voc_url()
+    println("VOC_URL: " + voc_url)
 
     val instances = this.parse_instances()
     val titles = this.parse_titles()
@@ -82,33 +83,35 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       dependencies)
   }
 
+  /*
+   * ASK: is it possibile to introduce a token class Vocabulary which is equivalent to Dataset?
+   */
   def parse_voc_url(): URL = {
-    sparql.query("""
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT DISTINCT ?uri 
-        WHERE { ?uri a skos:ConceptScheme . }
-      """)
-      .map { item => item.getOrElse("uri", "").toString() }
-      // REFACTORIZATION: .asInstanceOf[String] }
+    SPARQL(repo).query("""
+      PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
+      SELECT DISTINCT ?uri 
+      WHERE { ?uri a dcatapit:Dataset . }
+    """)
+      .map { item => item.getOrElse("uri", "").asInstanceOf[String] }
       .map { item => new URL(item) }
       .headOption.getOrElse(rdf_source)
   }
 
   def parse_instances(): Set[String] = {
-    sparql.query("""
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT DISTINCT ?concept 
-        WHERE { 
-          { ?concept a ?klass. ?klass rdfs:subClassOf* skos:Concept . }
-          UNION 
-          { ?uri a ?concept . ?klass rdfs:subClassOf* owl:Class . } # IDEA: filter a specific set of classes here! 
-        } 
-        """)
+    SPARQL(repo).query("""
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT DISTINCT ?concept 
+      WHERE { 
+        { ?concept a ?klass. ?klass rdfs:subClassOf* skos:Concept . }
+        UNION 
+        { ?uri a ?concept . ?klass rdfs:subClassOf* owl:Class . } # IDEA: filter a specific set of classes here! 
+      } 
+      """)
       .map(_.getOrElse("concept", "owl:Thing").toString()).toSet
   }
 
   def parse_titles(): Seq[ItemByLanguage] = {
-    sparql.query(s"""
+    SPARQL(repo).query(s"""
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT * 
@@ -126,7 +129,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_descriptions(): Seq[ItemByLanguage] = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?lang ?label  
@@ -144,7 +147,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_publishedBy(): String = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT * 
@@ -160,7 +163,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_owner(): String = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT * 
@@ -172,7 +175,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_langs(): Seq[String] = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?lang  
         WHERE {
@@ -186,7 +189,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_licenses(): Seq[URIWithLabel] = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX dct: <http://purl.org/dc/terms/>
@@ -208,7 +211,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_versions(): Seq[Version] = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT * 
         WHERE { 
@@ -225,7 +228,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_lastEditDate() = {
-    sparql.query("""
+    SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?date_modified 
@@ -236,12 +239,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       .headOption.getOrElse("")
   }
 
-  //  def parse_asset_type() = {
-  //    AssetType("taxonomy", "SKOS") // TODO: extract from vocabulary!!
-  //  }
-
   def parse_dcat_keywords() = {
-    sparql.query("""
+    SPARQL(repo).query("""
       PREFIX dcat: <http://www.w3.org/ns/dcat#>
       PREFIX dct: <http://purl.org/dc/terms/>
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -261,7 +260,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_dcat_themes() = {
-    sparql.query("""
+    SPARQL(repo).query("""
       PREFIX dcat: <http://www.w3.org/ns/dcat#>
       PREFIX dct: <http://purl.org/dc/terms/>
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -281,7 +280,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_dc_subjects() = {
-    sparql.query("""
+    SPARQL(repo).query("""
       PREFIX dct: <http://purl.org/dc/terms/>
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
       SELECT DISTINCT ?subject  

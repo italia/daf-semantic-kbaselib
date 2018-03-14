@@ -93,8 +93,10 @@ trait RDFBox {
       .map { item => (item._1, item._2.toList.map(_._2)) }
 
     conn.close()
+    if (repo.isInitialized()) repo.shutDown()
 
     concepts
+
   }
 
   private def curie(uri: String, prefix: Boolean = false) = {
@@ -102,6 +104,7 @@ trait RDFBox {
   }
 
   def triples = {
+    if (!repo.isInitialized()) repo.initialize()
     val conn = repo.getConnection
     val triples = conn.prepareTupleQuery(QueryLanguage.SPARQL, """
       SELECT ?graph ?sub ?prp ?obj
@@ -112,6 +115,7 @@ trait RDFBox {
       }
     """).evaluate().toList.size
     conn.close()
+    if (repo.isInitialized()) repo.shutDown()
     triples
   }
 
@@ -121,11 +125,13 @@ trait RDFBox {
     val ctx = SimpleValueFactory.getInstance.createIRI(context)
     val statements = conn.getStatements(null, null, null, true)
     conn.close()
+    if (repo.isInitialized()) repo.shutDown()
     statements
   }
 
   // useful for testing
   def parseData() = {
+    if (!repo.isInitialized()) repo.initialize()
     val conn = repo.getConnection
     val contextsIDS: Seq[Resource] = Iterations.asList(conn.getContextIDs)
     val subjects: Seq[Resource] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getSubject }.distinct.toSeq
@@ -133,6 +139,7 @@ trait RDFBox {
     val objects: Seq[Value] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getObject }.distinct.toSeq
     val contexts: Seq[Resource] = Iterations.asList(conn.getStatements(null, null, null, true)).toStream.map { st => st.getContext }.distinct.toSeq
     conn.close()
+    if (repo.isInitialized()) repo.shutDown()
     RDFData(subjects, properties, objects, contexts ++ contextsIDS)
   }
 
