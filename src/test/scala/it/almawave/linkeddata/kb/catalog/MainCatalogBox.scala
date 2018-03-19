@@ -39,6 +39,10 @@ object MainCatalogBox extends App {
   
   """)
 
+  // DEVELOPMENT ONLY: remove
+  if (catalog.vocabularies.foldLeft(0)(_ + _.triples) == catalog.vocabulariesWithDependencies().foldLeft(0)(_ + _.triples))
+    System.err.println("WARNING: no dependencies resolved for vocabularies!")
+
   catalog.stop()
 
 }

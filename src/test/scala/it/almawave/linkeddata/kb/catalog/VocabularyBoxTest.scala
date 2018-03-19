@@ -52,4 +52,13 @@ class VocabularyBoxTest {
     Assert.assertTrue(concepts.contains("Class"))
   }
 
+  @Test
+  def test_dependencies() {
+
+    val ontos = vbox.infer_ontologies()
+    Assert.assertTrue(ontos.toList.size > 0)
+    Assert.assertEquals("http://www.w3.org/2004/02/skos/core", ontos(0))
+
+  }
+
 }

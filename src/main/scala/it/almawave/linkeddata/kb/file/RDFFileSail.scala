@@ -37,7 +37,7 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
   // REVIEW def this(url: URL, contexts: String*) = this(List(url), contexts: _*)
 
   val vf = SimpleValueFactory.getInstance
-  val ctxs = contexts.map { cx => vf.createIRI(cx) }
+  val ctxs = if (contexts != null) contexts.map { cx => vf.createIRI(cx) } else Nil
 
   // CHECK: verify if vocabulary / ontology could have a configuration for baseURI
   val baseURI = if (contexts.size > 0) contexts.head else ""

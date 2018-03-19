@@ -62,9 +62,35 @@ case class OntologyMeta(
   tags:       Seq[URIWithLabel],
   categories: Seq[URIWithLabel],
   keywords:   Seq[String],
-  // CHECK with provenance
+  provenance: Seq[Map[String, Any]]) {
 
-  provenance: Seq[Map[String, Any]])
+  def withID(id_new: String) = {
+
+    OntologyMeta(
+      id_new,
+      source, url,
+      prefix, namespace,
+      concepts, imports,
+      titles, descriptions,
+      versions, creators, publishedBy, owner, langs, lastEditDate, licenses,
+      tags, categories, keywords, provenance)
+
+  }
+  
+  def withURL(url_new: URL) = {
+
+    OntologyMeta(
+      id,
+      source, url_new,
+      prefix, namespace,
+      concepts, imports,
+      titles, descriptions,
+      versions, creators, publishedBy, owner, langs, lastEditDate, licenses,
+      tags, categories, keywords, provenance)
+
+  }
+
+}
 
 // TODO: aggiornare i modelli
 case class VocabularyMeta(
@@ -93,8 +119,6 @@ case class VocabularyMeta(
   dependencies: Seq[String] // ontologies from which the vocabulary depends on
 
 )
-
-
 
 case class RDFData(
   subjects:   Seq[Resource],

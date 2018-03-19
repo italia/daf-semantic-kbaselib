@@ -45,13 +45,14 @@ class OntologyBoxTest {
     val context = obox.context
     Assert.assertTrue(context != null && context.size > 0)
     println(s"context for ${obox.id}: ${context}")
-    Assert.assertEquals("https://w3id.org/italia/ontoCLV", context)
+    Assert.assertEquals("https://w3id.org/italia/onto/CLV", context)
     // TODO: Assert.assertEquals("https://w3id.org/italia/onto/CLV", context)
   }
 
   @Test
   def has_concepts() {
     val concepts = obox.concepts.map(_._1).toList
+    println(obox)
     println(s"concepts in ${obox.id}:\n\t" + concepts.mkString("\n\t"))
     Assert.assertTrue(concepts.size > 0)
     Assert.assertTrue(concepts.contains("Ontology"))

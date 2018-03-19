@@ -29,11 +29,14 @@ import org.eclipse.jgit.merge.MergeStrategy
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits._
+import org.slf4j.LoggerFactory
 
 /*
  * TODO: consider using inferences
  */
 class CatalogBox(config: Config) extends RDFBox {
+
+  //  private val logger = LoggerFactory.getLogger(this.getClass)
 
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
@@ -46,18 +49,16 @@ class CatalogBox(config: Config) extends RDFBox {
 
   private val _ontologies = new ListBuffer[OntologyBox]
   private val _vocabularies = new ListBuffer[VocabularyBox]
-  private val _remotes = new ListBuffer[RemoteOntologyBox]
+  private val _remotes = new ListBuffer[OntologyBox]
 
   def ontologies = _ontologies.toList
   def vocabularies = _vocabularies.toList
 
-  // REVIEW HERE ............................................................................................
-
+  // handles local copies of RDF files
   val store = RDFFilesStore(conf.getString("ontologies.path_local"))
 
+  // handles the lightweight git client
   val git = GitHandler(conf.getConfig("git"))
-
-  // REVIEW HERE ............................................................................................
 
   override def start() {
 
@@ -71,6 +72,15 @@ class CatalogBox(config: Config) extends RDFBox {
 
     // load vocabularies!
     this.load_vocabularies
+
+    // DISABLED
+    // TODO: add SKOS as a local copy (cache), and use it
+    // IDEA: loading pre-defined ontologies (eg: SKOS)
+    //    val skos_box = RemoteOntologyBox.parse(
+    //      new URL("http://www.w3.org/2004/02/skos/core#"),
+    //      new URL("http://www.w3.org/TR/skos-reference/skos.rdf"))
+    //    this._remotes += skos_box
+    // DISABLED
 
     // starts the different kbboxes
     (_ontologies ++ _vocabularies) foreach (_.start())
@@ -125,6 +135,7 @@ class CatalogBox(config: Config) extends RDFBox {
       logger.info(s"using all available ontologies")
 
       store.ontologies().foreach { f =>
+
         val box = OntologyBox.parse(f.toURI().toURL())
         box.start()
         box.stop()
@@ -191,27 +202,35 @@ class CatalogBox(config: Config) extends RDFBox {
       // getting the vocabulary id
       val vocID = vbox.id
 
-      // find vocabulary by id
+      // finding vocabulary by id
       var voc_box = this.getVocabularyByID(vocID).get
 
       val triples_no_deps = voc_box.triples
 
       // resolve internal dependencies
-      val ontos = this.resolve_dependencies(voc_box)
-      //      println("ontologies ?? " + ontos)
+      val ontos = this.resolve_dependencies(voc_box).toList
+      logger.debug(s"\n${vbox} depends on ontologies:\n\t${ontos.mkString("\n\t")}")
 
       // federation with repositories
       voc_box = voc_box.federateWith(ontos)
 
       val triples_deps = voc_box.triples
 
+      println("\n\n\n\n......................................")
+      println("CHECK DEPENDENCIES")
+      println("triples no deps:\t" + triples_no_deps)
+      println("triples deps:\t" + triples_deps)
+      println("......................................\n\n\n\n")
+
       voc_box
     }
 
   }
 
-  // resolve only internal dependencies
-  private def internal_dependencies(voc_box: VocabularyBox): Seq[String] = {
+  /**
+   * this method should return a list containing only the actually used ontologies (in the network)
+   */
+  private def get_internal_dependencies(voc_box: VocabularyBox): Seq[String] = {
 
     // TODO: extend to multiple baseURI
 
@@ -228,17 +247,40 @@ class CatalogBox(config: Config) extends RDFBox {
 
   }
 
+  /**
+   * this method should add the dependencies for ontologies used in the vocabulary
+   */
   private def resolve_dependencies(voc_box: VocabularyBox): Seq[OntologyBox] = {
 
     // list of dependencies
-    val deps = this.internal_dependencies(voc_box).map(new URL(_))
+    val deps = this.get_internal_dependencies(voc_box).map(new URL(_))
+    logger.debug(s"\ninternal dependencies for ${voc_box} are:\n\t${deps.mkString("\n\t")}")
 
     // boxes found
-    deps.flatMap { dep_ctx =>
+    this._remotes.toList ++ deps.flatMap { dep_ctx =>
       this.ontologies.toList
+        .map { ctx => ctx }
         .filter(_.context.trim().equals(dep_ctx.toString().trim()))
     }
 
+  }
+
+  /*
+   * retrieves an OntologyBox by its uri (this is useful for federating a VocabularyBox with its dependencies)
+   */
+  def getOntologyByURI(uri: String): Try[OntologyBox] = Try {
+
+    //    println("...................................................................")
+    //    println("REMOTES")
+    //    println(this._remotes.mkString(" | "))
+    //    println(this._remotes.map(_.asOntologyBox()).mkString(" | "))
+    //    println("...................................................................")
+
+    //    (this._ontologies.filter(_.context.toString().equals(uri)) ++
+    //      this._remotes.map(_.asOntologyBox()).filter(_.context.toString().equals(uri)))
+    //      .head
+
+    this._ontologies.filter(_.context.toString().equals(uri)).head
   }
 
 }

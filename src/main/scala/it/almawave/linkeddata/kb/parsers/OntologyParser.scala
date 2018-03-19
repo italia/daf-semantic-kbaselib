@@ -31,13 +31,20 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   logger.debug(s"parsing metadata for ${rdf_source}")
 
-  //  val repo: Repository = new RDFFileRepository(rdf_source)
-  //  val sparql = SPARQL(repo)
+  val id: String = rdf_source.getPath.replaceAll(".*/(.*?)\\.[a-z]+$", "$1").trim()
 
-  val id: String = rdf_source.getPath.replaceAll(".*/(.*)\\.[a-z]+$", "$1").trim()
+  /*
+   * NOTE:
+   * 	- regex on SKOS source should extract core instead of /2004/02/skos/core
+   * 	- SKOS and other similar external ontologies should be loaded, adding an external configuration
+   * 		in order to handle the lack of standard configurations adopted in the network
+   */
   val prefix: String = id.replaceAll("_", "").replaceAll("-", "").toLowerCase().trim()
 
   def parse_meta(): OntologyMeta = {
+
+    //    TODO: validation: add a SPARQL query to verify if the source is actually an Ontology
+    //    this.is_ontology()
 
     val namespace = this.parse_namespace()
     val onto_url = this.parse_onto_url()
@@ -91,7 +98,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     """)
       //      .map(_.getOrElse("uri", default_namespace).asInstanceOf[String]) // REFACTORIZATION
       .map(_.getOrElse("uri", default_namespace).toString())
-      .map { _.replaceAll("^(.*)[/#]$", "$1") } // hack for avoid using both `http://example/` and `http://example`
+      //      CHECK: DISABLED .map { _.replaceAll("^(.*)[/#]$", "$1") } // hack for avoid using both `http://example/` and `http://example`
       .distinct
       .toSet
       .headOption.getOrElse("")
@@ -99,17 +106,35 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_onto_url(): URL = {
-    val _onto_url = SPARQL(repo).query("""
-        SELECT DISTINCT ?uri 
-        WHERE { ?onto_uri rdf:type owl:Ontology ; rdfs:isDefinedBy ?uri . }
-      """)
-    val onto_url = if (_onto_url.isEmpty)
-      rdf_source
-    else
-      new URL(_onto_url(0)("uri").toString().replaceAll("(.*)[#/]", "$1"))
-    // REFACTORIZATION: new URL(_onto_url(0)("uri").asInstanceOf[String].replaceAll("(.*)[#/]", "$1"))
 
-    onto_url
+    //    REVIEW HERE
+    //    SPARQL(repo).query("""
+    //      SELECT DISTINCT ?uri
+    //      WHERE {
+    //        ?uri a owl:Ontology .
+    //        # UNION { ?concept a owl:Class . ?concept rdfs:isDefinedBy ?onto_uri . }
+    //      }
+    //    """)
+    //      .map(_.getOrElse("uri", "").toString())
+    //      .filterNot(_.trim().equalsIgnoreCase(""))
+    //      .map(new URL(_))
+    //      .headOption.getOrElse(rdf_source)
+    //      .head
+
+    // WORKING VERSION:
+    val _onto_url = SPARQL(repo).query("""
+      SELECT DISTINCT ?uri
+      WHERE {
+        ?uri a owl:Ontology .
+      }
+    """).toList
+      .map(_.getOrElse("uri", "").asInstanceOf[String])
+      .filterNot(_.trim().equals(""))
+      .map(_.replaceAll("^(.*?)[#/]$", "$1")) // HACK for threating <http://some/> and <http://some> in the same way
+      .map(x => new URL(x))
+      .headOption.getOrElse(rdf_source)
+
+    _onto_url
   }
 
   def parse_concepts(): Set[String] = {
@@ -263,15 +288,15 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         ?uri a owl:Ontology . ?uri dct:license ?license_uri .
       }
     """)
-    .map(_.getOrElse("license_uri", "").toString())
-    // REFACTORIZTION: .asInstanceOf[String])
-    .filterNot(_.equalsIgnoreCase(""))
-    .map { item =>
-      val uri = item
-      val label = URIHelper.extractLabelFromURI(uri)
-      val lang = ""
-      URIWithLabel(label, uri, lang)
-    }
+      .map(_.getOrElse("license_uri", "").toString())
+      // REFACTORIZTION: .asInstanceOf[String])
+      .filterNot(_.equalsIgnoreCase(""))
+      .map { item =>
+        val uri = item
+        val label = URIHelper.extractLabelFromURI(uri)
+        val lang = ""
+        URIWithLabel(label, uri, lang)
+      }
   }
 
   // should we shutdown the repository after using it?

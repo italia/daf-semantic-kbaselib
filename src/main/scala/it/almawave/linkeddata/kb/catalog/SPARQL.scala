@@ -15,7 +15,7 @@ object SPARQL {
  * + graphs: `Seq[Map[String, Map[String, ...]]]`
  *
  * TODO: merge with managers/sparql
- * 
+ *
  * should we assume that the repository is accessible (already initialized and not shutdown?)
  *
  */
@@ -67,6 +67,7 @@ class SPARQL(repo: Repository) {
   // REFACTORIZE
   def queryTuple(query: String): Seq[Map[String, Any]] = {
 
+    if (!repo.isInitialized()) repo.initialize() // VERIFY if needed
     val conn = repo.getConnection
 
     val results = new ListBuffer[BindingSet]
