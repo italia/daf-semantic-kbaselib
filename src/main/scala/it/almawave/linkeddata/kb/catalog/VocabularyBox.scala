@@ -79,38 +79,7 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
    */
   def extract_assetType() = {
 
-    //    val active = repo.isInitialized()
-    //    if (!active) repo.initialize()
-
-    //    def is_skos = SPARQL(repo).ask("""
-    //      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    //      ASK ?some a skos:Concept .
-    //    """)
-
-    /*
-     * SEE example:
-     * https://github.com/italia/daf-ontologie-vocabolari-controllati/blob/master/VocabolariControllati/Licenze/Licenze.ttl#L179-L180
-     * 	+	dct:type <http://purl.org/adms/assettype/Taxonomy> ;
-     * 	+	adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS>
-     */
-    //    val representation_uri = SPARQL(repo).query("""
-    //        PREFIX dct: <http://purl.org/dc/terms/>
-    //				PREFIX adms: <http://www.w3.org/ns/adms#>
-    //				SELECT ?representation_type ?representation_technique
-    //				WHERE {
-    //  				OPTIONAL {
-    //  				  ?uri dct:type ?representation_type .
-    //  				  ?uri adms:representationTechnique ?representation_technique .
-    //  				}
-    //				}
-    //		""")
-    //      .toList(0)
-    //      .getOrElse("representation_technique", "").asInstanceOf[String]
-    //
-    //    val representaton_id = representation_uri.replaceAll(".*[#/](.*)", "$1")
-    //
-    //    if (!active) repo.shutDown()
-
+    // TODO: extract other representations (when available)!!
     val representation_id = "SKOS"
     val representation_uri = "http://purl.org/adms/representationtechnique/SKOS"
     (representation_id, representation_uri)
@@ -131,14 +100,3 @@ class VocabularyBoxWithDependencies(vocab: VocabularyBox, ontos: Seq[OntologyBox
   override val repo = new SailRepository(federation)
 
 }
-
-// REVIEW
-// creating the internal RDFFIleRepository from all the rdf sources
-//class VocabularyBoxWithImports(meta: VocabularyMeta) extends VocabularyBox(meta) {
-//
-//  // TODO: add dependencies in meta!
-//  val _dependencies = meta.dependencies.map { x => new URL(x) }.toList
-//
-//  override val repo: Repository = new RDFFileRepository(meta.source :: _dependencies, meta.url.toString())
-//
-//}
