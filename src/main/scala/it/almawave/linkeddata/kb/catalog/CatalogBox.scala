@@ -36,13 +36,11 @@ import org.slf4j.LoggerFactory
  */
 class CatalogBox(config: Config) extends RDFBox {
 
-  //  private val logger = LoggerFactory.getLogger(this.getClass)
-
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
 
   val federation = new Federation()
-  //    new ForwardChainingRDFSInferencer(new DedupingInferencer(federation))
+
   override val repo: Repository = new SailRepository(federation)
 
   override val conf = config.resolve()
@@ -204,15 +202,12 @@ class CatalogBox(config: Config) extends RDFBox {
 
     val boxes_int = ontos_uris.flatMap { onto_uri => this.ontologies.find(_.context.equals(onto_uri)) }
     val boxes_ext = ontos_uris.flatMap { onto_uri => this.externalOntologies.find(_.context.equals(onto_uri)) }
-    
-    vbox.federateWith(boxes_ext)
 
+    vbox.federateWith(boxes_ext)
 
   }
 
-  // CHECK: repository <all>
-
-  // REVIEW
+  // REVIEW the resolution of triples from dependencies
   def vocabulariesWithDependencies(): Seq[VocabularyBox] = {
 
     this.vocabularies.map { vbox =>
@@ -225,20 +220,10 @@ class CatalogBox(config: Config) extends RDFBox {
 
       val triples_no_deps = voc_box.triples
 
-      // resolve internal dependencies
-      //  WRONG    val ontos = this.resolve_dependencies(voc_box)
-      // WRONG      logger.debug(s"\n${vbox} depends on ontologies:\n\t${ontos.mkString("\n\t")}")
-
-      // federation with repositories
-      //      voc_box = voc_box.federateWith(ontos)
+      // TODO: resolve internal dependencies
+      // TODO: federation with dependencies
 
       val triples_deps = voc_box.triples
-
-      //      println("\n\n\n\n......................................")
-      //      println("CHECK DEPENDENCIES")
-      //      println("triples no deps:\t" + triples_no_deps)
-      //      println("triples deps:\t" + triples_deps)
-      //      println("......................................\n\n\n\n")
 
       voc_box
     }
@@ -258,10 +243,6 @@ class CatalogBox(config: Config) extends RDFBox {
       .filter { d =>
         uris.filter { u => d.startsWith(u) }.size == 1
       }.toList
-
-    // OK - versione single baseURI
-    // val onto_baseURI = this.conf.getString("ontologies.baseURI").trim()
-    // voc_box.meta.dependencies.toStream.filter { d => d.startsWith(onto_baseURI) }
 
   }
 
@@ -286,20 +267,9 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   /*
-   * retrieves an OntologyBox by its uri (this is useful for federating a VocabularyBox with its dependencies)
+   * REVIEW: retrieves an OntologyBox by its uri (this is useful for federating a VocabularyBox with its dependencies)
    */
   def getOntologyByURI(uri: String): Try[OntologyBox] = Try {
-
-    //    println("...................................................................")
-    //    println("REMOTES")
-    //    println(this._remotes.mkString(" | "))
-    //    println(this._remotes.map(_.asOntologyBox()).mkString(" | "))
-    //    println("...................................................................")
-
-    //    (this._ontologies.filter(_.context.toString().equals(uri)) ++
-    //      this._remotes.map(_.asOntologyBox()).filter(_.context.toString().equals(uri)))
-    //      .head
-
     this._ontologies.filter(_.context.toString().equals(uri)).head
   }
 

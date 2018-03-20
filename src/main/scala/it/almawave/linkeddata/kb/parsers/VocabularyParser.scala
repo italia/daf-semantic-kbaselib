@@ -43,7 +43,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_meta(): VocabularyMeta = {
 
     val voc_url = this.parse_voc_url()
-    println("VOC_URL: " + voc_url)
 
     val instances = this.parse_instances()
     val titles = this.parse_titles()
