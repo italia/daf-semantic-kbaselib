@@ -32,7 +32,7 @@ import scala.util.Try
  */
 class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
 
-  val _logger = LoggerFactory.getLogger(this.getClass)
+//  val _logger = LoggerFactory.getLogger(this.getClass)
 
   // REVIEW def this(url: URL, contexts: String*) = this(List(url), contexts: _*)
 
@@ -61,7 +61,7 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
 
         case Success(url) => {
 
-          _logger.debug(s"\nloading RDF from url: <${url}>")
+          logger.debug(s"\nloading RDF from url: <${url}>")
 
           try {
             val input = url.openStream()
@@ -83,7 +83,7 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
                 }
               conn.commit()
 
-              _logger.debug(s"added ${model.size()} triples from URL ${url}")
+              logger.debug(s"added ${model.size()} triples from URL ${url}")
 
               input.close()
 

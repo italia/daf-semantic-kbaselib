@@ -59,7 +59,7 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
         }
         OPTIONAL {
           ?concept a* skos:Concept .
-          BIND(STR(<http://www.w3.org/2004/02/skos/core>) AS ?ontology_uri)
+          BIND(STR(<http://www.w3.org/2004/02/skos/core#>) AS ?ontology_uri)
         }
       }
     """).toList
@@ -67,7 +67,7 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
       .filterNot(_.trim().equals("")).distinct
 
     if (ontos.isEmpty)
-      List("http://www.w3.org/2004/02/skos/core") // hack!
+      List("http://www.w3.org/2004/02/skos/core#") // hack!
     else
       ontos
 
@@ -79,13 +79,13 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
    */
   def extract_assetType() = {
 
-    val active = repo.isInitialized()
-    if (!active) repo.initialize()
+    //    val active = repo.isInitialized()
+    //    if (!active) repo.initialize()
 
-    def is_skos = SPARQL(repo).ask("""
-      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-      ASK ?some a skos:Concept .
-    """)
+    //    def is_skos = SPARQL(repo).ask("""
+    //      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    //      ASK ?some a skos:Concept .
+    //    """)
 
     /*
      * SEE example:
@@ -93,25 +93,27 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
      * 	+	dct:type <http://purl.org/adms/assettype/Taxonomy> ;
      * 	+	adms:representationTechnique <http://purl.org/adms/representationtechnique/SKOS>
      */
-    val representation_uri = SPARQL(repo).query("""
-        PREFIX dct: <http://purl.org/dc/terms/>
-				PREFIX adms: <http://www.w3.org/ns/adms#> 
-				SELECT ?representation_type ?representation_technique  
-				WHERE { 
-  				OPTIONAL { 
-  				  ?uri dct:type ?representation_type .
-  				  ?uri adms:representationTechnique ?representation_technique . 
-  				}
-				} 
-		""")
-      .toList(0)
-      .getOrElse("representation_technique", "default:SKOS").asInstanceOf[String]
+    //    val representation_uri = SPARQL(repo).query("""
+    //        PREFIX dct: <http://purl.org/dc/terms/>
+    //				PREFIX adms: <http://www.w3.org/ns/adms#>
+    //				SELECT ?representation_type ?representation_technique
+    //				WHERE {
+    //  				OPTIONAL {
+    //  				  ?uri dct:type ?representation_type .
+    //  				  ?uri adms:representationTechnique ?representation_technique .
+    //  				}
+    //				}
+    //		""")
+    //      .toList(0)
+    //      .getOrElse("representation_technique", "").asInstanceOf[String]
+    //
+    //    val representaton_id = representation_uri.replaceAll(".*[#/](.*)", "$1")
+    //
+    //    if (!active) repo.shutDown()
 
-    val representaton_id = representation_uri.replaceAll(".*[#/](.*)", "$1")
-
-    if (!active) repo.shutDown()
-
-    (representaton_id, representation_uri)
+    val representation_id = "SKOS"
+    val representation_uri = "http://purl.org/adms/representationtechnique/SKOS"
+    (representation_id, representation_uri)
 
   }
 

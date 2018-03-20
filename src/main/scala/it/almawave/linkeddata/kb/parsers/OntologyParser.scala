@@ -107,20 +107,6 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   def parse_onto_url(): URL = {
 
-    //    REVIEW HERE
-    //    SPARQL(repo).query("""
-    //      SELECT DISTINCT ?uri
-    //      WHERE {
-    //        ?uri a owl:Ontology .
-    //        # UNION { ?concept a owl:Class . ?concept rdfs:isDefinedBy ?onto_uri . }
-    //      }
-    //    """)
-    //      .map(_.getOrElse("uri", "").toString())
-    //      .filterNot(_.trim().equalsIgnoreCase(""))
-    //      .map(new URL(_))
-    //      .headOption.getOrElse(rdf_source)
-    //      .head
-
     // WORKING VERSION:
     val _onto_url = SPARQL(repo).query("""
       SELECT DISTINCT ?uri
@@ -204,6 +190,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   def parse_versions(): Seq[Version] = {
+
     // TODO: case class
     SPARQL(repo).query("""
       SELECT DISTINCT * 
@@ -256,7 +243,10 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     """)
   }
 
+  // TODO
   def parse_publishedBy(): String = ""
+
+  // TODO
   def parse_owner(): String = ""
 
   def parse_langs(): Seq[String] = {

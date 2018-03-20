@@ -5,8 +5,12 @@ import org.junit.Test
 import org.junit.Before
 import org.junit.After
 import org.junit.Assert
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import java.net.URL
+import org.junit.runners.Parameterized.Parameters
 
-class VocabularyBoxTest {
+class VocabularyBoxTest() {
 
   val voc_url = new File("src/test/resources/catalog-data/VocabolariControllati/licences/licences.ttl").toURI().toURL()
 
@@ -53,12 +57,60 @@ class VocabularyBoxTest {
   }
 
   @Test
-  def test_dependencies() {
-
+  def test_infer_ontologies() {
     val ontos = vbox.infer_ontologies()
     Assert.assertTrue(ontos.toList.size > 0)
     Assert.assertEquals("http://www.w3.org/2004/02/skos/core", ontos(0))
+    // TODO: local resolution of SKOS
+  }
+
+  @Test
+  def test_with_dependencies() {
+
+    val triples_before = vbox.triples
+    println("BEFORE: " + triples_before)
+
+    val skos_onto = OntologyBox.parse(new URL("https://www.w3.org/TR/skos-reference/skos.rdf"))
+    val vboxF = vbox.federateWith(List(skos_onto))
+
+    val triples_after = vboxF.triples
+    println("AFTER: " + triples_after)
+
+    Assert.assertTrue(triples_after > triples_before)
+    Assert.assertEquals(504, triples_after - triples_before)
 
   }
 
 }
+
+
+//REVIEW
+
+//@RunWith(value = classOf[Parameterized])
+//class VocabularyBoxTest(voc_url: VocabularyTest) {
+//...
+//...
+//object VocabularyBoxTest {
+//
+//  // NOTE: Must return collection of Array[AnyRef] (NOT Array[Any]).
+//  @Parameters def parameters: java.util.Collection[Array[VocabularyTest]] = {
+//
+//    val params = Array(
+//
+//      VocabularyTest(
+//        "licences",
+//        new File("src/test/resources/catalog-data/VocabolariControllati/licences/licences.ttl").toURI().toURL(),
+//        "http://www.w3.org/2004/02/skos/core"))
+//
+//    val list = new java.util.ArrayList[Array[VocabularyTest]]()
+//    list.add(params)
+//
+//    list
+//  }
+//}
+//
+//case class VocabularyTest(
+//  id:      String,
+//  src:     URL,
+//  context: String)
+

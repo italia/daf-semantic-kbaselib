@@ -21,13 +21,15 @@ object MainCatalogBox extends App {
   println("\n#### vocabularies")
   catalog.vocabularies
     .foreach { voc =>
-      if (voc.triples == 0) System.err.println(s"warning: no triples were loaded for vocabulary: ${voc.id}")
+      if (voc.extract_assetType._1.trim().equals("")) System.err.println(s"warning: no asset type detected for vocabulary: ${voc.id}!")
+      if (voc.triples == 0) System.err.println(s"warning: no triples were loaded for vocabulary: ${voc.id}!")
       println(voc)
     }
 
   println(s"""
     
     #### CATALOG SUMMARY
+    
     n° triples in catalog:       ${catalog.triples}
     
     n° ontologies loaded:        ${catalog.ontologies.size}
@@ -39,9 +41,9 @@ object MainCatalogBox extends App {
   
   """)
 
-  // DEVELOPMENT ONLY: remove
-  if (catalog.vocabularies.foldLeft(0)(_ + _.triples) == catalog.vocabulariesWithDependencies().foldLeft(0)(_ + _.triples))
-    System.err.println("WARNING: no dependencies resolved for vocabularies!")
+  //  // DEVELOPMENT ONLY: remove
+  //  if (catalog.vocabularies.foldLeft(0)(_ + _.triples) == catalog.vocabulariesWithDependencies().foldLeft(0)(_ + _.triples))
+  //    System.err.println("WARNING: no dependencies resolved for vocabularies!")
 
   catalog.stop()
 
