@@ -87,7 +87,7 @@ class SPARQL(repo: Repository) {
 
     // projection of the results in terms of a stream
     results.toStream
-      .map { _.map { el => (el.getName, el.getValue.stringValue()) }.toMap }
+      .map { _.map { el => (el.getName, el.getValue.stringValue()) }.toMap } // TODO: avoid String using typed values!
 
   }
 

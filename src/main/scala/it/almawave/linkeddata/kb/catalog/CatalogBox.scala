@@ -75,7 +75,7 @@ class CatalogBox(config: Config) extends RDFBox {
     this.load_remotes
 
     // starts the different kbboxes
-    (_ontologies ++ _vocabularies) foreach (_.start())
+    (_ontologies ++ _vocabularies ++ _remotes) foreach (_.start())
 
     // adding triples to global federated repository
     _ontologies.foreach { x => federation.addMember(x.repo) }
@@ -87,7 +87,7 @@ class CatalogBox(config: Config) extends RDFBox {
   override def stop() {
 
     // starts the different kbboxes
-    (_ontologies ++ _vocabularies) foreach (_.stop())
+    (_ontologies ++ _vocabularies ++ _remotes) foreach (_.stop())
 
     if (repo.isInitialized()) repo.shutDown()
   }
