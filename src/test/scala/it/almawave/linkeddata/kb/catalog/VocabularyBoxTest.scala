@@ -10,6 +10,23 @@ import org.junit.runners.Parameterized
 import java.net.URL
 import org.junit.runners.Parameterized.Parameters
 
+object MainVOC extends App {
+
+  val voc_url = new File("src/test/resources/catalog-data/VocabolariControllati/licences/licences.ttl").toURI().toURL()
+
+  var vbox = VocabularyBox.parse(voc_url)
+  println(vbox)
+
+  SPARQL(vbox.repo).query("""
+    SELECT *
+    WHERE {
+      ?s ?p ?o
+    }  
+  """)
+    .foreach(println)
+
+}
+
 class VocabularyBoxTest() {
 
   val voc_url = new File("src/test/resources/catalog-data/VocabolariControllati/licences/licences.ttl").toURI().toURL()
