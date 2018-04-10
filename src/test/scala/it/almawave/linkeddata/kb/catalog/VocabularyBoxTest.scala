@@ -82,6 +82,12 @@ class VocabularyBoxTest() {
   }
 
   @Test
+  def test_asset_type() {
+    val ontoID = vbox.extract_assetType()._1
+    Assert.assertEquals("SKOS", ontoID)
+  }
+
+  @Test
   def test_with_dependencies() {
 
     val triples_before = vbox.triples

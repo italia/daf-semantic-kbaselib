@@ -49,7 +49,7 @@ class VocabularyBox(val meta: VocabularyMeta) extends RDFBox {
     //    REVIEW
     val ontos = SPARQL(repo).query("""
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-      SELECT DISTINCT ?ontology_uri
+      SELECT DISTINCT ?ontology_uri 
       WHERE {
         [] a ?concept .
         OPTIONAL {

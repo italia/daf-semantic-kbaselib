@@ -49,9 +49,9 @@ class CatalogBox(config: Config) extends RDFBox {
   private val _vocabularies = new ListBuffer[VocabularyBox]
   private val _remotes = new ListBuffer[OntologyBox]
 
-  def ontologies = _ontologies.toList
-  def vocabularies = _vocabularies.toList
-  def externalOntologies = _remotes.toList
+  def ontologies: Seq[OntologyBox] = _ontologies.toList
+  def vocabularies: Seq[VocabularyBox] = _vocabularies.toList
+  def externalOntologies: Seq[OntologyBox] = _remotes.toList
 
   // handles local copies of RDF files
   val store = RDFFilesStore(conf.getString("ontologies.path_local"))
@@ -207,7 +207,11 @@ class CatalogBox(config: Config) extends RDFBox {
 
   }
 
-  // REVIEW the resolution of triples from dependencies
+  /*
+   * REVIEW the resolution of triples from dependencies
+   *
+   * TODO: add JUnit
+   */
   def vocabulariesWithDependencies(): Seq[VocabularyBox] = {
 
     this.vocabularies.map { vbox =>
@@ -222,6 +226,9 @@ class CatalogBox(config: Config) extends RDFBox {
 
       // TODO: resolve internal dependencies
       // TODO: federation with dependencies
+
+      val ontos = voc_box.infer_ontologies()
+      println("\n\n >> ONTOS: " + ontos.mkString("|"))
 
       val triples_deps = voc_box.triples
 
