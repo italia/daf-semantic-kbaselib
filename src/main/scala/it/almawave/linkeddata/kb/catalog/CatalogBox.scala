@@ -228,7 +228,6 @@ class CatalogBox(config: Config) extends RDFBox {
       // TODO: federation with dependencies
 
       val ontos = voc_box.infer_ontologies()
-      println("\n\n >> ONTOS: " + ontos.mkString("|"))
 
       val triples_deps = voc_box.triples
 

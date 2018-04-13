@@ -56,9 +56,9 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val versions = this.parse_versions()
     val lastEditDate = this.parse_lastEditDate()
 
-    val tags: Seq[URIWithLabel] = this.parse_dc_subjects()
+    val tags: Seq[URIWithLabel] = this.parse_dcat_keywords()
     val categories: Seq[URIWithLabel] = this.parse_dcat_themes()
-    val keywords: Seq[URIWithLabel] = this.parse_dcat_keywords()
+    val keywords: Seq[URIWithLabel] = this.parse_dc_subjects()
 
     val dependencies: Seq[String] = this.parse_dependencies()
 

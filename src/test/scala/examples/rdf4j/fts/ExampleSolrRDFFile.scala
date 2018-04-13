@@ -10,7 +10,9 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import org.eclipse.rdf4j.model.Statement
-import examples.rdf4j.RDFFileSail
+import it.almawave.linkeddata.kb.file.RDFFileSail
+
+//import examples.rdf4j.RDFFileSail
 
 /*
  * 	This example aims to be a starting point for an implementation using indexing with triples, for example with Solr
@@ -22,7 +24,7 @@ object ExampleSolrRDFFile extends App {
 
   val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/COV/latest/COV-AP_IT.ttl")
 
-  val source_sail = new RDFFileSail(url)
+  val source_sail = new RDFFileSail(List(url))
 
   val source_repo = new SailRepository(source_sail)
   if (!source_repo.isInitialized())

@@ -133,7 +133,7 @@ class GitHandler(conf: Config) {
         .call()
 
     } catch {
-      case err: Throwable => System.err.println("ERROR pulling: " + err)
+      case err: Throwable => logger.error("ERROR pulling: " + err)
     }
 
   }
@@ -147,7 +147,7 @@ class GitHandler(conf: Config) {
     try {
       FileUtils.delete(git_dir.toFile(), FileUtils.RECURSIVE)
     } catch {
-      case err: Throwable => System.err.println(s"problems deleting git folder: ${git_dir}")
+      case err: Throwable => logger.error(s"problems deleting git folder: ${git_dir}")
     }
   }
 

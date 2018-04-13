@@ -88,7 +88,7 @@ class RDFFileSail(urls: Seq[URL], contexts: String*) extends MemoryStore {
               input.close()
 
             } else {
-              println(s"cannot guess RDF format for URL ${url}")
+              logger.error(s"cannot guess RDF format for URL ${url}")
             }
 
           } catch {

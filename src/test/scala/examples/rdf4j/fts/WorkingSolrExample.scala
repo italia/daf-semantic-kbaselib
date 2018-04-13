@@ -3,11 +3,11 @@ package examples.rdf4j.fts
 import java.net.URL
 import java.io.File
 import org.eclipse.rdf4j.sail.lucene.LuceneSail
-import examples.rdf4j.RDFFileSail
 import org.eclipse.rdf4j.sail.solr.SolrIndex
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.rio.RDFFormat
+import it.almawave.linkeddata.kb.file.RDFFileSail
 
 /*
  * TODO: review the example...
@@ -19,7 +19,7 @@ object WorkingSolrExample extends App {
   val DATA_DIR = new File("target/solr/data")
 
   val sail: LuceneSail = new LuceneSail()
-  sail.setBaseSail(new RDFFileSail(url))
+  sail.setBaseSail(new RDFFileSail(List(url)))
   sail.setParameter(LuceneSail.INDEX_CLASS_KEY, classOf[SolrIndex].getName())
   sail.setParameter(SolrIndex.SERVER_KEY, "embedded:")
   sail.setDataDir(DATA_DIR)

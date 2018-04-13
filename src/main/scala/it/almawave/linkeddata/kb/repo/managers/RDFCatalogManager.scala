@@ -341,7 +341,6 @@ class OLDRDFDocumentParser(model: Model) {
         .toStream
     else
       Models.subjectBNodes(model).map { bn =>
-        println("ok")
         val id = bn.getID.replaceAll("_:", "")
         s"${baseURI}.well-known/bnode/${id}" // template for well-known bnodes
       }.toStream
