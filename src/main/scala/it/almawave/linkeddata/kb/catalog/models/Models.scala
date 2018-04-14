@@ -15,9 +15,9 @@ case class VocabularyInformation(meta: VocabularyMeta, data: RDFData)
 
 case class ItemByLanguage(lang: String, value: String)
 
-case class URIWithLabel(label: String, uri: String, lang: String) {
+case class URIWithLabel(value: String, uri: String, lang: String) {
 
-  def this(label: String, uri: URI) = this(label, uri.toString(), "ita")
+  def this(value: String, uri: URI) = this(value, uri.toString(), "ita")
 
   def this(uri: String) = this(uri.toString().replaceAll("^.*[#/](.*?)$", "$1"), uri, "ita")
 
@@ -50,7 +50,7 @@ case class OntologyMeta(
   descriptions: Seq[ItemByLanguage],
 
   versions: Seq[Version],
-  creators: Seq[Map[String, String]],
+  creators: Seq[ItemByLanguage],
 
   // CHECK with provenance
   publishedBy:  String,
@@ -76,7 +76,7 @@ case class OntologyMeta(
       tags, categories, keywords, provenance)
 
   }
-  
+
   def withURL(url_new: URL) = {
 
     OntologyMeta(

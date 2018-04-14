@@ -153,7 +153,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     """)
       .map { item =>
         // REFACTORIZATION: item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]
-        ItemByLanguage(item.get("lang").get.toString(), item.get("label").toString())
+        ItemByLanguage(item.get("lang").get.toString(), item.get("label").get.toString())
       }
       .toList
   }
@@ -171,7 +171,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       .toList
   }
 
-  def parse_creators(): Seq[Map[String, String]] = {
+  //  def parse_creators(): Seq[Map[String, String]] = {
+  def parse_creators(): Seq[ItemByLanguage] = {
     SPARQL(repo).query("""
       PREFIX dc: <http://purl.org/dc/elements/1.1/>
       SELECT DISTINCT ?lang ?creator 
@@ -184,7 +185,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         val _creator = item.getOrElse("creator", "").toString()
         // REFACTORIZATION : .asInstanceOf[String]
 
-        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").toString())
+        ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("creator", "").toString())
+        //        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").toString())
         // REFACTORIZATION: .asInstanceOf[String])
       }
   }
