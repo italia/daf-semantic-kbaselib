@@ -54,6 +54,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val langs = this.parse_langs()
     val licenses = this.parse_licenses()
     val versions = this.parse_versions()
+    val creationDate = this.parse_creationDate()
     val lastEditDate = this.parse_lastEditDate()
 
     val tags: Seq[URIWithLabel] = this.parse_dcat_keywords()
@@ -75,6 +76,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       langs,
       licenses,
       versions,
+      creationDate,
       lastEditDate,
       tags,
       categories,
@@ -145,32 +147,100 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       .toList
   }
 
-  def parse_publishedBy(): String = {
-    SPARQL(repo).query("""
+  def parse_publishedBy(): Seq[URIWithLabel] = {
+//    SPARQL(repo).query("""
+//        PREFIX dct: <http://purl.org/dc/terms/>
+//        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+//        SELECT *
+//        WHERE { ?uri a skos:ConceptScheme . ?uri dct:publisher ?publisher_uri .}
+//      """)
+//      // REFACTORIZATION: .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
+//      .map { item => item.getOrElse("publisher_uri", "").toString() }
+//      .headOption.getOrElse("")
+
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+
+    val concepts = SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT * 
-        WHERE { ?uri a skos:ConceptScheme . ?uri dct:publisher ?publisher_uri .}  
-      """)
-      // REFACTORIZATION: .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
-      .map { item => item.getOrElse("publisher_uri", "").toString() }
-      .headOption.getOrElse("")
+        SELECT DISTINCT ?publisher_uri
+        WHERE {
+          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri dct:publisher ?publisher_uri
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("publisher_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
   }
 
-  def parse_creators(): Seq[Map[String, String]] = {
-    List() // TODO
+  def parse_creators(): Seq[URIWithLabel] = {
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+
+    val concepts = SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?creator_uri
+        WHERE {
+          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri dct:creator ?creator_uri
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("creator_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
   }
 
-  def parse_owner(): String = {
-    SPARQL(repo).query("""
+  def parse_owner(): Seq[URIWithLabel] = {
+//    SPARQL(repo).query("""
+//        PREFIX dct: <http://purl.org/dc/terms/>
+//        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+//        SELECT *
+//        WHERE { ?uri a skos:ConceptScheme . ?uri dct:rightsHolder ?holder_uri .}
+//      """)
+//      // REFACTORIZATION: .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
+//      .map { item => item.getOrElse("holder_uri", "").toString() }
+//      .headOption.getOrElse("")
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+
+    val concepts = SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT * 
-        WHERE { ?uri a skos:ConceptScheme . ?uri dct:rightsHolder ?holder_uri .}  
-      """)
-      // REFACTORIZATION: .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
-      .map { item => item.getOrElse("holder_uri", "").toString() }
-      .headOption.getOrElse("")
+        SELECT DISTINCT ?rightsHolder_uri
+        WHERE {
+          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri dct:rightsHolder ?rightsHolder_uri
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("rightsHolder_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
+
+
   }
 
   def parse_langs(): Seq[String] = {
@@ -215,15 +285,40 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT DISTINCT * 
         WHERE { 
           ?uri a skos:ConceptScheme . 
-          ?uri owl:versionInfo ?version_info  
+          ?uri owl:versionInfo ?version_info
+          BIND(LANG(?version_info) AS ?lang)
         }
       """)
       // REFACTORIZATION: .map { item => item.getOrElse("version_info", "").asInstanceOf[String] }
-      .map { item => item.getOrElse("version_info", "").toString() }
       .map { item =>
-        val number = item
-        Version(number, null, null, null)
+        val lang = item.getOrElse("lang", "").toString()
+//      }
+//      .map { item =>
+        val _matcher_number = "[0-9]+".r
+        val _matcher = "^.*?(\\d+\\.\\d+(\\.\\d+)*).*\\s+-\\s+(.*)\\s+-\\s+(.*)$"
+        val _vv = item.getOrElse("version_info", "").toString()
+
+        if(_matcher_number.findFirstIn(_vv).nonEmpty) {
+          var number = _vv
+          Version(number, null, null, null)
+        }else {
+          val _comment = _vv.replaceAll(_matcher, "$1")
+          var comment = Map(lang -> _comment)
+          Version(null, null, comment, null)
       }
+    }
+  }
+
+  def parse_creationDate() = {
+    SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT ?data_creation
+        WHERE { ?uri a skos:ConceptScheme . ?uri dct:issued ?data_creation . }
+      """)
+      // REFACTORIZATION: .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
+      .map { item => item.getOrElse("data_creation", "").toString() }
+      .headOption.getOrElse("")
   }
 
   def parse_lastEditDate() = {
@@ -311,6 +406,27 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       .map(item => item.replaceAll("^(.*)[#/].*?$", "$1").trim())
       .distinct
 
+  }
+
+  def parse_detail(context : String): Seq[URIWithLabel] = {
+
+    SPARQL(repo).query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        SELECT *
+        WHERE {
+          ?agent_uri a dcatapit:Agent .
+          ?agent_uri foaf:name ?name .
+          FILTER(?agent_uri=<$context>) .
+          BIND(LANG(?name) AS ?name_lang)
+        }
+        """).map { item =>
+      val uri = scala.collection.mutable.Map(item.toSeq: _*).get("agent_uri").get.toString
+      val label = scala.collection.mutable.Map(item.toSeq: _*).get("name").get.toString
+      val lang = scala.collection.mutable.Map(item.toSeq: _*).get("name_lang").get.toString
+      URIWithLabel(label, uri, lang)
+    }
   }
 
   // should we shutdown the repository after using it?

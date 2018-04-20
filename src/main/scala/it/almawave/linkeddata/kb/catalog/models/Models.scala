@@ -103,15 +103,16 @@ case class VocabularyMeta(
   titles:       Seq[ItemByLanguage],
   descriptions: Seq[ItemByLanguage],
 
-  publishedBy: String, // TODO
-  owner:       String, // TODO
-  creators:    Seq[Map[String, String]], // TODO
+  publishedBy: Seq[URIWithLabel],
+  owner:       Seq[URIWithLabel],
+  creators:    Seq[URIWithLabel],
 
   langs:    Seq[String], // CHECK: LANG
   licenses: Seq[URIWithLabel],
 
   version: Seq[Version],
 
+  creationDate: String,
   lastEditDate: String,
   tags:         Seq[URIWithLabel],
   categories:   Seq[URIWithLabel],
