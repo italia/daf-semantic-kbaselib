@@ -1,20 +1,17 @@
 package it.almawave.linkeddata.kb.parsers
 
-import org.eclipse.rdf4j.sail.memory.MemoryStore
-import org.eclipse.rdf4j.repository.sail.SailRepository
-import org.slf4j.LoggerFactory
-import it.almawave.linkeddata.kb.file.RDFFileRepository
 import java.net.URL
-import org.eclipse.rdf4j.repository.Repository
+
 import it.almawave.linkeddata.kb.catalog.SPARQL
-import it.almawave.linkeddata.kb.catalog.models.VocabularyMeta
-import it.almawave.linkeddata.kb.catalog.models.URIWithLabel
-import it.almawave.linkeddata.kb.catalog.models.ItemByLanguage
+import it.almawave.linkeddata.kb.catalog.models._
+import it.almawave.linkeddata.kb.file.RDFFileRepository
 import it.almawave.linkeddata.kb.utils.URIHelper
-import it.almawave.linkeddata.kb.catalog.models.Version
-import it.almawave.linkeddata.kb.catalog.models.AssetType
-import java.net.URI
-import org.eclipse.rdf4j.common.iteration.Iterations
+import org.eclipse.rdf4j.repository.Repository
+import org.eclipse.rdf4j.repository.sail.SailRepository
+import org.eclipse.rdf4j.sail.memory.MemoryStore
+import org.slf4j.LoggerFactory
+
+import scala.collection.mutable.ListBuffer
 
 object VocabularyParser {
 
@@ -62,6 +59,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val keywords: Seq[URIWithLabel] = this.parse_dc_subjects()
 
     val dependencies: Seq[String] = this.parse_dependencies()
+    val hierarchies: ListBuffer[Hierarchy] = ListBuffer[Hierarchy]()
 
     VocabularyMeta(
       id,
@@ -81,7 +79,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       tags,
       categories,
       keywords,
-      dependencies)
+      dependencies,
+      hierarchies)
   }
 
   /*
@@ -391,9 +390,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_dependencies(): Seq[String] = {
-
-    import scala.collection.JavaConversions._
-    import scala.collection.JavaConverters._
 
     SPARQL(repo).query("""
       SELECT DISTINCT ?concept 

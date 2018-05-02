@@ -3,9 +3,11 @@ package it.almawave.linkeddata.kb.catalog.models
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Value
 import java.net.URL
+
 import org.eclipse.rdf4j.model.Resource
 import java.net.URI
-import java.util.Date
+
+import scala.collection.mutable.ListBuffer
 
 // CHECK: ai fini della navigazione bisogna capire se usare solo titles/descriptions it
 
@@ -117,8 +119,8 @@ case class VocabularyMeta(
   tags:         Seq[URIWithLabel],
   categories:   Seq[URIWithLabel],
   keywords:     Seq[URIWithLabel],
-  dependencies: Seq[String] // ontologies from which the vocabulary depends on
-
+  dependencies: Seq[String], // ontologies from which the vocabulary depends on
+  hierarchies:  ListBuffer[Hierarchy]
 )
 
 case class RDFData(
@@ -129,4 +131,12 @@ case class RDFData(
 
 // TODO
 case class AssetType(assetType: String, representationTechnique: String)
+
+case class Hierarchy (
+  codice: String,
+  label: String,
+  uri: String,
+  parent_uri: String,
+  children: ListBuffer[Hierarchy]//offspring
+)
   
