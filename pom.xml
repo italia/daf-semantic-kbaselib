@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.almawave.linkeddata.kb</groupId>
 	<artifactId>kbaselib</artifactId> <!-- {artifact}-scala_2.11 -->
-	<version>0.0.6</version>
+	<version>0.1.0</version>
 	<name>kbaselib</name>
 	<description>kbaselib: core library for accessing to RDF4J abstractions</description>
 
