@@ -56,8 +56,8 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     val versions = this.parse_versions()
     val langs = this.parse_langs()
 
-    val publishedBy: String = ""
-    val owner: String = ""
+    val publishedBy = this.parse_publishedBy()
+    val owner = this.parse_owner()
     val licenses = this.parse_licenses()
 
     val lastEditDate: String = this.parse_lastEditDate()
@@ -171,24 +171,46 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       .toList
   }
 
-  //  def parse_creators(): Seq[Map[String, String]] = {
-  def parse_creators(): Seq[ItemByLanguage] = {
-    SPARQL(repo).query("""
-      PREFIX dc: <http://purl.org/dc/elements/1.1/>
-      SELECT DISTINCT ?lang ?creator 
-      WHERE { 
-        ?uri a owl:Ontology . ?uri dc:creator ?creator . BIND(LANG(?creator) AS ?lang) .
-      }
-    """)
-      .toList
-      .map { item =>
-        val _creator = item.getOrElse("creator", "").toString()
-        // REFACTORIZATION : .asInstanceOf[String]
+  //TODO DA CANCELLARE
+//  def parse_creators(): Seq[ItemByLanguage] = {
+//      SPARQL(repo).query("""
+//        PREFIX dct: <http://purl.org/dc/terms/>
+//        SELECT DISTINCT ?lang ?creator
+//        WHERE {
+//          ?uri a owl:Ontology . ?uri dct:creator ?creator . BIND(LANG(?creator) AS ?lang) .
+//        }
+//      """)
+//        .toList
+//        .map { item =>
+//          val _creator = item.getOrElse("creator", "").toString()
+//          // REFACTORIZATION : .asInstanceOf[String]
+//
+//          ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("creator", "").toString())
+//          //        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").toString())
+//          // REFACTORIZATION: .asInstanceOf[String])
+//        }
+//    }
 
-        ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("creator", "").toString())
-        //        Map("label" -> _creator, "lang" -> item.getOrElse("lang", "").toString())
-        // REFACTORIZATION: .asInstanceOf[String])
-      }
+  def parse_creators(): Seq[URIWithLabel] = {
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    val concepts = SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?creator_uri
+        WHERE {
+          ?uri a owl:Ontology .
+          ?uri dct:creator ?creator_uri .
+          FILTER(isURI(?creator_uri))
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("creator_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
   }
 
   def parse_versions(): Seq[Version] = {
@@ -246,10 +268,50 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
   }
 
   // TODO
-  def parse_publishedBy(): String = ""
+  //def parse_publishedBy(): String = ""
+  def parse_publishedBy(): Seq[URIWithLabel] = {
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    val concepts = SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?publisher_uri
+        WHERE {
+          ?uri a owl:Ontology .
+          ?uri dct:publisher ?publisher_uri .
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("publisher_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
+  }
 
   // TODO
-  def parse_owner(): String = ""
+  def parse_owner(): Seq[URIWithLabel] = {
+    var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
+    var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
+
+    val concepts = SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?rightsHolder_uri
+          WHERE {
+            ?uri a owl:Ontology .
+            ?uri dct:rightsHolder ?rightsHolder_uri .
+        }
+        """)
+
+    concepts.foreach { concept =>
+
+      val context = scala.collection.mutable.Map(concept.toSeq: _*).get("rightsHolder_uri").get.toString
+      tags_container_tmp = this.parse_detail(context)
+      tags_container = tags_container_tmp.union(tags_container)
+    }
+    tags_container
+  }
 
   def parse_langs(): Seq[String] = {
     SPARQL(repo).query("""
@@ -289,6 +351,27 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         val lang = ""
         URIWithLabel(label, uri, lang)
       }
+  }
+
+  def parse_detail(context : String): Seq[URIWithLabel] = {
+
+    SPARQL(repo).query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        SELECT *
+        WHERE {
+          ?agent_uri a dcatapit:Agent .
+          ?agent_uri foaf:name ?name .
+          FILTER(?agent_uri=<$context>) .
+          BIND(LANG(?name) AS ?name_lang)
+        }
+        """).map { item =>
+      val uri = scala.collection.mutable.Map(item.toSeq: _*).get("agent_uri").get.toString
+      val label = scala.collection.mutable.Map(item.toSeq: _*).get("name").get.toString
+      val lang = scala.collection.mutable.Map(item.toSeq: _*).get("name_lang").get.toString
+      URIWithLabel(label, uri, lang)
+    }
   }
 
   // should we shutdown the repository after using it?

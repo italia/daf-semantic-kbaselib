@@ -72,6 +72,7 @@ class CatalogBox(config: Config) extends RDFBox {
     // load vocabularies!
     this.load_vocabularies
 
+//    TODO Commentato per il momento non viene usato
     this.load_remotes
 
     // starts the different kbboxes

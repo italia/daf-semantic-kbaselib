@@ -52,11 +52,11 @@ case class OntologyMeta(
   descriptions: Seq[ItemByLanguage],
 
   versions: Seq[Version],
-  creators: Seq[ItemByLanguage],
+  creators: Seq[URIWithLabel],
 
   // CHECK with provenance
-  publishedBy:  String,
-  owner:        String,
+  publishedBy:  Seq[URIWithLabel],
+  owner:        Seq[URIWithLabel],
   langs:        Seq[String], // CHECK: LANG
   lastEditDate: String,
   licenses:     Seq[URIWithLabel],
@@ -106,7 +106,7 @@ case class VocabularyMeta(
   descriptions: Seq[ItemByLanguage],
 
   publishedBy: Seq[URIWithLabel],
-  owner:       Seq[URIWithLabel],
+  owners:       Seq[URIWithLabel],
   creators:    Seq[URIWithLabel],
 
   langs:    Seq[String], // CHECK: LANG
@@ -117,8 +117,8 @@ case class VocabularyMeta(
   creationDate: String,
   lastEditDate: String,
   tags:         Seq[URIWithLabel],
-  categories:   Seq[URIWithLabel],
-  keywords:     Seq[URIWithLabel],
+  themes:       Seq[URIWithLabel],
+  subthemes:    Seq[URIWithLabel],
   dependencies: Seq[String], // ontologies from which the vocabulary depends on
   hierarchies:  ListBuffer[Hierarchy]
 )

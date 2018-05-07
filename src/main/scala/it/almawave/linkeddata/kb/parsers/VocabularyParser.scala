@@ -46,7 +46,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val descriptions = this.parse_descriptions()
 
     val creators = this.parse_creators()
-    val owner = this.parse_owner()
+    val owners = this.parse_owner()
     val publishedBy = this.parse_publishedBy()
     val langs = this.parse_langs()
     val licenses = this.parse_licenses()
@@ -55,8 +55,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val lastEditDate = this.parse_lastEditDate()
 
     val tags: Seq[URIWithLabel] = this.parse_dcat_keywords()
-    val categories: Seq[URIWithLabel] = this.parse_dcat_themes()
-    val keywords: Seq[URIWithLabel] = this.parse_dc_subjects()
+    val themes: Seq[URIWithLabel] = this.parse_dcat_themes()
+    val subthemes: Seq[URIWithLabel] = this.parse_dct_subthemes()
 
     val dependencies: Seq[String] = this.parse_dependencies()
     val hierarchies: ListBuffer[Hierarchy] = ListBuffer[Hierarchy]()
@@ -69,7 +69,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       titles,
       descriptions,
       publishedBy,
-      owner,
+      owners,
       creators,
       langs,
       licenses,
@@ -77,8 +77,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       creationDate,
       lastEditDate,
       tags,
-      categories,
-      keywords,
+      themes,
+      subthemes,
       dependencies,
       hierarchies)
   }
@@ -296,14 +296,14 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         val _matcher_number = "[0-9]+".r
         val _matcher = "^.*?(\\d+\\.\\d+(\\.\\d+)*).*\\s+-\\s+(.*)\\s+-\\s+(.*)$"
         val _vv = item.getOrElse("version_info", "").toString()
-
+        val uri = item.getOrElse("uri", "").toString()
         if(_matcher_number.findFirstIn(_vv).nonEmpty) {
           var number = _vv
-          Version(number, null, null, null)
+          Version(number, null, null, uri)
         }else {
           val _comment = _vv.replaceAll(_matcher, "$1")
           var comment = Map(lang -> _comment)
-          Version(null, null, comment, null)
+          Version(null, null, comment, uri)
       }
     }
   }
@@ -372,7 +372,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       }
   }
 
-  def parse_dc_subjects() = {
+  def parse_dct_subthemes() = {
     SPARQL(repo).query("""
       PREFIX dct: <http://purl.org/dc/terms/>
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
