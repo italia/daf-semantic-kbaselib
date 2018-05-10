@@ -40,31 +40,31 @@ case class DateInfo(value: String)
 
 case class OntologyMeta(
 
-  id:        String,
-  source:    URL,
-  url:       URL,
-  prefix:    String,
-  namespace: String,
-  concepts:  Set[String],
-  imports:   Seq[URIWithLabel],
+  id:           String,
+  source:       URL,
+  url:          URL,
+  prefix:       String,
+  namespace:    String,
+  concepts:     Set[String],
+  imports:      Seq[URIWithLabel],
 
   titles:       Seq[ItemByLanguage],
   descriptions: Seq[ItemByLanguage],
 
-  versions: Seq[Version],
-  creators: Seq[URIWithLabel],
+  versions:     Seq[Version],
+  creators:     Seq[URIWithLabel],
 
   // CHECK with provenance
   publishedBy:  Seq[URIWithLabel],
-  owner:        Seq[URIWithLabel],
+  owners:       Seq[URIWithLabel],
   langs:        Seq[String], // CHECK: LANG
   lastEditDate: String,
   licenses:     Seq[URIWithLabel],
 
-  tags:       Seq[URIWithLabel],
-  categories: Seq[URIWithLabel],
-  keywords:   Seq[String],
-  provenance: Seq[Map[String, Any]]) {
+  tags:         Seq[URIWithLabel],
+  themes:       Seq[URIWithLabel],
+  subthemes:    Seq[URIWithLabel],
+  provenance:   Seq[Map[String, Any]]) {
 
   def withID(id_new: String) = {
 
@@ -74,8 +74,8 @@ case class OntologyMeta(
       prefix, namespace,
       concepts, imports,
       titles, descriptions,
-      versions, creators, publishedBy, owner, langs, lastEditDate, licenses,
-      tags, categories, keywords, provenance)
+      versions, creators, publishedBy, owners, langs, lastEditDate, licenses,
+      tags, themes, subthemes, provenance)
 
   }
 
@@ -87,8 +87,8 @@ case class OntologyMeta(
       prefix, namespace,
       concepts, imports,
       titles, descriptions,
-      versions, creators, publishedBy, owner, langs, lastEditDate, licenses,
-      tags, categories, keywords, provenance)
+      versions, creators, publishedBy, owners, langs, lastEditDate, licenses,
+      tags, themes, subthemes, provenance)
 
   }
 
@@ -97,30 +97,31 @@ case class OntologyMeta(
 // TODO: aggiornare i modelli
 case class VocabularyMeta(
 
-  id:        String,
-  url:       URL,
-  source:    URL,
-  instances: Set[String],
+  id:             String,
+  url:            URL,
+  source:         URL,
+  instances:      Set[String],
 
-  titles:       Seq[ItemByLanguage],
-  descriptions: Seq[ItemByLanguage],
+  titles:         Seq[ItemByLanguage],
+  descriptions:   Seq[ItemByLanguage],
 
-  publishedBy: Seq[URIWithLabel],
-  owners:       Seq[URIWithLabel],
-  creators:    Seq[URIWithLabel],
+  publishedBy:    Seq[URIWithLabel],
+  owners:         Seq[URIWithLabel],
+  creators:       Seq[URIWithLabel],
 
-  langs:    Seq[String], // CHECK: LANG
-  licenses: Seq[URIWithLabel],
+  langs:          Seq[String], // CHECK: LANG
+  licenses:       Seq[URIWithLabel],
 
-  version: Seq[Version],
+  versions:       Seq[Version],
 
-  creationDate: String,
-  lastEditDate: String,
-  tags:         Seq[URIWithLabel],
-  themes:       Seq[URIWithLabel],
-  subthemes:    Seq[URIWithLabel],
-  dependencies: Seq[String], // ontologies from which the vocabulary depends on
-  hierarchies:  ListBuffer[Hierarchy]
+  creationDate:   String,
+  lastEditDate:   String,
+  tags:           Seq[URIWithLabel],
+  themes:         Seq[URIWithLabel],
+  subthemes:      Seq[URIWithLabel],
+  dependencies:   Seq[String], // ontologies from which the vocabulary depends on
+  hierarchy:      ListBuffer[Hierarchy],
+  distributions:  Seq[Distribution]
 )
 
 case class RDFData(
@@ -138,5 +139,14 @@ case class Hierarchy (
   uri: String,
   parent_uri: String,
   children: ListBuffer[Hierarchy]//offspring
+)
+
+case class Distribution (
+  format:       String,
+  license:      String,
+  downloadUrl:  String,
+  accessUrl:    String,
+  title:  Seq[ItemByLanguage],
+  description: Seq[ItemByLanguage]
 )
   

@@ -59,7 +59,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val subthemes: Seq[URIWithLabel] = this.parse_dct_subthemes()
 
     val dependencies: Seq[String] = this.parse_dependencies()
-    val hierarchies: ListBuffer[Hierarchy] = ListBuffer[Hierarchy]()
+    val hierarchy: ListBuffer[Hierarchy] = ListBuffer[Hierarchy]()
+    val distributions: Seq[Distribution] = this.parse_dcat_distribution()
 
     VocabularyMeta(
       id,
@@ -80,7 +81,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       themes,
       subthemes,
       dependencies,
-      hierarchies)
+      hierarchy,
+      distributions)
   }
 
   /*
@@ -238,8 +240,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       tags_container = tags_container_tmp.union(tags_container)
     }
     tags_container
-
-
   }
 
   def parse_langs(): Seq[String] = {
@@ -389,13 +389,111 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       }
   }
 
+  def parse_dcat_distribution(): Seq[Distribution] = {
+
+    var distribution_container: Seq[Distribution] = Seq[Distribution]()
+    var distribution_container_tmp: Seq[Distribution] = Seq[Distribution]()
+
+    val list = SPARQL(repo).query("""
+     PREFIX dcat: <http://www.w3.org/ns/dcat#>
+     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+     SELECT DISTINCT ?distribution ?uri
+     #FROM <test://accommodation-star-rating>
+     WHERE {
+       ?uri a skos:ConceptScheme .
+       ?uri dcat:distribution ?distribution .
+     }
+    """)
+
+      list.foreach { item =>
+//        val distribution_uri = item
+        distribution_container_tmp = this.parse_detail_dcat_distribution(item.get("distribution").get.toString)
+        distribution_container = distribution_container_tmp.union(distribution_container)
+      }
+    distribution_container
+  }
+
+//  def parse_detail_dcat_distribution(distribution_uri: Map[String, Any]): Distribution = ???
+
+  def parse_detail_dcat_distribution(distribution_uri : String) : Seq[Distribution] = {
+
+    val list = SPARQL(repo).query(s"""
+        PREFIX dcat: <http://www.w3.org/ns/dcat#>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT *
+        WHERE {
+          ?distribution a dcatapit:Distribution .
+          ?distribution dct:format ?format .
+          ?distribution dct:license ?license .
+          ?distribution dcat:downloadURL ?downloadURL .
+          ?distribution dcat:accessURL ?accessURL .
+          FILTER(?distribution=<$distribution_uri>) .
+        }
+      """)
+      list.map { item =>
+      val format = scala.collection.mutable.Map(item.toSeq: _*).get("format").get.toString
+      val license = scala.collection.mutable.Map(item.toSeq: _*).get("license").get.toString
+      val downloadURL = scala.collection.mutable.Map(item.toSeq: _*).get("downloadURL").get.toString
+      val accessURL = scala.collection.mutable.Map(item.toSeq: _*).get("accessURL").get.toString
+      val title = parse_detail_distribution_title(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("title").get.toString
+      val description = parse_detail_distribution_description(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("description").get.toString
+
+      Distribution(format, license, downloadURL, accessURL, title, description)
+    }
+  }
+
+  def parse_detail_distribution_title(distribution_uri : String) : Seq[ItemByLanguage] = {
+    val list = SPARQL(repo).query(s"""
+        PREFIX dcat: <http://www.w3.org/ns/dcat#>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT *
+        WHERE {
+          ?distribution a dcatapit:Distribution .
+          {
+          ?distribution dct:title ?title .
+          BIND(LANG(?title) AS ?lang)
+          }
+          FILTER(?distribution=<$distribution_uri>) .
+        }
+      """)
+    list.map { item =>
+
+      ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("title", "").toString())
+
+    }
+  }
+
+  def parse_detail_distribution_description(distribution_uri : String) : Seq[ItemByLanguage] = {
+    val list = SPARQL(repo).query(s"""
+        PREFIX dcat: <http://www.w3.org/ns/dcat#>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT *
+        WHERE {
+          ?distribution a dcatapit:Distribution .
+          {
+          ?distribution dct:description ?description .
+          BIND(LANG(?description) AS ?lang)
+          }
+          FILTER(?distribution=<$distribution_uri>) .
+        }
+      """)
+    list.map { item =>
+
+      ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("description", "").toString())
+
+    }
+  }
+
   def parse_dependencies(): Seq[String] = {
 
     SPARQL(repo).query("""
-      SELECT DISTINCT ?concept 
+      SELECT DISTINCT ?concept
       WHERE {
-        ?subject a ?concept 
-      }  
+        ?subject a ?concept
+      }
     """)
       // REFACTORIZATION: .map(item => item.toMap.getOrElse("concept", "").asInstanceOf[String])
       .map(item => item.toMap.getOrElse("concept", "").toString())

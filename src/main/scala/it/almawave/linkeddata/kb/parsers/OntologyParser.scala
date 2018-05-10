@@ -57,14 +57,14 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     val langs = this.parse_langs()
 
     val publishedBy = this.parse_publishedBy()
-    val owner = this.parse_owner()
+    val owners = this.parse_owner()
     val licenses = this.parse_licenses()
 
     val lastEditDate: String = this.parse_lastEditDate()
 
     val tags: Seq[URIWithLabel] = List()
-    val categories: Seq[URIWithLabel] = List()
-    val keywords: Seq[String] = List()
+    val themes: Seq[URIWithLabel] = List()
+    val subthemes: Seq[URIWithLabel] = List()
 
     val provenance = this.parse_provenance()
 
@@ -81,13 +81,13 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       versions,
       creators,
       publishedBy,
-      owner,
+      owners,
       langs,
       lastEditDate,
       licenses,
       tags,
-      categories,
-      keywords,
+      themes,
+      subthemes,
       provenance)
 
   }
