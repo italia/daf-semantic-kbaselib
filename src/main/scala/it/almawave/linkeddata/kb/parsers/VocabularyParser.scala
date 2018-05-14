@@ -432,15 +432,16 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         }
       """)
       list.map { item =>
-      val format = scala.collection.mutable.Map(item.toSeq: _*).get("format").get.toString
-      val license = scala.collection.mutable.Map(item.toSeq: _*).get("license").get.toString
-      val downloadURL = scala.collection.mutable.Map(item.toSeq: _*).get("downloadURL").get.toString
-      val accessURL = scala.collection.mutable.Map(item.toSeq: _*).get("accessURL").get.toString
-      val title = parse_detail_distribution_title(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("title").get.toString
-      val description = parse_detail_distribution_description(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("description").get.toString
+        val uri = scala.collection.mutable.Map(item.toSeq: _*).get("format").get.toString
+        val format: URIWithValue = URIWithValue(uri.substring(uri.lastIndexOf("/")+1), uri)
+        val license = scala.collection.mutable.Map(item.toSeq: _*).get("license").get.toString
+        val downloadURL = scala.collection.mutable.Map(item.toSeq: _*).get("downloadURL").get.toString
+        val accessURL = scala.collection.mutable.Map(item.toSeq: _*).get("accessURL").get.toString
+        val titles = parse_detail_distribution_title(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("title").get.toString
+        val descriptions = parse_detail_distribution_description(distribution_uri)//scala.collection.mutable.Map(item.toSeq: _*).get("description").get.toString
 
-      Distribution(format, license, downloadURL, accessURL, title, description)
-    }
+        Distribution(format, license, downloadURL, accessURL, titles, descriptions)
+      }
   }
 
   def parse_detail_distribution_title(distribution_uri : String) : Seq[ItemByLanguage] = {

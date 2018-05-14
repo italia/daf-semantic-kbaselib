@@ -25,6 +25,8 @@ case class URIWithLabel(value: String, uri: String, lang: String) {
 
 }
 
+case class URIWithValue(value: String, uri: String)
+
 case class Version(
   number:  String,
   date:    String,
@@ -142,11 +144,11 @@ case class Hierarchy (
 )
 
 case class Distribution (
-  format:       String,
+  format:       URIWithValue,
   license:      String,
   downloadUrl:  String,
   accessUrl:    String,
-  title:  Seq[ItemByLanguage],
-  description: Seq[ItemByLanguage]
+  titles:  Seq[ItemByLanguage],
+  descriptions: Seq[ItemByLanguage]
 )
   
