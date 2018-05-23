@@ -299,11 +299,11 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         val uri = item.getOrElse("uri", "").toString()
         if(_matcher_number.findFirstIn(_vv).nonEmpty) {
           var number = _vv
-          Version(number, null, null, uri)
+          Version(number, null, lang, null, uri)
         }else {
-          val _comment = _vv.replaceAll(_matcher, "$1")
-          var comment = Map(lang -> _comment)
-          Version(null, null, comment, uri)
+          val comment = _vv.replaceAll(_matcher, "$1")
+//          var comment = Map(lang -> _comment)
+          Version(null, null, lang, comment, uri)
       }
     }
   }
@@ -433,7 +433,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
       """)
       list.map { item =>
         val uri = scala.collection.mutable.Map(item.toSeq: _*).get("format").get.toString
-        val format: URIWithValue = URIWithValue(uri.substring(uri.lastIndexOf("/")+1), uri)
+        val format: URIWithValue = URIWithValue(URIHelper.extractLabelFromURI(uri), uri)
         val license = scala.collection.mutable.Map(item.toSeq: _*).get("license").get.toString
         val downloadURL = scala.collection.mutable.Map(item.toSeq: _*).get("downloadURL").get.toString
         val accessURL = scala.collection.mutable.Map(item.toSeq: _*).get("accessURL").get.toString

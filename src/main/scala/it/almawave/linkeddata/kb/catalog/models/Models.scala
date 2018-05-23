@@ -28,10 +28,11 @@ case class URIWithLabel(value: String, uri: String, lang: String) {
 case class URIWithValue(value: String, uri: String)
 
 case class Version(
-  number:  String,
-  date:    String,
-  comment: Map[String, String],
-  uri:     String)
+  number:   String,
+  date:     String,
+  lang:     String,
+  comment:  String,
+  uri:      String)
 
 // TODO: add a regex / case class extractor for semantic versioning
 // TODO: add a proper date format
@@ -60,13 +61,19 @@ case class OntologyMeta(
   publishedBy:  Seq[URIWithLabel],
   owners:       Seq[URIWithLabel],
   langs:        Seq[String], // CHECK: LANG
+  creationDate: String,
   lastEditDate: String,
   licenses:     Seq[URIWithLabel],
 
   tags:         Seq[URIWithLabel],
   themes:       Seq[URIWithLabel],
   subthemes:    Seq[URIWithLabel],
-  provenance:   Seq[Map[String, Any]]) {
+  provenance:   Seq[Map[String, Any]],
+  hasContributor:       String,
+  hasFormalityLevel:    String,
+  hasOntologyLanguage:  String,
+  hasSemanticAssetDistributions: Seq[URIWithValue],
+  hasTasks: Seq[String]) {
 
   def withID(id_new: String) = {
 
@@ -76,8 +83,9 @@ case class OntologyMeta(
       prefix, namespace,
       concepts, imports,
       titles, descriptions,
-      versions, creators, publishedBy, owners, langs, lastEditDate, licenses,
-      tags, themes, subthemes, provenance)
+      versions, creators, publishedBy, owners, langs, creationDate, lastEditDate, licenses,
+      tags, themes, subthemes, provenance, hasContributor, hasFormalityLevel,
+      hasOntologyLanguage, hasSemanticAssetDistributions, hasTasks)
 
   }
 
@@ -89,8 +97,9 @@ case class OntologyMeta(
       prefix, namespace,
       concepts, imports,
       titles, descriptions,
-      versions, creators, publishedBy, owners, langs, lastEditDate, licenses,
-      tags, themes, subthemes, provenance)
+      versions, creators, publishedBy, owners, langs, creationDate, lastEditDate, licenses,
+      tags, themes, subthemes, provenance, hasContributor, hasFormalityLevel,
+      hasOntologyLanguage, hasSemanticAssetDistributions, hasTasks)
 
   }
 

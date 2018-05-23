@@ -2,7 +2,7 @@ package it.almawave.linkeddata.kb.catalog.models
 
 object TestingModels extends App {
 
-  val version = Version("0.0.1", "2018-01-31", Map("en" -> "testing..."), "testing://testing")
+  val version = Version("0.0.1", "2018-01-31", "en", "testing...", "testing://testing")
   println(version)
 
   val ok = getCCParams(version)

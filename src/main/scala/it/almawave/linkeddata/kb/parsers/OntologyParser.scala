@@ -1,15 +1,14 @@
 package it.almawave.linkeddata.kb.parsers
 
 import java.net.URL
+
+import com.sun.xml.internal.bind.v2.TODO
 import org.eclipse.rdf4j.repository.Repository
 import it.almawave.linkeddata.kb.file.RDFFileRepository
 import org.slf4j.LoggerFactory
 import it.almawave.linkeddata.kb.catalog.SPARQL
-import it.almawave.linkeddata.kb.catalog.models.OntologyMeta
-import it.almawave.linkeddata.kb.catalog.models.URIWithLabel
+import it.almawave.linkeddata.kb.catalog.models._
 import it.almawave.linkeddata.kb.utils.URIHelper
-import it.almawave.linkeddata.kb.catalog.models.ItemByLanguage
-import it.almawave.linkeddata.kb.catalog.models.Version
 import it.almawave.linkeddata.kb.utils.DateHelper
 
 object OntologyParser {
@@ -31,7 +30,12 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   logger.debug(s"parsing metadata for ${rdf_source}")
 
-  val id: String = rdf_source.getPath.replaceAll(".*/(.*?)\\.[a-z]+$", "$1").trim()
+  val id: String = this.parse_id() //rdf_source.getPath.replaceAll(".*/(.*?)\\.[a-z]+$", "$1").trim()
+
+  var _hasContributor: String = ""
+  var _hasFormalityLevel: String = ""
+  var _hasOntologyLanguage: String = ""
+  this.parse_hasGroup()
 
   /*
    * NOTE:
@@ -60,13 +64,20 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     val owners = this.parse_owner()
     val licenses = this.parse_licenses()
 
+    val creationDate = this.parse_creationDate()
     val lastEditDate: String = this.parse_lastEditDate()
 
-    val tags: Seq[URIWithLabel] = List()
-    val themes: Seq[URIWithLabel] = List()
-    val subthemes: Seq[URIWithLabel] = List()
+    val tags: Seq[URIWithLabel] = parse_dcat_keywords()
+    val themes: Seq[URIWithLabel] = parse_dcat_themes()
+    val subthemes: Seq[URIWithLabel] = parse_dct_subthemes()
 
     val provenance = this.parse_provenance()
+
+    val hasContributor: String = _hasContributor
+    val hasFormalityLevel: String = _hasFormalityLevel
+    val hasOntologyLanguage: String = _hasOntologyLanguage
+    val hasSemanticAssetDistributions: Seq[URIWithValue] = parse_hasSemanticAssetDistributions()
+    val hasTasks: Seq[String] = this.parse_hasTasks()
 
     OntologyMeta(
       id,
@@ -83,13 +94,72 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       publishedBy,
       owners,
       langs,
+      creationDate,
       lastEditDate,
       licenses,
       tags,
       themes,
       subthemes,
-      provenance)
+      provenance,
+      hasContributor,
+      hasFormalityLevel,
+      hasOntologyLanguage,
+      hasSemanticAssetDistributions,
+      hasTasks)
 
+  }
+
+  def parse_id(): String = {
+    val result = SPARQL(repo).query("""
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX : <https://w3id.org/italia/onto/ADMS/>
+      SELECT DISTINCT ?uri ?acronym
+      WHERE {
+        ?uri a owl:Ontology .
+        OPTIONAL { ?uri :acronym ?acronym . }
+      }
+    """)
+    val value = result.map {x =>
+        println(x)
+        x.getOrElse("acronym", "").toString()
+      }
+    if(!value.head.isEmpty) {
+      value
+        .distinct
+        .toSet
+        .headOption.getOrElse("")
+        .toString()
+    }else {
+      (rdf_source.getPath.replaceAll(".*/(.*?)\\.[a-z]+$", "$1").trim()).toString
+    }
+
+  }
+
+  def parse_hasGroup() {
+    SPARQL(repo).query("""
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX : <https://w3id.org/italia/onto/ADMS/>
+      SELECT DISTINCT ?hasContributor ?hasFormalityLevel ?hasOntologyLanguage
+      WHERE {
+        ?uri a owl:Ontology .
+        OPTIONAL { ?uri :hasContributor ?hasContributor . }
+        OPTIONAL { ?uri :hasFormalityLevel ?hasFormalityLevel . }
+        OPTIONAL { ?uri :hasOntologyLanguage ?hasOntologyLanguage . }
+      }
+    """)
+      .map { item =>
+          this._hasContributor = item.getOrElse("hasContributor", "").toString()
+          this._hasFormalityLevel = item.getOrElse("hasFormalityLevel", "").toString()
+          this._hasOntologyLanguage = item.getOrElse("hasOntologyLanguage", "").toString()
+      }
+
+
+
+
+//      .distinct
+//      .toSet
+//      .headOption.getOrElse("")
+//      .toString()
   }
 
   def parse_namespace(default_namespace: String = ""): String = {
@@ -107,17 +177,26 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   def parse_onto_url(): URL = {
 
+    var uri: String = ""
     // WORKING VERSION:
     val _onto_url = SPARQL(repo).query("""
-      SELECT DISTINCT ?uri
+      PREFIX : <https://w3id.org/italia/onto/ADMS/>
+      SELECT DISTINCT ?uri ?officialURI
       WHERE {
         ?uri a owl:Ontology .
+        OPTIONAL { ?uri :officialURI ?officialURI . }
       }
     """).toList
-      .map(_.getOrElse("uri", "").asInstanceOf[String])
-      .filterNot(_.trim().equals(""))
-      .map(_.replaceAll("^(.*?)[#/]$", "$1")) // HACK for threating <http://some/> and <http://some> in the same way
-      .map(x => new URL(x))
+      .map {x =>
+        uri = x.getOrElse("officialURI", "").asInstanceOf[String]
+        if(uri.isEmpty)
+          uri = x.getOrElse("uri", "").asInstanceOf[String]
+
+        new URL(uri)
+      }
+//      .filterNot(uri.trim().equals(""))
+//      .map(uri.replaceAll("^(.*?)[#/]$", "$1")) // HACK for threating <http://some/> and <http://some> in the same way
+//      .map(new URL(uri))
       .headOption.getOrElse(rdf_source)
 
     _onto_url
@@ -236,16 +315,16 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         val number = _vv.replaceAll(_matcher, "$1")
         val source_date = _vv.replaceAll(_matcher, "$3")
 
-        val _comment = _vv.replaceAll(_matcher, "$4")
+        val comment = _vv.replaceAll(_matcher, "$4")
         val uri = item.getOrElse("uri", "").toString()
         // REFACTORIZATION: .asInstanceOf[String]
         val version_iri = item.getOrElse("version_iri", "").toString()
         // REFACTORIZATION: .asInstanceOf[String]
 
-        val comment = Map(lang -> _comment)
+//        val comment = Map(lang -> _comment)
         val date = DateHelper.format(DateHelper.parseDate(source_date))
 
-        Version(number, date, comment, uri)
+        Version(number, date, lang, comment, uri)
       }
 
     // TODO: .groupBy { x => x.uri } for collapsing multiple versions (by lang) into one
@@ -323,15 +402,24 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       .distinct
   }
 
+  def parse_creationDate() = {
+    SPARQL(repo).query("""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?data_creation
+        WHERE { ?uri a owl:Ontology . ?uri dct:issued ?data_creation . }
+      """)
+      .map { item => item.getOrElse("data_creation", "").toString() }
+      .headOption.getOrElse("")
+  }
+
   def parse_lastEditDate(): String = {
     SPARQL(repo).query("""
       PREFIX dct: <http://purl.org/dc/terms/>
-      SELECT DISTINCT ?last_edit_date {  
-        ?uri a owl:Ontology . ?uri dct:modified ?date_modified .
-      }
+      SELECT DISTINCT ?date_modified
+      WHERE{ ?uri a owl:Ontology . ?uri dct:modified ?date_modified . }
     """)
       //.map(_.getOrElse("last_edit_date", "").asInstanceOf[String])
-      .map(_.getOrElse("last_edit_date", "").toString())
+      .map(_.getOrElse("date_modified", "").toString())
       .headOption.getOrElse("")
   }
 
@@ -350,6 +438,104 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         val label = URIHelper.extractLabelFromURI(uri)
         val lang = ""
         URIWithLabel(label, uri, lang)
+      }
+  }
+
+  def parse_dcat_keywords() = {
+    SPARQL(repo).query("""
+      PREFIX dcat: <http://www.w3.org/ns/dcat#>
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      SELECT DISTINCT ?keyword ?lang
+      WHERE {
+        ?uri a owl:Ontology .
+        ?uri dcat:keyword ?keyword .
+        BIND(LANG(?keyword) AS ?lang)
+      }
+    """)
+      .map { item =>
+        /*REFACTORIZATION
+        val label = item.getOrElse("keyword", "").asInstanceOf[String].trim()
+        val lang = item.getOrElse("lang", "").asInstanceOf[String]
+        */
+        val label = item.getOrElse("keyword", "").toString().trim()
+        val lang = item.getOrElse("lang", "").toString().trim()
+        // TODO "uri" AD ATTENDERE DA BONIFICARE
+        val uri = s"keywords://${lang}#${label.replaceAll("\\s", "+")}"
+        URIWithLabel(label, uri, lang)
+      }
+  }
+
+  def parse_dcat_themes() = {
+    SPARQL(repo).query("""
+      PREFIX dcat: <http://www.w3.org/ns/dcat#>
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      SELECT DISTINCT ?theme ?lang
+      WHERE {
+        ?uri a owl:Ontology .
+        ?uri dcat:theme ?theme .
+        BIND(LANG(?theme) AS ?lang)
+      }
+    """)
+      .map { item => item.getOrElse("theme", "").toString() }
+      .map { item =>
+        val uri = item
+        val label = URIHelper.extractLabelFromURI(uri)
+        val lang = "" // NOTE: can we assume dcat themes is defined for "eng" language?
+        URIWithLabel(label, uri, lang)
+      }
+  }
+
+  def parse_dct_subthemes() = {
+    SPARQL(repo).query("""
+      PREFIX dct: <http://purl.org/dc/terms/>
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT DISTINCT ?subject
+      WHERE {
+        ?uri a owl:Ontology .
+        ?uri dct:subject ?subject .
+      }
+    """)
+      .map { item => item.getOrElse("subject", "").toString() }
+      .map { item =>
+        val uri = item
+        val label = URIHelper.extractLabelFromURI(uri)
+        val lang = ""
+        URIWithLabel(label, uri, lang)
+      }
+  }
+
+  def parse_hasSemanticAssetDistributions(): Seq[URIWithValue] = {
+    SPARQL(repo).query("""
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       PREFIX : <https://w3id.org/italia/onto/ADMS/>
+       SELECT *
+       WHERE {
+         ?uri a owl:Ontology .
+         ?uri :hasSemanticAssetDistribution ?hasSemanticAssetDistributions .
+       }
+    """)
+      .map { item => item.getOrElse("hasSemanticAssetDistributions", "").toString() }
+      .map { item =>
+        val uri = item
+        val value = URIHelper.extractLabelFromURI(uri)
+        URIWithValue(value, uri)
+      }
+  }
+
+  def parse_hasTasks(): Seq[String] = {
+    SPARQL(repo).query("""
+       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+       PREFIX : <https://w3id.org/italia/onto/ADMS/>
+       SELECT *
+       WHERE {
+         ?uri a owl:Ontology .
+         ?uri :hasTask ?hasTasks .
+       }
+    """)
+      .map { item => item.getOrElse("hasTasks", "").toString() }
+      .map {item =>
+        val uri = item
+        new String(uri)
       }
   }
 
