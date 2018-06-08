@@ -10,18 +10,33 @@ import it.almawave.linkeddata.kb.catalog.SPARQL
 import it.almawave.linkeddata.kb.catalog.models._
 import it.almawave.linkeddata.kb.utils.URIHelper
 import it.almawave.linkeddata.kb.utils.DateHelper
+import org.eclipse.rdf4j.repository.sail.SailRepository
+import org.eclipse.rdf4j.sail.federation.Federation
 
-object OntologyParser {
+object OntologyExtendedParser {
 
-  def apply(rdf_source: URL) = {
-    val repo: Repository = new RDFFileRepository(rdf_source)
-    new OntologyParser(repo, rdf_source)
+  def apply(rdf_source1: URL, rdf_source2: URL) = {
+    val repo1: Repository = new RDFFileRepository(rdf_source1)
+    val repo2: Repository = new RDFFileRepository(rdf_source2)
+
+
+    val federation = new Federation
+    if(rdf_source1 != null) federation.addMember(repo1)
+    federation.addMember(repo2)
+
+    // TODO: extract prefixes from OntologyBox
+
+    val repo = new SailRepository(federation)
+
+
+    // TODO da verificare se va bene il principale "rdf source"
+    new OntologyExtendedParser(repo, rdf_source2)
   }
 
 }
 
 // TODO: move into parser package
-class OntologyParser(val repo: Repository, rdf_source: URL) {
+class OntologyExtendedParser(val repo: Repository, rdf_source: URL) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -45,7 +60,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
    */
   val prefix: String = id.replaceAll("_", "").replaceAll("-", "").toLowerCase().trim()
 
-  def parse_meta(): OntologyMeta = {
+  def parse_meta(url: String): OntologyExtendedMeta = {
 
     //    TODO: validation: add a SPARQL query to verify if the source is actually an Ontology
     //    this.is_ontology()
@@ -78,8 +93,11 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
     val hasOntologyLanguage: String = _hasOntologyLanguage
     val hasSemanticAssetDistributions: Seq[URIWithValue] = parse_hasSemanticAssetDistributions()
     val hasTasks: Seq[String] = this.parse_hasTasks()
+    val owlClasses: Seq[OwlClass] = this.parse_owlClass(onto_url.toString)
+    val owlDatatypeProperties: Seq[OwlProperty] = this.parse_owlDatatypeProperties(onto_url.toString)
+    val owlObjectProperties: Seq[OwlProperty] = this.parse_owlObject(onto_url.toString)
 
-    OntologyMeta(
+    OntologyExtendedMeta(
       id,
       rdf_source,
       onto_url,
@@ -105,7 +123,10 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       hasFormalityLevel,
       hasOntologyLanguage,
       hasSemanticAssetDistributions,
-      hasTasks)
+      hasTasks,
+      owlClasses,
+      owlDatatypeProperties,
+      owlObjectProperties)
 
   }
 
@@ -120,7 +141,7 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       }
     """)
     val value = result.map {x =>
-        println("def parse_id  " + x)
+        println(x)
         x.getOrElse("acronym", "").toString()
       }
     if(!value.head.isEmpty) {
@@ -153,9 +174,6 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
           this._hasOntologyLanguage = item.getOrElse("hasOntologyLanguage", "").toString()
       }
 
-
-
-
 //      .distinct
 //      .toSet
 //      .headOption.getOrElse("")
@@ -164,7 +182,11 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
 
   def parse_namespace(default_namespace: String = ""): String = {
     SPARQL(repo).query("""
-      SELECT DISTINCT ?uri { ?uri a owl:Ontology . }
+      SELECT DISTINCT ?uri { ?uri a owl:Ontology .
+        FILTER NOT EXISTS {
+          FILTER (regex(str(?uri), "align") )
+        }
+      }
     """)
       //      .map(_.getOrElse("uri", default_namespace).asInstanceOf[String]) // REFACTORIZATION
       .map(_.getOrElse("uri", default_namespace).toString())
@@ -184,7 +206,14 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       SELECT DISTINCT ?uri ?officialURI
       WHERE {
         ?uri a owl:Ontology .
-        OPTIONAL { ?uri :officialURI ?officialURI . }
+        FILTER NOT EXISTS {
+          FILTER (regex(str(?uri), "align") )
+        }
+        OPTIONAL { ?uri :officialURI ?officialURI .
+          FILTER NOT EXISTS {
+            FILTER (regex(str(?officialURI), "align") )
+          }
+        }
       }
     """).toList
       .map {x =>
@@ -342,6 +371,11 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
         OPTIONAL { ?uri dct:modified ?date_modified . }
         OPTIONAL { ?uri rdfs:isDefinedBy ?defined_by_uri . }
     		OPTIONAL { ?uri prov:wasDerivedFrom ?derived_from_uri . }
+        FILTER ( !isBlank( ?license_uri ) )
+        FILTER ( !isBlank( ?date_issued ) )
+        FILTER ( !isBlank( ?date_modified ) )
+        FILTER ( !isBlank( ?defined_by_uri ) )
+        FILTER ( !isBlank( ?derived_from_uri ) )
       }
     """)
   }
@@ -559,6 +593,115 @@ class OntologyParser(val repo: Repository, rdf_source: URL) {
       URIWithLabel(label, uri, lang)
     }
   }
+
+  def parse_owlClass(namespace : String): Seq[OwlClass] = {
+
+    val nspace = if(namespace.charAt(namespace.length-1).toString.equals("/")) (namespace.substring(0, namespace.lastIndexOf("/"))) else namespace
+    SPARQL(repo).query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        SELECT *
+        WHERE {
+
+          ?onto a owl:Class .
+          FILTER(REGEX(STR(?onto),'https://w3id.org/italia/onto/.*', 'i'))
+          ?onto rdfs:isDefinedBy ?defined_by .
+          FILTER ( STR(?defined_by) = '$nspace' )
+
+          OPTIONAL {
+            { ?onto rdfs:equivalentClass ?equivalent . }
+            UNION
+            { ?onto owl:equivalentClass ?equivalent . }
+          }
+
+          OPTIONAL {
+            { ?onto rdfs:subClassOf ?parent_class . }
+            UNION
+            { ?onto owl:subClassOf ?parent_class . }
+            FILTER(!isBlank(?parent_class))
+          }
+        }
+        """).map {item =>
+            val definedBy = scala.collection.mutable.Map (item.toSeq: _*).get ("defined_by").get.toString
+            val equivalent = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("equivalent", "").toString
+            val parentClass = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("parent_class", "").toString
+            OwlClass(definedBy, equivalent, parentClass)
+        }
+  }
+
+  def parse_owlDatatypeProperties(namespace : String): Seq[OwlProperty] = {
+
+    val nspace = if(namespace.charAt(namespace.length-1).toString.equals("/")) (namespace.substring(0, namespace.lastIndexOf("/"))) else namespace
+    SPARQL(repo).query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        SELECT *
+        WHERE {
+
+          ?onto a owl:DatatypeProperty .
+          FILTER(REGEX(STR(?onto),'https://w3id.org/italia/onto/.*', 'i'))
+          ?onto rdfs:isDefinedBy ?defined_by .
+          FILTER ( STR(?defined_by) = '$nspace' )
+
+          OPTIONAL {
+            { ?onto rdfs:equivalentProperty ?equivalentProp . }
+            UNION
+            { ?onto owl:equivalentProperty ?equivalentProp . }
+          }
+
+          OPTIONAL {
+            { ?onto rdfs:subPropertyOf ?parent_class . }
+            UNION
+            { ?onto owl:subPropertyOf ?parent_class . }
+            FILTER(!isBlank(?parent_class))
+          }
+        }
+        """).map {item =>
+      val definedBy = scala.collection.mutable.Map (item.toSeq: _*).get ("defined_by").get.toString
+      val equivalent = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("equivalentProp", "").toString
+      val subPropertyOf = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("parent_class", "").toString
+      OwlProperty(definedBy, equivalent, subPropertyOf)
+    }
+  }
+
+  def parse_owlObject(namespace : String): Seq[OwlProperty] = {
+
+    val nspace = if(namespace.charAt(namespace.length-1).toString.equals("/")) (namespace.substring(0, namespace.lastIndexOf("/"))) else namespace
+    SPARQL(repo).query(s"""
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        SELECT *
+        WHERE {
+
+          ?onto a owl:ObjectProperty .
+          FILTER(REGEX(STR(?onto),'https://w3id.org/italia/onto/.*', 'i'))
+          ?onto rdfs:isDefinedBy ?defined_by .
+          FILTER ( STR(?defined_by) = '$nspace' )
+
+          OPTIONAL {
+            { ?onto rdfs:equivalentProperty ?equivalentProp . }
+            UNION
+            { ?onto owl:equivalentProperty ?equivalentProp . }
+          }
+
+          OPTIONAL {
+            { ?onto rdfs:subPropertyOf ?parent_class . }
+            UNION
+            { ?onto owl:subPropertyOf ?parent_class . }
+            FILTER(!isBlank(?parent_class))
+          }
+        }
+        """).map {item =>
+      val definedBy = scala.collection.mutable.Map (item.toSeq: _*).get ("defined_by").get.toString
+      val equivalent = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("equivalentProp", "").toString
+      val subPropertyOf = scala.collection.mutable.Map (item.toSeq: _*).getOrElse("parent_class", "").toString
+      OwlProperty(definedBy, equivalent, subPropertyOf)
+    }
+  }
+
 
   // should we shutdown the repository after using it?
   if (!repo.isInitialized()) repo.initialize()

@@ -1,28 +1,33 @@
 package it.almawave.linkeddata.kb.catalog
 
 import com.typesafe.config.Config
-
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.memory.MemoryStore
+
 import scala.collection.mutable.ListBuffer
 import java.net.URI
 import java.nio.file.Paths
 import java.net.URL
+
 import org.eclipse.rdf4j.sail.inferencer.fc.ForwardChainingRDFSInferencer
 import org.eclipse.rdf4j.sail.inferencer.fc.DedupingInferencer
 import org.eclipse.rdf4j.common.iteration.Iterations
 import org.eclipse.rdf4j.sail.federation.Federation
 import org.eclipse.rdf4j.sail.Sail
+
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
 import java.io.File
+
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.util.FileUtils
 import com.typesafe.config.ConfigFactory
+import it.almawave.linkeddata.kb.utils.URIHelper
+
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import org.eclipse.jgit.merge.MergeStrategy
@@ -46,10 +51,12 @@ class CatalogBox(config: Config) extends RDFBox {
   override val conf = config.resolve()
 
   private val _ontologies = new ListBuffer[OntologyBox]
+  private val _ontologies_aligns = new ListBuffer[OntologyExtendedBox]
   private val _vocabularies = new ListBuffer[VocabularyBox]
   private val _remotes = new ListBuffer[OntologyBox]
 
   def ontologies: Seq[OntologyBox] = _ontologies.toList
+  def ontologies_aligns: Seq[OntologyExtendedBox] = _ontologies_aligns.toList
   def vocabularies: Seq[VocabularyBox] = _vocabularies.toList
   def externalOntologies: Seq[OntologyBox] = _remotes.toList
 
@@ -69,10 +76,13 @@ class CatalogBox(config: Config) extends RDFBox {
     // load ontologies!
     this.load_ontologies
 
+    // load ontologies-aligns
+    this.load_ontologies_aligns
+
     // load vocabularies!
     this.load_vocabularies
 
-//    TODO Commentato per il momento non viene usato
+    //    TODO Commentato per il momento non viene usato
     this.load_remotes
 
     // starts the different kbboxes
@@ -145,11 +155,56 @@ class CatalogBox(config: Config) extends RDFBox {
         box.stop()
         _ontologies += box
       }
-
     }
 
     _ontologies.toStream
+  }
 
+  private def load_ontologies_aligns = {
+
+    val base_path: URI = if (conf.getBoolean("ontologies.use_cache"))
+      Paths.get(conf.getString("ontologies.path_local")).normalize().toAbsolutePath().toUri()
+    else
+      new URI(conf.getString("ontologies.path_remote"))
+
+    if (conf.hasPath("ontologies_aligns.data")) {
+
+      logger.info(s"using selected ontologies_aligns")
+
+      // Ciclo le ontologie caricate precedentemente
+      this._ontologies.foreach { onto =>
+
+        var aligns = false
+
+        /** Occorre efettuare questo blocco ogni volta che ricerchiamo un allineamento di una ontologia principale **/
+        conf.getConfigList("ontologies_aligns.data")
+          .toStream
+          .foreach { onto_aligns =>
+            val keyOntology: String = (URIHelper.extractLabelFromURI(onto_aligns.getString("path")).substring(0, URIHelper.extractLabelFromURI(onto_aligns.getString("path")).indexOf("-"))).toString
+            if (onto.id.indexOf(keyOntology) >= 0) {
+              val source_path = onto_aligns.getString("path")
+              val source_url = new URI(base_path + source_path).normalize().toURL()
+              val box = OntologyExtendedBox.parse(source_url, onto.meta.source)
+              box.start()
+              box.stop()
+
+              _ontologies_aligns += box
+              aligns = true
+            }
+
+          }
+          if(!aligns) {
+            val box = OntologyExtendedBox.parse(null, onto.meta.source)
+            box.start()
+            box.stop()
+
+            _ontologies_aligns += box
+          }
+      }
+
+    }
+
+    _ontologies_aligns.toStream
   }
 
   // TODO: same for vocabulary?
@@ -194,7 +249,6 @@ class CatalogBox(config: Config) extends RDFBox {
     }
 
     _vocabularies.toStream
-
   }
 
   def resolveVocabularyDependencies(vbox: VocabularyBox): VocabularyBox = {
@@ -238,8 +292,8 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   /**
-   * this method should return a list containing only the actually used ontologies (in the network)
-   */
+    * this method should return a list containing only the actually used ontologies (in the network)
+    */
   private def get_internal_dependencies(voc_box: VocabularyBox): Seq[String] = {
 
     // TODO: extend to multiple baseURI
@@ -254,8 +308,8 @@ class CatalogBox(config: Config) extends RDFBox {
   }
 
   /**
-   * this method should add the dependencies for ontologies used in the vocabulary
-   */
+    * this method should add the dependencies for ontologies used in the vocabulary
+    */
   @Deprecated
   private def resolve_dependencies(voc_box: VocabularyBox): Seq[OntologyBox] = {
 

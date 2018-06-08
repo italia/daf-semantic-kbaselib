@@ -105,6 +105,77 @@ case class OntologyMeta(
 
 }
 
+case class OntologyExtendedMeta(
+
+  id:           String,
+  source:       URL,
+  url:          URL,
+  prefix:       String,
+  namespace:    String,
+  concepts:     Set[String],
+  imports:      Seq[URIWithLabel],
+
+  titles:       Seq[ItemByLanguage],
+  descriptions: Seq[ItemByLanguage],
+
+  versions:     Seq[Version],
+  creators:     Seq[URIWithLabel],
+
+  // CHECK with provenance
+  publishedBy:  Seq[URIWithLabel],
+  owners:       Seq[URIWithLabel],
+  langs:        Seq[String], // CHECK: LANG
+  creationDate: String,
+  lastEditDate: String,
+  licenses:     Seq[URIWithLabel],
+
+  tags:         Seq[URIWithLabel],
+  themes:       Seq[URIWithLabel],
+  subthemes:    Seq[URIWithLabel],
+  provenance:   Seq[Map[String, Any]],
+  hasContributor:       String,
+  hasFormalityLevel:    String,
+  hasOntologyLanguage:  String,
+  hasSemanticAssetDistributions: Seq[URIWithValue],
+  hasTasks: Seq[String],
+  owlClasses: Seq[OwlClass],
+  owlDatatypeProperties: Seq[OwlProperty],
+  owlObjectProperties: Seq[OwlProperty]
+                               ) {
+
+  def withID(id_new: String) = {
+
+    OntologyExtendedMeta(
+      id_new,
+      source, url,
+      prefix, namespace,
+      concepts, imports,
+      titles, descriptions,
+      versions, creators, publishedBy, owners, langs, creationDate, lastEditDate, licenses,
+      tags, themes, subthemes, provenance, hasContributor, hasFormalityLevel,
+      hasOntologyLanguage, hasSemanticAssetDistributions, hasTasks, owlClasses, owlDatatypeProperties, owlObjectProperties)
+
+  }
+
+  def withURL(url_new: URL) = {
+
+    OntologyExtendedMeta(
+      id,
+      source, url_new,
+      prefix, namespace,
+      concepts, imports,
+      titles, descriptions,
+      versions, creators, publishedBy, owners, langs, creationDate, lastEditDate, licenses,
+      tags, themes, subthemes, provenance, hasContributor, hasFormalityLevel,
+      hasOntologyLanguage, hasSemanticAssetDistributions, hasTasks, owlClasses, owlDatatypeProperties, owlObjectProperties)
+
+  }
+}
+
+case class OwlClass( isDefinedBy: String, equivalentClass: String, subClassOf: String )
+
+case class OwlProperty( isDefinedBy: String, equivalentProperty: String, subPropertyOf: String )
+
 // TODO: aggiornare i modelli
 case class VocabularyMeta(
 
