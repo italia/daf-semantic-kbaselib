@@ -119,8 +119,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT DISTINCT * 
         WHERE { 
           ?uri a skos:ConceptScheme . 
-          OPTIONAL { ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
-          OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) } 
+          #OPTIONAL { ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+          OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) }
         }
         """)
       .map { item =>

@@ -256,12 +256,16 @@ class OntologyExtendedParser(val repo: Repository, rdf_source: URL) {
 
   def parse_titles(): Seq[ItemByLanguage] = {
     SPARQL(repo).query("""
-      SELECT DISTINCT * 
-      WHERE {  ?uri a owl:Ontology . ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+      PREFIX dct: <http://purl.org/dc/terms/>
+      SELECT DISTINCT *
+      WHERE {  ?uri a owl:Ontology .
+                ?uri dct:title ?title .
+                BIND(LANG(?title) AS ?lang)
+            }
     """)
       .map { item =>
         // REFACTORIZATION: item.get("lang").get.asInstanceOf[String], item.get("label").get.asInstanceOf[String]
-        ItemByLanguage(item.get("lang").get.toString(), item.get("label").get.toString())
+        ItemByLanguage(item.getOrElse("lang", "").toString(), item.getOrElse("title", "").toString)
       }
       .toList
   }
