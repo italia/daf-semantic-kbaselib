@@ -30,9 +30,9 @@ class CatalogBoxTest {
   @Test
   def test_loading() {
     Assert.assertTrue(catalog.ontologies.size > 0)
+    Assert.assertTrue(catalog.ontologies_aligns.size > 0)
     Assert.assertTrue(catalog.vocabularies.size > 0)
   }
-
   @Test
   def test_skos_onto() {
 
@@ -42,7 +42,8 @@ class CatalogBoxTest {
 
   }
 
-  @Test
+
+//  @Test
   def test_ontology_default_context() {
 
     var obox = catalog.ontologies.find(_.id.equals("POI-AP_IT")).get
