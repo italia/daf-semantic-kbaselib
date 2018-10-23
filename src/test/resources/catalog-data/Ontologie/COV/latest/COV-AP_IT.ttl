@@ -1,7 +1,7 @@
 @prefix : <https://w3id.org/italia/onto/COV/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix l0: <https://w3id.org/italia/onto/l0/> .
-@prefix ti: <https://w3id.org/italia/onto/COV/TI/> .
+@prefix ti: <https://w3id.org/italia/onto/TI/> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -16,7 +16,7 @@
 
 <https://w3id.org/italia/onto/COV> rdf:type owl:Ontology ;
                                     owl:versionIRI : ;
-                                    owl:imports <https://w3id.org/italia/onto/COV/TI> ,
+                                    owl:imports <https://w3id.org/italia/onto/TI> ,
                                                 <https://w3id.org/italia/onto/CLV> ,
                                                 <https://w3id.org/italia/onto/l0> ,
                                                 <https://w3id.org/italia/onto/RO> ,
@@ -241,7 +241,7 @@ clvapit:hasSpatialCoverage rdf:type owl:ObjectProperty ;
                 rdfs:comment "Questa proprietà lega un'organizzazione alle sue unità di supporto (o divisioni o dipartimenti) che possono essere areee organizzative omogenee o uffici"@it ,
                              "This property links an organization to its support units (or dividision or departments) that can be homogeneous organizational areas or offices."@en ;
                 rdfs:isDefinedBy <http://dati.gov.it/onto/covapit> ;
-                rdfs:label "ha unità di supperto (dipartimento)"@it ,
+                rdfs:label "ha unità di supporto (dipartimento)"@it ,
                            "has support unit"@en ;
                 owl:versionInfo "stabile"@it ,
                                 "stable"@en .
@@ -1203,7 +1203,7 @@ This class is derived from the Core Public Organization Vocabulary."""@en ;
 ###  https://w3id.org/italia/onto/COV/PublicOrganizationCategory
 :PublicOrganizationCategory rdf:type owl:Class ;
                             rdfs:subClassOf l0:Characteristic ;
-                            l0:controlledvocabulary <http://w3id..org/italia/controlled-vocabulary/organization/S13> ;
+                            l0:controlledvocabulary <https://w3id.org/italia/controlled-vocabulary/organization/S13> ;
                             rdfs:comment "Questa classe rappresenta la cateogoria dell'organizzazione pubblica. Le istanze di questa classe possono essere modellate come concetti dello standard skos di un vocabolario controllato. Esempi includono: \"Agenzie ed Enti per il Turismo\", \"Città Metropolitane\", \"Presidenza del Consiglio, Minsiteri e Avvocatura dello Stato\"."@it ,
                                          "This class represents the category of the public organization. The instances of this class can be modelled as concept of the skos standard of a controlled vocabulary."@en ;
                             rdfs:isDefinedBy <http://dati.gov.it/onto/covapit> ;
