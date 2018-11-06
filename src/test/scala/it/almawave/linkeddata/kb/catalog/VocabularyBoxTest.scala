@@ -30,6 +30,8 @@ object MainVOC extends App {
 class VocabularyBoxTest() {
 
   val voc_url = new File("src/test/resources/catalog-data/VocabolariControllati/licences/licences.ttl").toURI().toURL()
+//  val voc_url = new File("src/test/resources/catalog-data/VocabolariControllati/classifications-for-accommodation-facilities/accommodation-star-rating/accommodation-star-rating.ttl").toURI().toURL()
+
 
   var vbox: VocabularyBox = null
 
@@ -56,7 +58,7 @@ class VocabularyBoxTest() {
     Assert.assertTrue(triples > 0)
   }
 
-  @Test
+//  @Test
   def test_context() {
     val context = vbox.context
     Assert.assertTrue(context != null && context.size > 0)
