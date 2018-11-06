@@ -254,6 +254,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_langs(): Seq[String] = {
     SPARQL(repo).query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         SELECT DISTINCT ?lang  
         WHERE {
           ?uri a skos:ConceptScheme, dcatapit:Dataset . 
@@ -291,6 +292,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_versions(): Seq[Version] = {
     SPARQL(repo).query("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         SELECT DISTINCT * 
         WHERE { 
           ?uri a skos:ConceptScheme, dcatapit:Dataset . 
@@ -411,6 +413,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
 
     val list = SPARQL(repo).query("""
      PREFIX dcat: <http://www.w3.org/ns/dcat#>
+     PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
      SELECT DISTINCT ?distribution ?uri
      #FROM <test://accommodation-star-rating>
