@@ -114,7 +114,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
 
   /**
    * This method parses titles for a vocabulary (using the conventions in DCAT-AP_IT).
-   * 
+   *
    * NOTA: per convenzione i vocabolari sono definiti per noi tramite skos:ConceptScheme, dcatapit:Dataset e dcatapit:Dataset,
    * ed estraiamo i corrispettivi metadati (dct:title, dct:description...) di conseguenza.
    * TODO: generalizzare per vocabolari non metadatati con DCAT
@@ -158,15 +158,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_publishedBy(): Seq[URIWithLabel] = {
-    //    SPARQL(repo).query("""
-    //        PREFIX dct: <http://purl.org/dc/terms/>
-    //        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    //        SELECT *
-    //        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:publisher ?publisher_uri .}
-    //      """)
-    //      // REFACTORIZATION: .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
-    //      .map { item => item.getOrElse("publisher_uri", "").toString() }
-    //      .headOption.getOrElse("")
 
     var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
     var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
@@ -218,15 +209,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   }
 
   def parse_owner(): Seq[URIWithLabel] = {
-    //    SPARQL(repo).query("""
-    //        PREFIX dct: <http://purl.org/dc/terms/>
-    //        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    //        SELECT *
-    //        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:rightsHolder ?holder_uri .}
-    //      """)
-    //      // REFACTORIZATION: .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
-    //      .map { item => item.getOrElse("holder_uri", "").toString() }
-    //      .headOption.getOrElse("")
+
     var tags_container: Seq[URIWithLabel] = Seq[URIWithLabel]()
     var tags_container_tmp: Seq[URIWithLabel] = Seq[URIWithLabel]()
 
@@ -431,13 +414,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     distribution_container
   }
 
-  //  def parse_detail_dcat_distribution(distribution_uri: Map[String, Any]): Distribution = ???
-
   def parse_detail_dcat_distribution(distribution_uri: String): Seq[Distribution] = {
 
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX dct: <http://purl.org/dc/terms/> 
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
@@ -466,7 +446,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_detail_distribution_title(distribution_uri: String): Seq[ItemByLanguage] = {
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX dct: <http://purl.org/dc/terms/> 
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
@@ -489,7 +468,6 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_detail_distribution_description(distribution_uri: String): Seq[ItemByLanguage] = {
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX dct: <http://purl.org/dc/terms/> 
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
