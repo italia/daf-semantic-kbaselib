@@ -115,19 +115,18 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   /**
    * This method parses titles for a vocabulary (using the conventions in DCAT-AP_IT).
    * 
-   * NOTA: per convenzione i vocabolari sono definiti per noi tramite skos:ConceptScheme e dcatapit:Dataset,
+   * NOTA: per convenzione i vocabolari sono definiti per noi tramite skos:ConceptScheme, dcatapit:Dataset e dcatapit:Dataset,
    * ed estraiamo i corrispettivi metadati (dct:title, dct:description...) di conseguenza.
    * TODO: generalizzare per vocabolari non metadatati con DCAT
    */
   def parse_titles(): Seq[ItemByLanguage] = {
     SPARQL(repo).query(s"""
         PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT * 
         WHERE { 
-          ?uri a skos:ConceptScheme .
-          ?uri a dcatapit:Dataset . 
+          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
           OPTIONAL { ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
           OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) } 
         }
@@ -142,10 +141,11 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_descriptions(): Seq[ItemByLanguage] = {
     SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?lang ?label  
         WHERE { 
-          ?uri a skos:ConceptScheme . 
+          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
           OPTIONAL { ?uri rdfs:comment ?label . BIND(LANG(?label) AS ?lang) }
           OPTIONAL { ?uri dct:description ?label . BIND(LANG(?label) AS ?lang) } 
         }
@@ -162,7 +162,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     //        PREFIX dct: <http://purl.org/dc/terms/>
     //        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     //        SELECT *
-    //        WHERE { ?uri a skos:ConceptScheme . ?uri dct:publisher ?publisher_uri .}
+    //        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:publisher ?publisher_uri .}
     //      """)
     //      // REFACTORIZATION: .map { item => item.getOrElse("publisher_uri", "").asInstanceOf[String] }
     //      .map { item => item.getOrElse("publisher_uri", "").toString() }
@@ -178,7 +178,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?publisher_uri
         WHERE {
-          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri a skos:ConceptScheme, dcatapit:Dataset .
           ?voc_uri dct:publisher ?publisher_uri
         }
         """)
@@ -203,7 +203,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?creator_uri
         WHERE {
-          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri a skos:ConceptScheme, dcatapit:Dataset .
           ?voc_uri dct:creator ?creator_uri
         }
         """)
@@ -222,7 +222,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     //        PREFIX dct: <http://purl.org/dc/terms/>
     //        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     //        SELECT *
-    //        WHERE { ?uri a skos:ConceptScheme . ?uri dct:rightsHolder ?holder_uri .}
+    //        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:rightsHolder ?holder_uri .}
     //      """)
     //      // REFACTORIZATION: .map { item => item.getOrElse("holder_uri", "").asInstanceOf[String] }
     //      .map { item => item.getOrElse("holder_uri", "").toString() }
@@ -237,7 +237,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?rightsHolder_uri
         WHERE {
-          ?voc_uri a skos:ConceptScheme .
+          ?voc_uri a skos:ConceptScheme, dcatapit:Dataset .
           ?voc_uri dct:rightsHolder ?rightsHolder_uri
         }
         """)
@@ -256,7 +256,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?lang  
         WHERE {
-          ?uri a skos:ConceptScheme . 
+          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
           ?uri ?prp ?label . BIND(LANG(?label) AS ?lang) .
         }  
       """)
@@ -270,9 +270,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         SELECT DISTINCT ?license_uri 
         WHERE {
-          ?uri a skos:ConceptScheme . 
+          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
           ?uri dcat:distribution ?distribution . ?distribution dct:license ?license_uri .
         }
       """)
@@ -292,7 +293,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT * 
         WHERE { 
-          ?uri a skos:ConceptScheme . 
+          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
           ?uri owl:versionInfo ?version_info
           BIND(LANG(?version_info) AS ?lang)
         }
@@ -320,9 +321,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_creationDate() = {
     SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?data_creation
-        WHERE { ?uri a skos:ConceptScheme . ?uri dct:issued ?data_creation . }
+        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:issued ?data_creation . }
       """)
       // REFACTORIZATION: .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
       .map { item => item.getOrElse("data_creation", "").toString() }
@@ -332,9 +334,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_lastEditDate() = {
     SPARQL(repo).query("""
         PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT DISTINCT ?date_modified 
-        WHERE { ?uri a skos:ConceptScheme . ?uri dct:modified ?date_modified . }  
+        WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:modified ?date_modified . }  
       """)
       // REFACTORIZATION: .map { item => item.getOrElse("date_modified", "").asInstanceOf[String] }
       .map { item => item.getOrElse("date_modified", "").toString() }
@@ -345,9 +348,10 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     SPARQL(repo).query("""
       PREFIX dcat: <http://www.w3.org/ns/dcat#>
       PREFIX dct: <http://purl.org/dc/terms/>
+      PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
       SELECT DISTINCT ?keyword ?lang 
-      WHERE { ?uri a skos:ConceptScheme . ?uri dcat:keyword ?keyword . BIND(LANG(?keyword) AS ?lang) } 
+      WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dcat:keyword ?keyword . BIND(LANG(?keyword) AS ?lang) } 
     """)
       .map { item =>
         /*REFACTORIZATION
@@ -364,11 +368,12 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
   def parse_dcat_themes() = {
     SPARQL(repo).query("""
       PREFIX dcat: <http://www.w3.org/ns/dcat#>
-      PREFIX dct: <http://purl.org/dc/terms/>
+      PREFIX dct: <http://purl.org/dc/terms/> 
+      PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
       SELECT DISTINCT ?theme 
       WHERE { 
-        ?uri a skos:ConceptScheme . ?uri dcat:theme ?theme .
+        ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dcat:theme ?theme .
       } 
     """)
       // REFACTORIZATION: .map { item => item.getOrElse("theme", "").asInstanceOf[String] }
@@ -383,10 +388,11 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
 
   def parse_dct_subthemes() = {
     SPARQL(repo).query("""
-      PREFIX dct: <http://purl.org/dc/terms/>
+      PREFIX dct: <http://purl.org/dc/terms/> 
+      PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
       PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
       SELECT DISTINCT ?subject  
-      WHERE { ?uri a skos:ConceptScheme . ?uri dct:subject ?subject . } 
+      WHERE { ?uri a skos:ConceptScheme, dcatapit:Dataset . ?uri dct:subject ?subject . } 
     """)
       // REFACTORIZATION: .map { item => item.getOrElse("subject", "").asInstanceOf[String] }
       .map { item => item.getOrElse("subject", "").toString() }
@@ -409,7 +415,7 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
      SELECT DISTINCT ?distribution ?uri
      #FROM <test://accommodation-star-rating>
      WHERE {
-       ?uri a skos:ConceptScheme .
+       ?uri a skos:ConceptScheme, dcatapit:Dataset .
        ?uri dcat:distribution ?distribution .
      }
     """)
@@ -429,7 +435,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
-        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dct: <http://purl.org/dc/terms/> 
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
         WHERE {
           ?distribution a dcatapit:Distribution .
@@ -457,7 +464,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
-        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dct: <http://purl.org/dc/terms/> 
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
         WHERE {
           ?distribution a dcatapit:Distribution .
@@ -479,7 +487,8 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
     val list = SPARQL(repo).query(s"""
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
-        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX dct: <http://purl.org/dc/terms/> 
+        PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#> 
         SELECT DISTINCT *
         WHERE {
           ?distribution a dcatapit:Distribution .
