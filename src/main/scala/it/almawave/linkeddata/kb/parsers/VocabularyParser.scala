@@ -127,8 +127,12 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         SELECT DISTINCT * 
         WHERE { 
           ?uri a skos:ConceptScheme, dcatapit:Dataset . 
-          OPTIONAL { ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
-          OPTIONAL { ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) } 
+          ?uri dct:title ?label . BIND(LANG(?label) AS ?lang)
+          #OPTIONAL {
+            #{ ?uri dct:title ?label . BIND(LANG(?label) AS ?lang) }
+            #UNION
+            #{ ?uri rdfs:label ?label . BIND(LANG(?label) AS ?lang) }
+          #}
         }
         """)
       .map { item =>
@@ -239,10 +243,17 @@ class VocabularyParser(repo: Repository, rdf_source: URL) {
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX dcatapit: <http://dati.gov.it/onto/dcatapit#>
         SELECT DISTINCT ?lang  
+        #WHERE {
+        #  ?uri a skos:ConceptScheme, dcatapit:Dataset .
+        #  ?uri ?prp ?label . BIND(LANG(?label) AS ?lang) .
+        #}
         WHERE {
-          ?uri a skos:ConceptScheme, dcatapit:Dataset . 
-          ?uri ?prp ?label . BIND(LANG(?label) AS ?lang) .
-        }  
+          ?uri ?prp ?label .
+          BIND(LANG(?label) AS ?lang) .
+          FILTER ( datatype(?lang) = xsd:string)
+          FILTER(?lang != '')
+        }
+        ORDER BY ?lang
       """)
       // REFACTORIZATION: .map { item => item.getOrElse("lang", "").asInstanceOf[String] }
       .map { item => item.getOrElse("lang", "").toString() }
