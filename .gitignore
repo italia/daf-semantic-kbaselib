@@ -5,6 +5,8 @@
 .cache-main
 .cache-tests
 .settings/
+.idea/
+out/
 
 bin/
 target/
