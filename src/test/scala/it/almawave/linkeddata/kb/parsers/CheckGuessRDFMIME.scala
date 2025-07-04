@@ -11,7 +11,7 @@ class GuessRDFMIMETest {
   def testing() {
 
     val urls = Array(
-      ("TURTLE", new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/classifications-for-public-services/channel/channel.ttl")),
+      ("TURTLE", new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/classifications-for-public-services/channel/channel.ttl")),
       ("TURTLE", new URL("http://www.w3.org/2000/01/rdf-schema")),
       ("RDF/XML", new URL("http://dati.gov.it/onto/clvapit#")))
 

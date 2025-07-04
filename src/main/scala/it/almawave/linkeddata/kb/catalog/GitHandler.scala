@@ -23,7 +23,7 @@ object MainGitHandler extends App {
     git {
     	synchronize: true
     	remote.name: "daf-ontologie"
-    	remote.uri: "https://github.com/italia/daf-ontologie-vocabolari-controllati/"
+    	remote.uri: "https://github.com/italia/dati-semantic-assets/"
     	local.path: "D://DAF_ontologie-vocabolari-controllati"
     }
   """).getConfig("git")

@@ -33,10 +33,10 @@ object TestingFederationFiles extends App {
   // CHECK: repository manager
 
   val urls = List(
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/poi-category-classification/poi-category-classification.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CLV/latest/CLV-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/POI/latest/POI-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/l0/latest/l0-AP_IT.ttl")
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/poi-category-classification/poi-category-classification.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CLV/latest/CLV-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/POI/latest/POI-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/l0/latest/l0-AP_IT.ttl")
     .map(new URL(_))
 
   val federation = new Federation
