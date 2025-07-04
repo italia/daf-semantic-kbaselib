@@ -44,7 +44,7 @@
 //
 //object MainRDFFileSail extends App {
 //
-//  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
+//  val url = new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
 //
 //  val source_sail = new RDFFileSail(url)
 //

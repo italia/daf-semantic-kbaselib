@@ -14,7 +14,7 @@ import it.almawave.linkeddata.kb.file.RDFFileSail
  */
 object WorkingSolrExample extends App {
 
-  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CLV/latest/CLV-AP_IT.ttl")
+  val url = new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CLV/latest/CLV-AP_IT.ttl")
 
   val DATA_DIR = new File("target/solr/data")
 

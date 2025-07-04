@@ -231,10 +231,10 @@
       "@id": "http://dati.gov.it/data/resource/Distribution/SexVoc_XLSX",
       "@type": "dcatapit:Distribution",
       "dcat:accessURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/tree/master/VocabolariControllati/classifications-for-people/sex"
+        "@id": "https://github.com/italia/dati-semantic-assets/tree/master/VocabolariControllati/classifications-for-people/sex"
       },
       "dcat:downloadURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/raw/master/VocabolariControllati/classifications-for-people/sex/sex.xlsx"
+        "@id": "https://github.com/italia/dati-semantic-assets/raw/master/VocabolariControllati/classifications-for-people/sex/sex.xlsx"
       },
       "dct:description": [
         {
@@ -283,10 +283,10 @@
       "@id": "http://dati.gov.it/data/resource/Distribution/SexVoc_RDF_XML",
       "@type": "dcatapit:Distribution",
       "dcat:accessURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/tree/master/VocabolariControllati/classifications-for-people/sex"
+        "@id": "https://github.com/italia/dati-semantic-assets/tree/master/VocabolariControllati/classifications-for-people/sex"
       },
       "dcat:downloadURL": {
-        "@id": "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/classifications-for-people/sex/sex.rdf"
+        "@id": "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/classifications-for-people/sex/sex.rdf"
       },
       "dct:description": [
         {
@@ -415,10 +415,10 @@
       "@id": "http://dati.gov.it/data/resource/Distribution/SexVoc_CSV",
       "@type": "dcatapit:Distribution",
       "dcat:accessURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/tree/master/VocabolariControllati/classifications-for-people/sex"
+        "@id": "https://github.com/italia/dati-semantic-assets/tree/master/VocabolariControllati/classifications-for-people/sex"
       },
       "dcat:downloadURL": {
-        "@id": "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/classifications-for-people/sex/sex.csv"
+        "@id": "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/classifications-for-people/sex/sex.csv"
       },
       "dct:description": [
         {
@@ -607,10 +607,10 @@
       "@id": "http://dati.gov.it/data/resource/Distribution/SexVoc_RDF_Turtle",
       "@type": "dcatapit:Distribution",
       "dcat:accessURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/tree/master/VocabolariControllati/classifications-for-people/sex"
+        "@id": "https://github.com/italia/dati-semantic-assets/tree/master/VocabolariControllati/classifications-for-people/sex"
       },
       "dcat:downloadURL": {
-        "@id": "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/classifications-for-people/sex/sex.ttl"
+        "@id": "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/classifications-for-people/sex/sex.ttl"
       },
       "dct:description": [
         {
@@ -651,10 +651,10 @@
       "@id": "http://dati.gov.it/data/resource/Distribution/SexVoc_JSON_LD",
       "@type": "dcatapit:Distribution",
       "dcat:accessURL": {
-        "@id": "https://github.com/italia/daf-ontologie-vocabolari-controllati/tree/master/VocabolariControllati/classifications-for-people/sex"
+        "@id": "https://github.com/italia/dati-semantic-assets/tree/master/VocabolariControllati/classifications-for-people/sex"
       },
       "dcat:downloadURL": {
-        "@id": "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/classifications-for-people/sex/sex.jsonld"
+        "@id": "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/classifications-for-people/sex/sex.jsonld"
       },
       "dct:description": [
         {
