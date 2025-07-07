@@ -12,7 +12,7 @@ import it.almawave.linkeddata.kb.catalog.VocabularyBox
  */
 object MainVocabularyBoxParser extends App {
 
-  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/licences/licences.ttl")
+  val url = new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/licences/licences.ttl")
   println(s"\n\nextracting informations from\n${url}\n...")
 
   val box = VocabularyBox.parse(url)

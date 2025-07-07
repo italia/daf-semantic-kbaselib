@@ -85,7 +85,7 @@ object ExampleRepositoryManager extends App {
   val repo_01 = manager.getRepository("REPO_01")
   val conn_01 = repo_01.getConnection
 
-  val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioniPerServiziPubblici/CanaliErogazione/Channel.ttl")
+  val url = new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/ClassificazioniPerServiziPubblici/CanaliErogazione/Channel.ttl")
   conn_01.add(
     url.openStream(),
     "", RDFFormat.TURTLE)

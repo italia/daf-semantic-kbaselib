@@ -13,7 +13,7 @@ import it.almawave.linkeddata.kb.utils.JSONHelper
  */
 object MainOntologyBoxParser extends App {
 
-  //val url = new URL("https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
+  //val url = new URL("https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/Organizzazioni/latest/COV-AP_IT.ttl")
 
   val fileRdf = Paths.get("c:/Users/a.mauro/IdeaProjects/katalod/ontologie-vocabolari-controllati/Ontologie/ADMS/latest/ADMS-AP_IT.rdf").toString
   val fileQuerySparql = Paths.get("C:/Users/a.mauro/IdeaProjects/katalod/conf/query/skos/hierarchyOneLevel.sparql").toFile

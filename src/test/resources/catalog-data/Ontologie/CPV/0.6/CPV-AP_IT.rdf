@@ -434,8 +434,8 @@
     <dct:title xml:lang="en">RDF/XML distribution of CPV-AP_IT Ontology</dct:title>
     <dct:license rdf:resource="https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest/CPV-AP_IT.rdf"/>
-    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest"/>
+    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest/CPV-AP_IT.rdf"/>
+    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest"/>
     <dct:title xml:lang="it">Distribuzione RDF/XML ontologia CPV-AP_IT</dct:title>
     <dct:format rdf:resource="http://publications.europa.eu/resource/authority/file-type/RDF_XML"/>
   </rdf:Description>
@@ -601,13 +601,13 @@
     <rdfs:isDefinedBy rdf:resource="https://w3id.org/italia/onto/CPV/"/>
   </rdf:Description>
   <rdf:Description rdf:about="https://w3id,org/italia/data/distribution/CPVAPIT-JSON-LD">
-    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest"/>
+    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest"/>
     <dct:description xml:lang="it">Questa è la distribuzione JSON-LD dell'ontologia delle Persone</dct:description>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
     <dct:title xml:lang="it">Distribuzione JSON-LD ontologia CPV-AP_IT</dct:title>
     <rdf:type rdf:resource="https://w3id.org/italia/onto/ADMS/SemanticAssetDistribution"/>
     <dct:description xml:lang="en">This is the distribution in JSON-LD of the persons ontology</dct:description>
-    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest/CPV-AP_IT.jsonld"/>
+    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest/CPV-AP_IT.jsonld"/>
     <dct:format rdf:resource="http://publications.europa.eu/resource/authority/file-type/JSON_LD"/>
     <dct:license rdf:resource="https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40"/>
     <dct:title xml:lang="en">JSON-LD distribution of CPV-AP_IT Ontology</dct:title>
@@ -992,10 +992,10 @@
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
     <dct:format rdf:resource="http://publications.europa.eu/resource/authority/file-type/RDF_TURTLE"/>
     <dct:title xml:lang="en">RDF/Turtle distribution of CPV-AP_IT Ontology</dct:title>
-    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest/CPV-AP_IT.ttl"/>
+    <dcat:downloadURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest/CPV-AP_IT.ttl"/>
     <dct:description xml:lang="it">Questa è la distribuzione RDF/Turtle dell'ontologia delle persone</dct:description>
     <rdf:type rdf:resource="https://w3id.org/italia/onto/ADMS/SemanticAssetDistribution"/>
-    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/CPV/latest"/>
+    <dcat:accessURL rdf:resource="https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/CPV/latest"/>
     <dct:title xml:lang="it">Distribuzione RDF/Turtle ontologia CPV-AP_IT</dct:title>
   </rdf:Description>
   <rdf:Description rdf:about="https://w3id.org/italia/onto/CPV/RegisteredFamily">

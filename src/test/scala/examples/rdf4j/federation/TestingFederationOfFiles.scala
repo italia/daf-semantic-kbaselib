@@ -25,10 +25,10 @@ import it.almawave.linkeddata.kb.file.RDFFileSail
 object TestingFederationOfFiles extends App {
 
   val urls = List(
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/VocabolariControllati/ClassificazioneCategoriePuntoInteresse/POICategoryClassification.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
-    "https://raw.githubusercontent.com/italia/daf-ontologie-vocabolari-controllati/master/Ontologie/Livello0/latest/l0.ttl")
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/VocabolariControllati/ClassificazioneCategoriePuntoInteresse/POICategoryClassification.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/IndirizziLuoghi/latest/CLV-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/PuntoDiInteresse/latest/POI-AP_IT.ttl",
+    "https://raw.githubusercontent.com/italia/dati-semantic-assets/master/Ontologie/Livello0/latest/l0.ttl")
     .map(new URL(_))
 
   val federation = new Federation
